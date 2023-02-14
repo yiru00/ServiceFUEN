@@ -24,6 +24,7 @@
     <Folder Include="Models\Infrastructures\ExtensionMethods\" />
     <Folder Include="Models\Infrastructures\Repositories\" />
     <Folder Include="Models\Services\Interfaces\" />
+    <Folder Include="Controllers\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,5 +37,6 @@
     <None Remove="Models\Infrastructures\ExtensionMethods\" />
     <None Remove="Models\Infrastructures\Repositories\" />
     <None Remove="Models\Services\Interfaces\" />
+    <None Remove="Controllers\" />
   </ItemGroup>
 </Project>
