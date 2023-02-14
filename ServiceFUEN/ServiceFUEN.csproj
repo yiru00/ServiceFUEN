@@ -8,10 +8,33 @@
 
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.3">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Models\EFModels\" />
+    <Folder Include="Models\DTOs\" />
+    <Folder Include="Models\ViewModels\" />
+    <Folder Include="Models\Infrastructures\" />
+    <Folder Include="Models\Services\" />
+    <Folder Include="Models\Infrastructures\ExtensionMethods\" />
+    <Folder Include="Models\Infrastructures\Repositories\" />
+    <Folder Include="Models\Services\Interfaces\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Microsoft.EntityFrameworkCore.SqlServer" />
+    <None Remove="Microsoft.EntityFrameworkCore.Tools" />
+    <None Remove="Models\DTOs\" />
+    <None Remove="Models\ViewModels\" />
+    <None Remove="Models\Infrastructures\" />
+    <None Remove="Models\Services\" />
+    <None Remove="Models\Infrastructures\ExtensionMethods\" />
+    <None Remove="Models\Infrastructures\Repositories\" />
+    <None Remove="Models\Services\Interfaces\" />
+  </ItemGroup>
 </Project>

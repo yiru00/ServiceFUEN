@@ -1,8 +1,25 @@
+using Microsoft.EntityFrameworkCore;
+using ServiceFUEN.Models.EFModels;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+var ProjectFUENconnectionString = builder.Configuration.GetConnectionString("azure") ?? throw new InvalidOperationException("Connection string 'azure' not found.");
+builder.Services.AddDbContext<ProjectFUENContext>(options =>
+    options.UseSqlServer(ProjectFUENconnectionString));
+
 builder.Services.AddControllers();
+
+string MyAllowOrigins = "AllowAny";
+builder.Services.AddCors(options => {
+    options.AddPolicy(
+            name: MyAllowOrigins,
+            policy => policy.WithOrigins("*")
+            .WithHeaders("*")
+            .WithMethods("*"));
+});
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -16,6 +33,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
