@@ -14,8 +14,6 @@ namespace ServiceFUEN.Controllers
 {
 
     [EnableCors("AllowAny")]
-    //[Route("api/[controller]")]
-    //[ApiController]
     public class ActivityController : Controller
     {
         private readonly ProjectFUENContext _context;
