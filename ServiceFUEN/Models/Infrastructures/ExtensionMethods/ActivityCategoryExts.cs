@@ -4,19 +4,13 @@ namespace ServiceFUEN.Models.ViewModels
 {
     public static partial class ActivityExts
     {
-        public static ActivityVM toActivityVM(this Activity source)
+        public static ActivityCategoryVM toActivityCategoryVM(this ActivityCategory source)
         {
-            return new ActivityVM
+            return new ActivityCategoryVM
             {
-                ActivityId = source.Id,
-                CoverImage = source.CoverImage,
-                ActivityName = source.ActivityName,
-                Address = source.Address,
-                CategoryName = source.Category.CategoryName,
-                GatheringTime = source.GatheringTime,
-                NumOfEnrolment = source.ActivityMembers.Count,
-                NumOfCollections = source.ActivityCollections.Count,
-                EnrolmentRate = source.ActivityMembers.Count / source.MemberLimit
+                Id=source.Id,
+                CategoryName=source.CategoryName,
+                DisplayOrder=source.DisplayOrder
             };
         }
     }

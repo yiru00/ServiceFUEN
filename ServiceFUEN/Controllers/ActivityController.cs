@@ -15,7 +15,7 @@ namespace ServiceFUEN.Controllers
 
     [EnableCors("AllowAny")]
     //[Route("api/[controller]")]
-   // [ApiController]
+    //[ApiController]
     public class ActivityController : Controller
     {
         private readonly ProjectFUENContext _context;
@@ -25,46 +25,133 @@ namespace ServiceFUEN.Controllers
             _context = context;
         }
 
-        // GET: api/Activity/NewActivity
+        // GET: api/Activity/New
+        //取得所有未舉辦的活動（集合日期大於現在），並按照活動建立日期大到小排序
         [HttpGet]
-        [Route("api/Activity/NewActivity")]
-        public IEnumerable<ActivityVM> NewActivity()
+        [Route("api/Activity/New")]
+        public IEnumerable<ActivityVM> New()
         {
-            var projectFUENContext = _context.Activities.Include(a=>a.Category).Include(a => a.ActivityMembers).Include(a => a.ActivityCollections).OrderBy(a=>a.DateOfCreated).Select(a=>a.toActivityVM());
+            var projectFUENContext = _context.Activities
+                .Include(a => a.Category)
+                .Include(a => a.ActivityMembers)
+                .Include(a=>a.ActivityCollections)
+                .Where(a=>a.GatheringTime>DateTime.Now)
+                .OrderByDescending(a=>a.DateOfCreated).Select(a=>a.toActivityVM());
 
             return projectFUENContext.ToList();
         }
 
-        // GET api/Activity/PopularActivity
+        // GET api/Activity/Popular
+        //取得所有未舉辦的活動（集合日期大於現在），並按照報名率大到小、收藏數排序大到小
         [HttpGet]
-        [Route("api/Activity/PopularActivity")]
-        public ActivityVM PopularActivity()
+        [Route("api/Activity/Popular")]
+        public IEnumerable<ActivityVM> Popular()
         {
-            
+
+            var projectFUENContext = _context.Activities
+                .Include(a => a.Category)
+                .Include(a => a.ActivityMembers)
+                .Include(a => a.ActivityCollections)
+                .Where(a => a.GatheringTime > DateTime.Now)
+                .Select(a => a.toActivityVM()).ToList() //IQueryable查詢字串的條件在ToList()後才會到資料庫撈
+                .OrderByDescending(a => a.EnrolmentRate).ThenByDescending(a => a.NumOfCollections); //orderby是IEnumerable的擴充方法//前面不ToList() orderby就會是IQueryable的擴充方法=>查不到vm裡自訂的欄位
+            return projectFUENContext.ToList();
+
         }
 
+        // GET api/Activity/WillBeHeld
+        //取得所有即將舉辦的（未舉辦）活動  集合日期大到小
+        [HttpGet]
+        [Route("api/Activity/WillBeHeld")]
+        public IEnumerable<ActivityVM> WillBeHeld()
+        {
+
+            var projectFUENContext = _context.Activities
+                .Include(a => a.Category)
+                .Include(a => a.ActivityMembers)
+                .Include(a => a.ActivityCollections)
+                .Where(a => a.GatheringTime > DateTime.Now)
+                .OrderByDescending(a => a.GatheringTime)
+                .Select(a => a.toActivityVM());
+                
+            return projectFUENContext.ToList();
+
+        }
+
+        // GET api/Activity/SameCategory
+        //取得某分類未舉辦活動，按收藏數大到小排
+        [HttpGet]
+        [Route("api/Activity/SameCategory")]
+        public IEnumerable<ActivityVM> SameCategory(int categoryId)
+        {
+
+            var projectFUENContext = _context.Activities
+                .Include(a => a.Category)
+                .Include(a => a.ActivityMembers)
+                .Include(a => a.ActivityCollections)
+                .Where(a => a.GatheringTime > DateTime.Now)
+                .Where(a => a.CategoryId == categoryId)
+                .Select(a => a.toActivityVM()).ToList()
+                .OrderByDescending(a=>a.NumOfCollections);
+
+            return projectFUENContext.ToList();
+
+        }
         // GET api/Activity/Search
+        //依照搜尋條件取得所有未舉辦的活動 按活動建立日期小到大排
         [HttpGet]
         [Route("api/Activity/Search")]
-        public ActivityVM Search(string activity,string address,DateTime time)
+        public IEnumerable<ActivityVM> Search(string activityName,int categoryId,string address,DateTime time)
         {
+
+            var projectFUENContext = _context.Activities
+                .Include(a => a.Category)
+                .Include(a => a.ActivityMembers)
+                .Include(a => a.ActivityCollections)
+                .Where(a => a.GatheringTime > time); //前端預設一定是大於今天（now）
             
+
+            if (!string.IsNullOrEmpty(activityName))
+            {
+                projectFUENContext=projectFUENContext.Where(a => a.ActivityName.Contains(activityName));
+            }else if (!string.IsNullOrEmpty(address))
+            {
+                projectFUENContext=projectFUENContext.Where(a => a.Address.Contains(address));
+            }
+            else if (categoryId!=0)//數字沒值預設是0
+            {
+                projectFUENContext = projectFUENContext.Where(a => a.CategoryId==categoryId);
+            }
+            else {
+                return projectFUENContext.Select(a => a.toActivityVM()).ToList().OrderBy(a=>a.DateOfCreated);
+            }
+
+            return projectFUENContext.Select(a => a.toActivityVM()).ToList();
         }
 
-        // GET api/Activity/Details
+        //GET api/Activity/Details
+        //搜尋某個活動//找不到會回傳所有欄位都是null
         [HttpGet]
         [Route("api/Activity/Details")]
-        public ActivityCategoryVM Details(int activityId)
+         public ActivityDetailsVM Details(int activityId)
         {
-            
+            var projectFUENContext = _context.Activities
+                .Include(a => a.Category)
+                .Include(a => a.ActivityMembers)
+                .Include(a => a.Instructor)
+                .Include(a => a.ActivityCollections)
+                .FirstOrDefault(a => a.Id == activityId).toActivityDetailsVM();
+            return projectFUENContext;
         }
 
-        // GET api/Activity/Details
+        // GET api/Activity/Category
+        //取得活動類型分類，照自訂順序排列
         [HttpGet]
         [Route("api/Activity/Category")]
-        public ActivityCategoryVM Category()
+        public IEnumerable<ActivityCategoryVM> Category()
         {
-            
+            var projectFUENContext = _context.ActivityCategories.OrderBy(a=>a.DisplayOrder).Select(a=>a.toActivityCategoryVM());
+            return projectFUENContext.ToList();
         }
     }
 }

@@ -10,6 +10,8 @@ namespace ServiceFUEN.Models.ViewModels
         public string Address { get; set; }
         public string CategoryName { get; set; }
         public DateTime GatheringTime { get; set; }
+        public DateTime Deadline { get; set; }
+        public DateTime DateOfCreated { get; set; }
         public int NumOfEnrolment { get; set; }
         public int NumOfCollections { get; set; }
         public decimal EnrolmentRate { get; set; }
