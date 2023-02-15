@@ -1,11 +1,11 @@
 ﻿using System;
 namespace ServiceFUEN.Models.ViewModels
 {
-	public class EnrollReqVM
+	public class EnrollResVM
 	{
 		
-		public int MemberId { get; set; }
-		public int ActivityId { get; set; }
+		public bool result  { get; set; }
+		public string message { get; set; }
 
 	}
 }

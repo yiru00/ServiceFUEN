@@ -14,6 +14,7 @@ namespace ServiceFUEN.Controllers
 {
 
     [EnableCors("AllowAny")]
+    [ApiController]
     public class ActivityController : Controller
     {
         private readonly ProjectFUENContext _context;
@@ -34,7 +35,7 @@ namespace ServiceFUEN.Controllers
                 .Include(a => a.ActivityMembers)
                 .Include(a=>a.ActivityCollections)
                 .Where(a=>a.GatheringTime>DateTime.Now)
-                .OrderByDescending(a=>a.DateOfCreated).Select(a=>a.toActivityVM());
+                .OrderByDescending(a=>a.DateOfCreated).Select(a=>a.ToActivityVM());
 
             return projectFUENContext.ToList();
         }
@@ -51,7 +52,7 @@ namespace ServiceFUEN.Controllers
                 .Include(a => a.ActivityMembers)
                 .Include(a => a.ActivityCollections)
                 .Where(a => a.GatheringTime > DateTime.Now)
-                .Select(a => a.toActivityVM()).ToList() //IQueryable查詢字串的條件在ToList()後才會到資料庫撈
+                .Select(a => a.ToActivityVM()).ToList() //IQueryable查詢字串的條件在ToList()後才會到資料庫撈
                 .OrderByDescending(a => a.EnrolmentRate).ThenByDescending(a => a.NumOfCollections); //orderby是IEnumerable的擴充方法//前面不ToList() orderby就會是IQueryable的擴充方法=>查不到vm裡自訂的欄位
             return projectFUENContext.ToList();
 
@@ -70,7 +71,7 @@ namespace ServiceFUEN.Controllers
                 .Include(a => a.ActivityCollections)
                 .Where(a => a.GatheringTime > DateTime.Now)
                 .OrderByDescending(a => a.GatheringTime)
-                .Select(a => a.toActivityVM());
+                .Select(a => a.ToActivityVM());
                 
             return projectFUENContext.ToList();
 
@@ -89,7 +90,7 @@ namespace ServiceFUEN.Controllers
                 .Include(a => a.ActivityCollections)
                 .Where(a => a.GatheringTime > DateTime.Now)
                 .Where(a => a.CategoryId == categoryId)
-                .Select(a => a.toActivityVM()).ToList()
+                .Select(a => a.ToActivityVM()).ToList()
                 .OrderByDescending(a=>a.NumOfCollections);
 
             return projectFUENContext.ToList();
@@ -121,10 +122,10 @@ namespace ServiceFUEN.Controllers
                 projectFUENContext = projectFUENContext.Where(a => a.CategoryId==categoryId);
             }
             else {
-                return projectFUENContext.Select(a => a.toActivityVM()).ToList().OrderBy(a=>a.DateOfCreated);
+                return projectFUENContext.Select(a => a.ToActivityVM()).ToList().OrderBy(a=>a.DateOfCreated);
             }
 
-            return projectFUENContext.Select(a => a.toActivityVM()).ToList();
+            return projectFUENContext.Select(a => a.ToActivityVM()).ToList();
         }
 
         //GET api/Activity/Details
@@ -138,7 +139,7 @@ namespace ServiceFUEN.Controllers
                 .Include(a => a.ActivityMembers)
                 .Include(a => a.Instructor)
                 .Include(a => a.ActivityCollections)
-                .FirstOrDefault(a => a.Id == activityId).toActivityDetailsVM();
+                .FirstOrDefault(a => a.Id == activityId).ToActivityDetailsVM();
             return projectFUENContext;
         }
 
@@ -148,7 +149,7 @@ namespace ServiceFUEN.Controllers
         [Route("api/Activity/Category")]
         public IEnumerable<ActivityCategoryVM> Category()
         {
-            var projectFUENContext = _context.ActivityCategories.OrderBy(a=>a.DisplayOrder).Select(a=>a.toActivityCategoryVM());
+            var projectFUENContext = _context.ActivityCategories.OrderBy(a=>a.DisplayOrder).Select(a=>a.ToActivityCategoryVM());
             return projectFUENContext.ToList();
         }
     }

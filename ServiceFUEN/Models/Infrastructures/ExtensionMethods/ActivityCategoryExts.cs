@@ -4,7 +4,7 @@ namespace ServiceFUEN.Models.ViewModels
 {
     public static partial class ActivityExts
     {
-        public static ActivityCategoryVM toActivityCategoryVM(this ActivityCategory source)
+        public static ActivityCategoryVM ToActivityCategoryVM(this ActivityCategory source)
         {
             return new ActivityCategoryVM
             {

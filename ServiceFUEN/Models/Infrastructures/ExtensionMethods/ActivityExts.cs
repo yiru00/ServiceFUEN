@@ -4,7 +4,7 @@ namespace ServiceFUEN.Models.ViewModels
 {
     public static partial class ActivityExts
     {
-        public static ActivityVM toActivityVM(this Activity source)
+        public static ActivityVM ToActivityVM(this Activity source)
         {
             return new ActivityVM
             {
@@ -22,7 +22,7 @@ namespace ServiceFUEN.Models.ViewModels
             };
         }
 
-        public static ActivityDetailsVM toActivityDetailsVM(this Activity? source)
+        public static ActivityDetailsVM ToActivityDetailsVM(this Activity? source)
         {
             if (source==null)
             {
