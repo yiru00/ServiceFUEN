@@ -17,7 +17,6 @@
 
   <ItemGroup>
     <Folder Include="Models\EFModels\" />
-    <Folder Include="Models\DTOs\" />
     <Folder Include="Models\Infrastructures\" />
     <Folder Include="Models\Services\" />
     <Folder Include="Models\Infrastructures\ExtensionMethods\" />

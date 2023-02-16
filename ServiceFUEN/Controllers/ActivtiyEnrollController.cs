@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ServiceFUEN.Models.DTOs;
 using ServiceFUEN.Models.EFModels;
 using ServiceFUEN.Models.Infrastructures.ExtensionMethods;
 using ServiceFUEN.Models.ViewModels;
@@ -26,7 +27,7 @@ namespace ServiceFUEN.Controllers
         //報名活動
         [HttpPost]
         [Route("api/ActivtiyEnroll/Enroll")]
-        public  EnrollResVM Enroll(EnrollReqVM enrollReq)
+        public EnrollResVM Enroll(EnrollReqDTO enrollReq)
         {
             //取得要求資料
             int memberId = enrollReq.MemberId;
@@ -113,9 +114,24 @@ namespace ServiceFUEN.Controllers
 
         [HttpDelete]
         [Route("api/ActivtiyEnroll/CancelEnroll")]
-        public EnrollResVM CancelEnroll(int activityMemberId)
+        public CancelEnrollResVM CancelEnroll(int activityMemberId)
         {
-            return new EnrollResVM();
+            var enrollRes = new CancelEnrollResVM();
+            enrollRes.result = false;
+            var activityMember = _context.ActivityMembers.Find(activityMemberId);
+            //判斷是否有報名資料
+            if (activityMember != null)//有該資料
+            {
+                _context.ActivityMembers.Remove(activityMember);
+                _context.SaveChanges();
+                enrollRes.result = true;
+                enrollRes.message = "取消成功";
+            }
+            else
+            {
+                enrollRes.message = "會員未報名該活動";
+            }
+            return enrollRes;
         }
     
     }
