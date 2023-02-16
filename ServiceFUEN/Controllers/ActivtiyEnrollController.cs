@@ -26,7 +26,7 @@ namespace ServiceFUEN.Controllers
         //報名活動
         [HttpPost]
         [Route("api/ActivtiyEnroll/Enroll")]
-        public EnrollResVM Enroll(EnrollReqVM enrollReq)
+        public  EnrollResVM Enroll(EnrollReqVM enrollReq)
         {
             //取得要求資料
             int memberId = enrollReq.MemberId;
@@ -47,7 +47,7 @@ namespace ServiceFUEN.Controllers
                 {
 
                     //會員是否通過實名驗證（抓手機有沒有填就好）
-                    if (_context.Members.Find(memberId).Mobile != null) //有填
+                    if (member.Mobile != null) //有填
                     {
                         //該會員是否報名過？
                         var isEnrolled = _context.ActivityMembers.Where(a => a.ActivityId == activityId).FirstOrDefault(a => a.MemberId == memberId);
@@ -66,9 +66,12 @@ namespace ServiceFUEN.Controllers
                                 //活動是否額滿?
                                 if (memberLimit > numOfEnrolment)//未額滿（限制人數>報名人數）
                                 {
-                                    enrollRes.result = true;
+                                   //報名(新增一筆活動成員)
                                     _context.ActivityMembers.Add(enrollReq.ToActivityMemberEntity());
-                                    _context.SaveChangesAsync();
+                                    _context.SaveChanges();
+                                    enrollRes.message = "報名成功";
+                                    enrollRes.result = true;
+                                    
                                 }
                                 else //已額滿
                                 {
@@ -101,9 +104,19 @@ namespace ServiceFUEN.Controllers
             {
                 enrollRes.message = "會員不存在";
             }
-           
-            
+
+            //找到該會員在該活動的報名ID(之後拿來刪除用)
+            int activityMemberId = _context.ActivityMembers.Where(a => a.ActivityId == activityId).Where(a => a.MemberId == memberId).ToList()[0].Id;
+            enrollRes.deleteId = activityMemberId;
             return enrollRes; 
         }
+
+        [HttpDelete]
+        [Route("api/ActivtiyEnroll/CancelEnroll")]
+        public EnrollResVM CancelEnroll(int activityMemberId)
+        {
+            return new EnrollResVM();
+        }
+    
     }
 }
