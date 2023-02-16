@@ -107,9 +107,6 @@ namespace ServiceFUEN.Controllers
                 enrollRes.message = "會員不存在";
             }
 
-            //找到該會員在該活動的報名ID(之後拿來刪除用)
-            int activityMemberId = _context.ActivityMembers.Where(a => a.ActivityId == activityId).FirstOrDefault(a => a.MemberId == memberId).Id;
-            enrollRes.deleteId = activityMemberId;
             return enrollRes;
         }
 
@@ -137,7 +134,7 @@ namespace ServiceFUEN.Controllers
 
         [HttpPost]
         [Route("api/ActivityEnroll/EnrollStatus")]
-        //前台顯示活動的四種可能情況(已截止/已額滿/可報名/已報名(若沒傳memberId進來就不會走到這步判斷))
+        //前台顯示活動的四種可能情況(已截止/已額滿/可報名/已報名(若沒傳memberId（=0）進來就不會走到這步判斷))
         public EnrollStatusResVM EnrollStatus(EnrollReqDTO enrollReq)
         {
             //取得要求資料
@@ -202,5 +199,6 @@ namespace ServiceFUEN.Controllers
             }
             return enrollStatusRes;
         }
+
     }
 }
