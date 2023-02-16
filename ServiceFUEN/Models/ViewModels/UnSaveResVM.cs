@@ -2,7 +2,7 @@
 
 namespace ServiceFUEN.Models.ViewModels
 {
-    public class CancelEnrollResVM
+    public class UnSaveResVM
     {
 
         public bool result { get; set; }

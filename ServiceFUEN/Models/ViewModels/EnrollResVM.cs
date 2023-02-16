@@ -7,6 +7,8 @@ namespace ServiceFUEN.Models.ViewModels
 
         public bool result { get; set; }
         public string message { get; set; }
+        public string memberRealName { get; set; }
+        public string mobile { get; set; }
     }
 }
 

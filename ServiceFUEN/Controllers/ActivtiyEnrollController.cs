@@ -71,9 +71,11 @@ namespace ServiceFUEN.Controllers
                                     //報名(新增一筆活動成員)
                                     _context.ActivityMembers.Add(enrollReq.ToActivityMemberEntity());
                                     _context.SaveChanges();
+                                    
                                     enrollRes.message = "報名成功";
                                     enrollRes.result = true;
-
+                                    enrollRes.memberRealName = member.RealName;
+                                    enrollRes.mobile = member.Mobile;
                                 }
                                 else //已額滿
                                 {

@@ -6,16 +6,27 @@ using ServiceFUEN.Models.ViewModels;
 namespace ServiceFUEN.Models.Infrastructures.ExtensionMethods
 {
 	
-    public static partial class SaveReqVMExts
+    public static partial class QnAReqVMExts
     {
-        public static ActivityCollection ToActivityCollectionEntity(this SaveReqDTO source)
+        public static QnAResVM ToQnAResVM(this Question source)
         {
-            return new ActivityCollection
+            return new QnAResVM()
             {
-                UserId = source.MemberId,
-                ActivityId=source.ActivityId
+                activityId = source.ActivityId,
+                QId = source.Id,
+                QContent = source.Content,
+                QDateCreated = source.DateCreated,
+                MemberId = source.Member.Id,
 
+                NickName = source.Member.NickName,
+                PhotoSticker = source.Member.PhotoSticker,
+
+                //一個問題只會有一個答案
+                AId = source.Answers.FirstOrDefault().Id,
+                AContent = source.Answers.FirstOrDefault().Content,
+                ADateCreated = source.Answers.FirstOrDefault().DateCreated
             };
+    
         }
     }
 

@@ -2,7 +2,7 @@
 
 namespace ServiceFUEN.Models.DTOs
 {
-    public class EnrollReqDTO
+    public class SaveReqDTO
 
     {
 
