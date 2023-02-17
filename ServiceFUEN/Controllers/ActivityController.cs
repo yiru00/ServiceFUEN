@@ -80,7 +80,7 @@ namespace ServiceFUEN.Controllers
         // GET api/Activity/SameCategory
         //取得某分類未舉辦活動，按收藏數大到小排
         [HttpGet]
-        [Route("api/Activity/SameCategory")]
+        [Route("api/Activity/SameCategory/{categoryId}")]
         public IEnumerable<ActivityVM> SameCategory(int categoryId)
         {
 

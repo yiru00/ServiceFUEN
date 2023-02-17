@@ -113,7 +113,7 @@ namespace ServiceFUEN.Controllers
         }
 
         [HttpDelete]
-        [Route("api/ActivtiyEnroll/CancelEnroll{activityMemberId}")]
+        [Route("api/ActivtiyEnroll/CancelEnroll/{activityMemberId}")]
         public CancelEnrollResVM CancelEnroll(int activityMemberId)
         {
             var enrollRes = new CancelEnrollResVM();
