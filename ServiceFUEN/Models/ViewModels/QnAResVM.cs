@@ -13,9 +13,9 @@ namespace ServiceFUEN.Models.ViewModels
         public int MemberId { get; set; }
 
         
-        public int AId { get; set; }
-        public string AContent { get; set; }
-        public DateTime ADateCreated { get; set; }
+        public int? AId { get; set; }
+        public string? AContent { get; set; }
+        public DateTime? ADateCreated { get; set; }
     }
 }
 

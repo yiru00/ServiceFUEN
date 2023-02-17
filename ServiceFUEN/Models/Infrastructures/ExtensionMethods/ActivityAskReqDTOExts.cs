@@ -6,14 +6,15 @@ using ServiceFUEN.Models.ViewModels;
 namespace ServiceFUEN.Models.Infrastructures.ExtensionMethods
 {
 	
-    public static partial class SaveReqVMExts
+    public static partial class ActivityAskReqDTOExts
     {
-        public static ActivityCollection ToActivityCollectionEntity(this SaveReqDTO source)
+        public static Question ToQuestionEntity(this ActivityAskReqDTO source)
         {
-            return new ActivityCollection
+            return new Question
             {
-                UserId = source.MemberId,
-                ActivityId=source.ActivityId
+                MemberId=source.MemberId,
+                ActivityId=source.ActivityId,
+                Content=source.content
 
             };
         }

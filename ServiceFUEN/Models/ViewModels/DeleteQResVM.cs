@@ -2,7 +2,7 @@
 
 namespace ServiceFUEN.Models.ViewModels
 {
-    public class UnSaveResVM
+    public class DeleteQResVM
     {
 
         public bool result { get; set; }

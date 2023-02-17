@@ -10,6 +10,25 @@ namespace ServiceFUEN.Models.Infrastructures.ExtensionMethods
     {
         public static QnAResVM ToQnAResVM(this Question source)
         {
+            if (source.Answers.FirstOrDefault()==null)
+            {
+                return new QnAResVM()
+                {
+                    activityId = source.ActivityId,
+                    QId = source.Id,
+                    QContent = source.Content,
+                    QDateCreated = source.DateCreated,
+                    MemberId = source.Member.Id,
+
+                    NickName = source.Member.NickName,
+                    PhotoSticker = source.Member.PhotoSticker,
+
+                    //一個問題只會有一個答案
+                    AId = null,
+                    AContent = null,
+                    ADateCreated = null
+                };
+            }
             return new QnAResVM()
             {
                 activityId = source.ActivityId,

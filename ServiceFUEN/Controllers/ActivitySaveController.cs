@@ -155,6 +155,15 @@ namespace ServiceFUEN.Controllers
                 {
                     saveStatusRes.statusId = 2;
                     saveStatusRes.message = "活動已舉辦";
+
+                    //該會員是否收藏過？
+                    var isSaved = _context.ActivityCollections.Where(a => a.ActivityId == activityId).FirstOrDefault(a => a.UserId == memberId);
+                    if (member != null && isSaved != null) //會員有存在 且收藏過（在此活動中的收藏名單有此會員）
+                    {
+                        saveStatusRes.statusId = 5;
+                        saveStatusRes.message = "活動已舉辦且已收藏過";
+                        saveStatusRes.UnSaveId = isSaved.Id;
+                    }
                 }
 
                    

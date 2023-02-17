@@ -1,14 +1,16 @@
-﻿using ServiceFUEN.Models.EFModels;
+﻿using System;
+using ServiceFUEN.Models.EFModels;
+using ServiceFUEN.Models.ViewModels;
 
-namespace ServiceFUEN.Models.ViewModels
+namespace ServiceFUEN.Models.Infrastructures.ExtensionMethods
 {
-    public static partial class ActivityMemberExts
-    {
-        public static EnrollRecordResVM ToEnrollRecordResVM(this ActivityMember source)
+	public static partial class ActivityCollectionExts
+	{
+        public static SaveRecordResVM ToSaveRecordResVM(this ActivityCollection source)
         {
-            return new EnrollRecordResVM
+            return new SaveRecordResVM
             {
-                MemberId = source.MemberId,
+                MemberId = source.UserId,
                 ActivityId = source.ActivityId,
                 CoverImage = source.Activity.CoverImage,
                 ActivityName = source.Activity.ActivityName,
@@ -19,14 +21,11 @@ namespace ServiceFUEN.Models.ViewModels
                 GatheringTime = source.Activity.GatheringTime,
                 Deadline = source.Activity.Deadline,
                 DateOfCreated = source.Activity.DateOfCreated,
-                EnrollId = source.Id,
-                DateJoined = source.DateJoined
+                SaveId = source.Id,
+                DateOfSave = source.DateCreated
             };
 
         }
-
-        
-
     }
 }
 

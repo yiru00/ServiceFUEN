@@ -14,6 +14,8 @@ namespace ServiceFUEN.Models.ViewModels
         //statusId=2 message="活動已舉辦"
         //statusId=3 message="可收藏"
         //statusId=4 message="已收藏過"
+        //statusId=5 message="已舉辦且已收藏過"
+
 
     }
 }

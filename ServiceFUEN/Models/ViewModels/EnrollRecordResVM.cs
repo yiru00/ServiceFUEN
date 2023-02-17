@@ -1,7 +1,7 @@
 ﻿using System;
 namespace ServiceFUEN.Models.ViewModels
 {
-	public class SaveRecordResVM
+	public class EnrollRecordResVM
     {
         public int MemberId { get; set; }
         public int ActivityId { get; set; }
@@ -15,8 +15,8 @@ namespace ServiceFUEN.Models.ViewModels
         public DateTime Deadline { get; set; }
         public DateTime DateOfCreated { get; set; }
 
-        public int SaveId { get; set; }
-        public DateTime DateOfSave { get; set; }
+        public int EnrollId { get; set; }
+        public DateTime DateJoined { get; set; }
     }
 }
 
