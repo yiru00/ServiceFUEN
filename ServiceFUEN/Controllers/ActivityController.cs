@@ -100,26 +100,34 @@ namespace ServiceFUEN.Controllers
         //依照搜尋條件取得所有未舉辦的活動 按活動建立日期小到大排
         [HttpGet]
         [Route("api/Activity/Search")]
-        public IEnumerable<ActivityVM> Search(string activityName,int categoryId,string address,DateTime time)
+        public IEnumerable<ActivityVM> Search(string? activityName,int? categoryId,string? address,DateTime? time)
         {
+            var now = DateTime.Now;
+            if (time!=null)
+            {
+                now = (DateTime)time;
+            }
 
             var projectFUENContext = _context.Activities
                 .Include(a => a.Category)
                 .Include(a => a.ActivityMembers)
                 .Include(a => a.ActivityCollections)
-                .Where(a => a.GatheringTime > time); //前端預設一定是大於今天（now）
+                .Where(a => a.GatheringTime > now); //前端預設一定是大於今天（now）
             
 
             if (!string.IsNullOrEmpty(activityName))
             {
-                projectFUENContext=projectFUENContext.Where(a => a.ActivityName.Contains(activityName));
+                projectFUENContext=
+                projectFUENContext.Where(a => a.ActivityName.Contains(activityName));
             }else if (!string.IsNullOrEmpty(address))
             {
-                projectFUENContext=projectFUENContext.Where(a => a.Address.Contains(address));
+                projectFUENContext =
+               projectFUENContext.Where(a => a.Address.Contains(address));
             }
-            else if (categoryId!=0)//數字沒值預設是0
+            else if (categoryId !=null)//數字沒值預設是0
             {
-                projectFUENContext = projectFUENContext.Where(a => a.CategoryId==categoryId);
+                projectFUENContext =
+               projectFUENContext.Where(a => a.CategoryId==categoryId);
             }
             else {
                 return projectFUENContext.Select(a => a.ToActivityVM()).ToList().OrderBy(a=>a.DateOfCreated);
