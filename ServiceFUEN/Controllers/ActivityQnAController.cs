@@ -63,11 +63,19 @@ namespace ServiceFUEN.Controllers
                     //是否有會員（不用驗證）
                     if (member != null)
                     {
-                        //發問
-                        _context.Questions.Add(activityAskReq.ToQuestionEntity());
-                        _context.SaveChanges();
-                        activityAskRes.message = "發問成功";
-                        activityAskRes.result = true;
+                        if (!string.IsNullOrEmpty(content))//發問是有文字的
+                        {
+                            //發問
+                            _context.Questions.Add(activityAskReq.ToQuestionEntity());
+                            _context.SaveChanges();
+                            activityAskRes.message = "發問成功";
+                            activityAskRes.result = true;
+
+                        }
+                        else
+                        {
+                            activityAskRes.message = "未輸入內容";
+                        }
 
                     }
                     else
