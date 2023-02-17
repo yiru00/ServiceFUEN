@@ -25,7 +25,7 @@ namespace ServiceFUEN.Controllers
             _context = context;
         }
 
-        //會員已報名未舉辦的活動 按報名時間大到小
+        //會員已報名未舉辦的活動 按報名時間大到小(新到舊)
         [HttpPost]
         [Route("api/ActivityRecord/Enrolled")]
         public IEnumerable<EnrollRecordResVM> Enrolled(RecordReqDTO req) {
@@ -36,12 +36,12 @@ namespace ServiceFUEN.Controllers
                 .Include(a=>a.Activity)
                 .Where(a=>a.MemberId==memberId)
                 .Where(a => a.Activity.GatheringTime > DateTime.Now)
-                .OrderBy(a => a.DateJoined).Select(a => a.ToEnrollRecordResVM());
+                .OrderByDescending(a => a.DateJoined).Select(a => a.ToEnrollRecordResVM());
 
             return projectFUENContext.ToList();
         }
 
-        //會員已參加的活動（已報名且已舉辦）
+        //會員已參加的活動（已報名且已舉辦） 按報名時間大到小(新到舊)
         [HttpPost]
         [Route("api/ActivityRecord/Joined")]
         public IEnumerable<EnrollRecordResVM> Joined(RecordReqDTO req) {
@@ -52,14 +52,14 @@ namespace ServiceFUEN.Controllers
                 .Include(a => a.Activity)
                 .Where(a => a.MemberId == memberId)
                 .Where(a => a.Activity.GatheringTime < DateTime.Now)
-                .OrderBy(a => a.DateJoined).Select(a => a.ToEnrollRecordResVM());
+                .OrderByDescending(a => a.DateJoined).Select(a => a.ToEnrollRecordResVM());
 
             return projectFUENContext.ToList();
 
         }
 
 
-        //會員已收藏的未舉辦活動
+        //會員已收藏的未舉辦活動 按收藏時間大到小(新到舊)
         [HttpPost]
         [Route("api/ActivityRecord/Saved")]
         public IEnumerable<SaveRecordResVM> Saved(RecordReqDTO req) {
@@ -70,7 +70,7 @@ namespace ServiceFUEN.Controllers
                 .Include(a => a.Activity)
                 .Where(a => a.UserId == memberId)
                 .Where(a => a.Activity.GatheringTime > DateTime.Now)
-                .OrderBy(a => a.DateCreated).Select(a => a.ToSaveRecordResVM());
+                .OrderByDescending(a => a.DateCreated).Select(a => a.ToSaveRecordResVM());
 
             return projectFUENContext.ToList();
         }

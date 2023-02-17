@@ -59,7 +59,7 @@ namespace ServiceFUEN.Controllers
         }
 
         // GET api/Activity/WillBeHeld
-        //取得所有即將舉辦的（未舉辦）活動  集合日期大到小
+        //取得所有即將舉辦的（未舉辦）活動  集合日期小到大
         [HttpGet]
         [Route("api/Activity/WillBeHeld")]
         public IEnumerable<ActivityVM> WillBeHeld()
@@ -70,7 +70,7 @@ namespace ServiceFUEN.Controllers
                 .Include(a => a.ActivityMembers)
                 .Include(a => a.ActivityCollections)
                 .Where(a => a.GatheringTime > DateTime.Now)
-                .OrderByDescending(a => a.GatheringTime)
+                .OrderBy(a => a.GatheringTime)
                 .Select(a => a.ToActivityVM());
                 
             return projectFUENContext.ToList();
@@ -125,7 +125,7 @@ namespace ServiceFUEN.Controllers
                 return projectFUENContext.Select(a => a.ToActivityVM()).ToList().OrderBy(a=>a.DateOfCreated);
             }
 
-            return projectFUENContext.Select(a => a.ToActivityVM()).ToList();
+            return projectFUENContext.Select(a => a.ToActivityVM()).ToList().OrderBy(a => a.DateOfCreated);
         }
 
         //GET api/Activity/Details

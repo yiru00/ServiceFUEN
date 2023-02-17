@@ -93,7 +93,7 @@ namespace ServiceFUEN.Controllers
         }
 
         [HttpDelete]
-        [Route("api/ActivitySave/UnSave")]
+        [Route("api/ActivitySave/UnSave{activityCollectionId}")]
         public UnSaveResVM UnSave(int activityCollectionId)
         {
             var unsaveRes = new UnSaveResVM();

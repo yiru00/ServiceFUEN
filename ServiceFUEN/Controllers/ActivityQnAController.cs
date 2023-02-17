@@ -26,7 +26,7 @@ namespace ServiceFUEN.Controllers
         }
 
         [HttpGet]
-        [Route("api/ActivityQnA/Get")]
+        [Route("api/ActivityQnA/Get/{activityId}")]
         public IEnumerable<QnAResVM> Get(int activityId)
         {
             var projectFUENContext = _context.Questions
@@ -89,7 +89,7 @@ namespace ServiceFUEN.Controllers
         }
 
         [HttpDelete]
-        [Route("api/ActivityQnA/DeleteQ")]
+        [Route("api/ActivityQnA/DeleteQ/{questionId}")]
         public DeleteQResVM DeleteQ(int questionId)
         {
             var deleteQRes = new DeleteQResVM();
