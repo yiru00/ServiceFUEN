@@ -103,7 +103,7 @@ namespace ServiceFUEN.Controllers
         public IEnumerable<ActivityVM> Search(string? activityName,int? categoryId,string? address,DateTime? time)
         {
             var now = DateTime.Now;
-            if (time!=null)
+            if (time!=null&&time>now)//沒傳入日期或傳入日期小於當下 一律以當下為準
             {
                 now = (DateTime)time;
             }
