@@ -21,7 +21,7 @@ namespace ServiceFUEN.Controllers
 
         [Route("api/Photo/Create")]
         [HttpPost]
-        public void Create([FromForm]PhotoDTO dto)
+        public void Create([FromForm]CreatePhotoDTO dto)
         {
             // 將Photo儲存進Project的Images資料夾中
             string path = System.Environment.CurrentDirectory + "/Images/";
@@ -67,6 +67,77 @@ namespace ServiceFUEN.Controllers
             var albums = _dbContext.Albums.Select(a => a.EntityTODto());
 
             return albums;
+        }
+
+        [Route("api/Photo/GetPhoto")]
+        [HttpGet]
+        public ShowPhotoDTO GetPhoto(int photoId, int memberId)
+        {
+            // Create return DTO
+            ShowPhotoDTO dto = new ShowPhotoDTO();
+
+            // Get Photo Information
+            var photo = _dbContext.Photos
+                .Include(p => p.AuthorNavigation)
+                .Include(p => p.Comments).ThenInclude(c => c.Member)
+                .Include(p => p.Tags)
+                .FirstOrDefault(p => p.Id == photoId);
+            dto.Id = photo.Id;
+            dto.Source = photo.Source;
+            dto.Title = photo.Title;
+            dto.Description = photo.Description;
+            dto.ISO = photo.ISO;
+            dto.Pixel= photo.Pixel;
+            dto.Aperture= photo.Aperture;
+            dto.Shutter= photo.Shutter;
+            dto.Camera= photo.Camera;
+            dto.Negative = photo.Negative;
+            dto.Location= photo.Location;
+            dto.ShootingTime = photo.ShootingTime;
+            dto.UploadTime= photo.UploadTime;
+
+            // Get Author Information
+            MemberDTO memberDTO= new MemberDTO();
+            memberDTO.Id = memberId;
+            memberDTO.Name = photo.AuthorNavigation.NickName;
+            memberDTO.Source = photo.AuthorNavigation.PhotoSticker;
+            dto.Author= memberDTO;
+
+            // Determine Photo Collection
+            if (photo.Author == memberId) dto.IsCollection = photo.IsCollection;
+            else
+            {
+                var collection = _dbContext.OthersCollections.FirstOrDefault(p => p.MemberId== memberId && p.PhotoId == photoId); 
+                if (collection != null) dto.IsCollection = true;
+                else dto.IsCollection = false;
+            }
+
+            // Comments
+            dto.Comments = photo.Comments.Select(c => new CommentDTO()
+            {
+                Id = c.Id,
+                Content = c.Content,
+                CommentTime = c.CommentTime,
+                Author = new MemberDTO()
+                {
+                    Id = c.Member.Id,
+                    Source = c.Member.PhotoSticker,
+                    Name = c.Member.NickName
+                }
+            });
+
+            // Tags
+            dto.Tags = photo.Tags.Select(t => new TagDTO()
+            {
+                Id = t.Id,
+                Name= t.Name,
+            });
+
+            // Views
+            var views = _dbContext.Views.Where(v => v.PhotoId == photoId).ToArray();
+            dto.Views = views.Length;
+
+            return dto;
         }
     }
 }

@@ -1,9 +1,8 @@
 ﻿using ServiceFUEN.Models.EFModels;
-using System.Diagnostics.CodeAnalysis;
 
 namespace ServiceFUEN.Models.DTOs
 {
-    public class PhotoDTO
+    public class CreatePhotoDTO
     {
         public int Id { get; set; }
         public IFormFile File { get; set; }
@@ -23,9 +22,9 @@ namespace ServiceFUEN.Models.DTOs
         public IEnumerable<int> AlbumIds { get; set; }
     }
 
-    public static partial class  ExtensionMethods
+    public static partial class ExtensionMethods
     {
-        public static Photo DtoToEntity(this PhotoDTO dto)
+        public static Photo DtoToEntity(this CreatePhotoDTO dto)
         {
             // File的Name沒有Assign to Photo
             return new Photo()
@@ -36,12 +35,12 @@ namespace ServiceFUEN.Models.DTOs
                 Author = dto.Author,
                 ISO = dto.ISO,
                 Pixel = dto.Pixel,
-                Aperture= dto.Aperture,
-                Shutter= dto.Shutter,
-                Camera= dto.Camera,
-                Negative= dto.Negative,
-                Location= dto.Location,
-                ShootingTime= dto.ShootingTime,
+                Aperture = dto.Aperture,
+                Shutter = dto.Shutter,
+                Camera = dto.Camera,
+                Negative = dto.Negative,
+                Location = dto.Location,
+                ShootingTime = dto.ShootingTime,
                 IsCollection = dto.IsCollection,
                 CollectionTime = dto.CollectionTime,
             };
