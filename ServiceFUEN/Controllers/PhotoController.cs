@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using ServiceFUEN.Models.DTOs;
 using ServiceFUEN.Models.EFModels;
 using System.IO.Pipelines;
+using System.Reflection.Metadata.Ecma335;
 
 namespace ServiceFUEN.Controllers
 {
@@ -19,71 +20,53 @@ namespace ServiceFUEN.Controllers
         }
 
         [Route("api/Photo/Create")]
-        [HttpGet]
-        public string Create(PhotoDTO dto)
+        [HttpPost]
+        public void Create([FromForm]PhotoDTO dto)
         {
-            Photo photo = dto.DtoToEntity();
+            // 將Photo儲存進Project的Images資料夾中
+            string path = System.Environment.CurrentDirectory + "/Images/";
+            string extension = Path.GetExtension(dto.File.FileName);
+            string fileName = Guid.NewGuid().ToString("N");
+            string fullName = fileName + extension;
+            string fullPath = Path.Combine(path, fullName);
+            using (var stream = System.IO.File.Create(fullPath))
+            {
+                dto.File.CopyTo(stream);
+            }
+
+            // Photo加入DB
+            var photo = dto.DtoToEntity();
+            photo.Source = fullName;
+
+            // Photo加入Album
+            if (!dto.IsCollection)
+            {
+                foreach(int item in dto.AlbumIds)
+                {
+                    photo.AlbumItems.Add(new AlbumItem()
+                    {
+                        AlbumId = item,
+                    });
+                }
+            }
+
             _dbContext.Photos.Add(photo);
             _dbContext.SaveChanges();
-            return "成功";
         }
 
-        [Route("api/Photo/Edit")]
-        [HttpPut]
-        public string Edit(PhotoDTO dto)
+        //[Route("api/Photo/GetInformation")]
+        //PhotoInformationDTO GetInformation(IFormFile file)
+        //{
+
+        //}
+
+        [Route("api/Photo/GetAlbums")]
+        [HttpGet]
+        public IEnumerable<AlbumDTO> GetAlbums()
         {
-            Photo photo = _dbContext.Photos.SingleOrDefault(p => p.Id == dto.Id);
+            var albums = _dbContext.Albums.Select(a => a.EntityTODto());
 
-            photo.Source = dto.Source;
-            photo.Title = dto.Title;
-            photo.Description = dto.Description;
-            photo.Author = dto.Author;
-            photo.ISO = dto.ISO;
-            photo.Pixel = dto.Pixel;
-            photo.Aperture = dto.Aperture;
-            photo.Shutter = dto.Shutter;
-            photo.Camera = dto.Camera;
-            photo.Negative = dto.Negative;
-            photo.Location = dto.Location;
-            photo.ShootingTime = dto.ShootingTime;
-            photo.UploadTime = dto.UploadTime;
-            photo.IsCollection = dto.IsCollection;
-            photo.CollectionTime = dto.CollectionTime;
-
-            _dbContext.SaveChanges();
-            return "成功";
-        }
-
-        [Route("api/Photo/Delete")]
-        [HttpDelete]
-        public string Delete(int id)
-        {
-            Photo photo = _dbContext.Photos.FirstOrDefault(x => x.Id == id);
-            _dbContext.Photos.Remove(photo);
-            _dbContext.SaveChanges();
-            return "成功";
-        }
-
-        [Route("api/Photo/Collect")]
-        [HttpPut]
-        public string Collect(int id)
-        {
-            Photo photo = _dbContext.Photos.FirstOrDefault(x => x.Id == id);
-
-            if (photo.IsCollection)
-            {
-                photo.IsCollection = false;
-                photo.CollectionTime = null;
-            }
-            else 
-            {
-                photo.IsCollection = true;
-                photo.CollectionTime = DateTime.Now;
-            }
-
-            _dbContext.SaveChanges();
-
-            return "成功";
+            return albums;
         }
     }
 }
