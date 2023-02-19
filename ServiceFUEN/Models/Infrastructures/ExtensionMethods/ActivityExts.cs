@@ -12,13 +12,18 @@ namespace ServiceFUEN.Models.ViewModels
                 CoverImage = source.CoverImage,
                 ActivityName = source.ActivityName,
                 Address = source.Address,
+                CategoryId=source.CategoryId,
                 CategoryName = source.Category.CategoryName,
+                Description = source.Description,
                 GatheringTime = source.GatheringTime,
                 Deadline=source.Deadline,
                 DateOfCreated=source.DateOfCreated,
                 NumOfEnrolment = source.ActivityMembers.Count,
+                MemberLimit=source.MemberLimit,
                 NumOfCollections = source.ActivityCollections.Count,
-                EnrolmentRate = source.ActivityMembers.Count / source.MemberLimit
+                EnrolmentRate = source.ActivityMembers.Count / source.MemberLimit,
+                InstructorName=source.Instructor.InstructorName,
+                InstructorResumePhoto=source.Instructor.ResumePhoto
             };
         }
 

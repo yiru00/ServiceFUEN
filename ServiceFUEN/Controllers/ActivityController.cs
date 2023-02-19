@@ -34,6 +34,7 @@ namespace ServiceFUEN.Controllers
                 .Include(a => a.Category)
                 .Include(a => a.ActivityMembers)
                 .Include(a=>a.ActivityCollections)
+                .Include(a=>a.Instructor)
                 .Where(a=>a.GatheringTime>DateTime.Now)
                 .OrderByDescending(a=>a.DateOfCreated).Select(a=>a.ToActivityVM());
 
@@ -51,6 +52,7 @@ namespace ServiceFUEN.Controllers
                 .Include(a => a.Category)
                 .Include(a => a.ActivityMembers)
                 .Include(a => a.ActivityCollections)
+                 .Include(a => a.Instructor)
                 .Where(a => a.GatheringTime > DateTime.Now)
                 .Select(a => a.ToActivityVM()).ToList() //IQueryable查詢字串的條件在ToList()後才會到資料庫撈
                 .OrderByDescending(a => a.EnrolmentRate).ThenByDescending(a => a.NumOfCollections); //orderby是IEnumerable的擴充方法//前面不ToList() orderby就會是IQueryable的擴充方法=>查不到vm裡自訂的欄位
@@ -69,6 +71,7 @@ namespace ServiceFUEN.Controllers
                 .Include(a => a.Category)
                 .Include(a => a.ActivityMembers)
                 .Include(a => a.ActivityCollections)
+                 .Include(a => a.Instructor)
                 .Where(a => a.GatheringTime > DateTime.Now)
                 .OrderBy(a => a.GatheringTime)
                 .Select(a => a.ToActivityVM());
@@ -88,6 +91,7 @@ namespace ServiceFUEN.Controllers
                 .Include(a => a.Category)
                 .Include(a => a.ActivityMembers)
                 .Include(a => a.ActivityCollections)
+                 .Include(a => a.Instructor)
                 .Where(a => a.GatheringTime > DateTime.Now)
                 .Where(a => a.CategoryId == categoryId)
                 .Select(a => a.ToActivityVM()).ToList()
@@ -97,7 +101,7 @@ namespace ServiceFUEN.Controllers
 
         }
         // GET api/Activity/Search
-        //依照搜尋條件取得所有未舉辦的活動 按活動建立日期小到大排
+        //依照搜尋條件取得所有未舉辦的活動 按活動集合日期小到大排
         [HttpGet]
         [Route("api/Activity/Search")]
         public IEnumerable<ActivityVM> Search(string? activityName,int? categoryId,string? address,DateTime? time)
@@ -112,6 +116,7 @@ namespace ServiceFUEN.Controllers
                 .Include(a => a.Category)
                 .Include(a => a.ActivityMembers)
                 .Include(a => a.ActivityCollections)
+                 .Include(a => a.Instructor)
                 .Where(a => a.GatheringTime > now); //前端預設一定是大於今天（now）
             
 
@@ -130,10 +135,10 @@ namespace ServiceFUEN.Controllers
                projectFUENContext.Where(a => a.CategoryId==categoryId);
             }
             else {
-                return projectFUENContext.Select(a => a.ToActivityVM()).ToList().OrderBy(a=>a.DateOfCreated);
+                return projectFUENContext.Select(a => a.ToActivityVM()).ToList().OrderBy(a=>a.GatheringTime);
             }
 
-            return projectFUENContext.Select(a => a.ToActivityVM()).ToList().OrderBy(a => a.DateOfCreated);
+            return projectFUENContext.Select(a => a.ToActivityVM()).ToList().OrderBy(a => a.GatheringTime);
         }
 
         //GET api/Activity/Details
