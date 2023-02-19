@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ServiceFUEN.Models.DTOs;
@@ -54,13 +55,20 @@ namespace ServiceFUEN.Controllers
             _dbContext.SaveChanges();
         }
 
-        //[Route("api/Photo/GetInformation")]
-        //PhotoInformationDTO GetInformation(IFormFile file)
-        //{
+		//[Route("api/Photo/Edit")]
+		//[HttpPut]
+		//public void Edit()
+		//{
 
-        //}
+		//}
 
-        [Route("api/Photo/GetAlbums")]
+		//[Route("api/Photo/GetInformation")]
+		//PhotoInformationDTO GetInformation(IFormFile file)
+		//{
+
+		//}
+
+		[Route("api/Photo/GetAlbums")]
         [HttpGet]
         public IEnumerable<AlbumDTO> GetAlbums()
         {
@@ -138,6 +146,57 @@ namespace ServiceFUEN.Controllers
             dto.Views = views.Length;
 
             return dto;
+        }
+
+        [Route("api/Photo/Collect")]
+        [HttpPut]
+        public void Collect(int photoId, int memberId)
+        {
+            var photo = _dbContext.Photos.FirstOrDefault(p => p.Id == photoId);
+            
+            // 判斷是否是典藏
+            if (photo.Author == memberId)
+            {
+                if (photo.IsCollection) photo.IsCollection = false;
+                else photo.IsCollection = true;
+            }
+            else
+            {
+				var collection = _dbContext.OthersCollections.FirstOrDefault(p => p.MemberId == memberId && p.PhotoId == photoId);
+                if (collection != null) _dbContext.OthersCollections.Remove(collection);
+                else
+				{
+                    OthersCollection otherCollection = new OthersCollection()
+                    {
+                        MemberId = memberId,
+                        PhotoId = photoId,
+                    };
+                    _dbContext.OthersCollections.Add(otherCollection);
+                }
+			}
+			_dbContext.SaveChanges();
+		}
+
+        [Route("api/Photo/AddView")]
+        [HttpPut]
+        public string AddView(int photoId, int memberId)
+        {
+            var view = _dbContext.Views.FirstOrDefault(v => v.MemberId == memberId && v.PhotoId == photoId);
+
+            if (view == null)
+            {
+				View entity = new View()
+				{
+					MemberId = memberId,
+					PhotoId = photoId
+				};
+				_dbContext.Views.Add(entity);
+                _dbContext.SaveChanges();
+
+                return "增加成功";
+			}
+
+            return "已經存在DB";
         }
     }
 }
