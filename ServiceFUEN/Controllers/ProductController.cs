@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using ServiceFUEN.Models.EFModels;
 using ServiceFUEN.Models.ViewModels;
 using System.Diagnostics;
+using System.Linq;
 
 namespace ServiceFUEN.Controllers
 {
@@ -17,48 +18,101 @@ namespace ServiceFUEN.Controllers
         {
             _context = context;
         }
+        // Get api/Product/DetailProducts
+        //取得商品所有資訊
         [HttpGet]
         [Route("api/Product/DetailProducts")]
-        public IEnumerable<ProductDetailVM> DetailProducts()
+        public IEnumerable<ProductDetailVM> DetailProducts(int id)
         {
             var projectFUENContext = _context.Products
-            //.Include(x=>x.ProductPhotos)
+
+           .Include(x => x.ProductPhotos)
+           .Where(x => x.Id == id)
             .Select(p => p.ToProductDetailVM());
             return projectFUENContext.ToList();
-          
-
         }
+        // Get api/Product/AllProducts
+        //取得商品圖、品名、價格
         [HttpGet]
-        [Route("api/Activity/New")]
-        public IEnumerable<ActivityVM> New()
+        [Route("api/Product/AllProducts")]
+        public IEnumerable<ProductAllVM> AllProducts()
         {
-            var projectFUENContext = _context.Activities
-                .Include(a => a.Category)
-                .Include(a => a.ActivityMembers)
-                .Include(a => a.ActivityCollections)
-                .Where(a => a.GatheringTime > DateTime.Now)
-                .OrderByDescending(a => a.DateOfCreated).Select(a => a.ToActivityVM());
+            var projectFUENContext = _context.Products
 
+           .Include(x => x.ProductPhotos)
+            .Select(p => p.ToProductAllVM());
+            return projectFUENContext.ToList();
+        }
+        // Get api/Product/NewProducts
+        //取得新上架前十樣商品的商品圖、品名、價格
+        [HttpGet]
+        [Route("api/Product/NewProducts")]
+        public IEnumerable<ProductNewVM> NewProducts()
+        {
+            var projectFUENContext = _context.Products
+
+           .Include(x => x.ProductPhotos)
+            .Select(p => p.ToProductNewVM()).ToList()
+            .OrderByDescending(p => p.ReleaseDate).Take(10);
+            return projectFUENContext;
+        }
+
+        [HttpGet]
+        [Route("api/Category/Category")]
+        public IEnumerable<CategoryVM> Category()
+        {
+            var projectFUENContext = _context.Categories
+             .Select(p => p.ToCategoryVM());
+            return projectFUENContext.ToList();
+        }
+        // Get api/Product/Search
+        //依搜尋條件搜尋商品，包含商品圖、品名、價格
+        //未完成
+        [HttpGet]
+        [Route("api/Product/Search")]
+        public IEnumerable<ProductSearchVM> Search(int id, int categoryId, int brandId)
+        {
+            var projectFUENContext = _context.Products
+
+            .Where(p => p.CategoryId == categoryId)
+            .Where(p => p.BrandId == brandId)
+            .Select(p => p.ToProductSearchVM());
             return projectFUENContext.ToList();
         }
 
-        //[HttpGet]
-        //[Route("api/Product/AllProduct")]
-        //public IEnumerable<ProductExts> AllProduct(int id) 
+        //public IEnumerable<ProductSearchVM> Search(string? name, int? categoryId, int? brandId)
         //{
         //    var projectFUENContext = _context.Products
-        //        .Select(p => new ProductVM
-        //        {
-        //            Id = p.Id,
-        //            Name = p.Name,
-        //            Price = p.Price,
-        //            ProductPhotos = p.ProductPhotos,
-        //            ProductSpec = p.ProductSpec,
-        //            ReleaseDate = p.ReleaseDate,
-        //            ManufactorDate = p.ManufactorDate,
-        //            Inventory = p.Inventory
-        //        }).ToList();
-        //    return projectFUENContext;
+        //        .Include(x => x.ProductPhotos);
+
+        //    if (!string.IsNullOrEmpty(name))
+        //    {
+        //       projectFUENContext.Where(p => p.Name.Contains(name));
+        //    }
+        //    else if(categoryId != null && categoryId != 0)
+        //    {
+        //      projectFUENContext.Where(a => a.CategoryId == categoryId);
+        //    }else if (brandId != null && brandId != 0)
+        //    {
+        //        projectFUENContext.Where(a => a.BrandId == brandId);
+        //    }else
+        //    {
+        //        return projectFUENContext.Select(p => p.ToProductSearchVM()).ToList();
+        //    }
+
+        //    return projectFUENContext.Select(p => p.ToProductSearchVM()).ToList();
         //}
+
+        // Get api/Event/Eventphotos
+        //顯示活動圖（首頁輪播圖要用）
+        [HttpGet]
+        [Route("api/Event/Eventphotos")]
+        public IEnumerable<EventVM> Eventphotos()
+        {
+            var projectFUENContext = _context.Events
+                .Select(e => e.ToEventVM());
+            return projectFUENContext.ToList();
+        }
+
     }
 }
