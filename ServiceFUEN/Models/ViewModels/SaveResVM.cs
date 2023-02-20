@@ -7,6 +7,7 @@ namespace ServiceFUEN.Models.ViewModels
 
         public bool result { get; set; }
         public string message { get; set; }
+        public int activityCollectionId { get; set; }
     }
 }
 

@@ -63,6 +63,9 @@ namespace ServiceFUEN.Controllers
                             saveRes.message = "收藏成功";
                             saveRes.result = true;
 
+                            var activityCollection= _context.ActivityCollections.Where(a => activityId == activityId).FirstOrDefault(a => a.UserId == memberId);
+                            saveRes.activityCollectionId=activityCollection.Id;
+
                         }
                         else
                         {
@@ -74,6 +77,8 @@ namespace ServiceFUEN.Controllers
                     else
                     {
                         saveRes.message = "會員已收藏過";
+                        var activityCollection = _context.ActivityCollections.Where(a => activityId == activityId).FirstOrDefault(a => a.UserId == memberId);
+                        saveRes.activityCollectionId = activityCollection.Id;
                     }
 
 
@@ -141,6 +146,7 @@ namespace ServiceFUEN.Controllers
 
                     saveStatusRes.statusId = 3;
                     saveStatusRes.message = "可收藏";
+                    saveStatusRes.activityId = activityId;
 
                     //該會員是否收藏過？
                     var isSaved = _context.ActivityCollections.Where(a => a.ActivityId == activityId).FirstOrDefault(a => a.UserId == memberId);

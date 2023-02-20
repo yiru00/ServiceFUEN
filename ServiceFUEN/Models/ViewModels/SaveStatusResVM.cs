@@ -8,6 +8,7 @@ namespace ServiceFUEN.Models.ViewModels
         public string ActivityName { get; set; }
         public int statusId { get; set; }
         public string message { get; set; }
+        public int activityId { get; set; }
         public int UnSaveId { get; set; }
 
         //statusId=1 message="沒有此活動"

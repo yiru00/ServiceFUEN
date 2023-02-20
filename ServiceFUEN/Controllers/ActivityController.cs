@@ -144,7 +144,7 @@ namespace ServiceFUEN.Controllers
         //GET api/Activity/Details
         //搜尋某個活動//找不到會回傳所有欄位都是null
         [HttpGet]
-        [Route("api/Activity/Details/{activityId}")]
+        [Route("api/Activity/Details")]
          public ActivityDetailsVM Details(int activityId)
         {
             var projectFUENContext = _context.Activities
