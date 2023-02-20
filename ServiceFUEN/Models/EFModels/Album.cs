@@ -16,6 +16,7 @@ namespace ServiceFUEN.Models.EFModels
         public string Name { get; set; }
         public int MemberId { get; set; }
         public DateTime CreatedTime { get; set; }
+        public string CoverImage { get; set; }
 
         public virtual Member Member { get; set; }
         public virtual ICollection<AlbumItem> AlbumItems { get; set; }
