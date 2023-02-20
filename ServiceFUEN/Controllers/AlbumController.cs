@@ -103,15 +103,15 @@ namespace ServiceFUEN.Controllers
 
 			try { 
 
-				var album = _dbContext.Albums.Include(a => a.AlbumItems).FirstOrDefault(a => a.Id == albumDTO.AlbumId);
+				var album = _dbContext.Albums.Include(a => a.AlbumItems).FirstOrDefault(a => a.Id == albumDTO.AlbumDTO.AlbumId);
 				if (album == null) 
 				{
 					num = 0;
 					return num;
 				}
 
-				album.Name = albumDTO.AlbumName;
-				album.CoverImage = albumDTO.CoverImg;
+				album.Name = albumDTO.AlbumDTO.AlbumName;
+				album.CoverImage = albumDTO.AlbumDTO.CoverImg;
 
 				List<AlbumItem> albumItem = new List<AlbumItem>();
 				foreach (var item in albumDTO.PhotoId)
