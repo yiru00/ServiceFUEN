@@ -136,9 +136,9 @@ namespace ServiceFUEN.Controllers
                 projectFUENContext =
                projectFUENContext.Where(a => a.CategoryId==categoryId);
             }
-            else {
+            
                 activityVM= projectFUENContext.OrderBy(a => a.GatheringTime).Select(a => a.ToActivityVM()).ToList();
-            }
+            
 
             foreach(ActivityVM vm in activityVM)
             {
