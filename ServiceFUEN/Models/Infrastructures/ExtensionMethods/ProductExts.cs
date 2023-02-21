@@ -49,15 +49,16 @@ namespace ServiceFUEN.Models.ViewModels
                 Name = category.Name,
             };
         }
-        public static ProductSearchVM ToProductSearchVM(this Product product)
+        public static ProductSearchDTO ToProductSearchDTO(this Product product)
         {
-            return new ProductSearchVM
+            return new ProductSearchDTO
             {
+                Id= product.Id,
                 Name= product.Name,
                 CategoryId= product.CategoryId,
                 BrandId= product.BrandId,
-                Price = product.Price,
-                Source = product.ProductPhotos.Select(x => x.Source).ToList(),
+                //Price = product.Price,
+                //Source = product.ProductPhotos.Select(x => x.Source).ToList(),
 
             };
         }

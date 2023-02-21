@@ -6,6 +6,8 @@ using ServiceFUEN.Models.EFModels;
 using ServiceFUEN.Models.ViewModels;
 using System.Diagnostics;
 using System.Linq;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace ServiceFUEN.Controllers
 {
@@ -65,44 +67,35 @@ namespace ServiceFUEN.Controllers
              .Select(p => p.ToCategoryVM());
             return projectFUENContext.ToList();
         }
-        // Get api/Product/Search
-        //依搜尋條件搜尋商品，包含商品圖、品名、價格
-        //未完成
-        [HttpGet]
-        [Route("api/Product/Search")]
-        public IEnumerable<ProductSearchVM> Search(int id, int categoryId, int brandId)
+       // Get api/Product/Search
+       //依搜尋條件搜尋商品，包含商品圖、品名、價格
+       [HttpGet]
+       [Route("api/Product/Search")]
+
+        public IEnumerable<ProductSearchDTO> Search(string? name, int? categoryId, int? brandId)
         {
-            var projectFUENContext = _context.Products
+            IEnumerable<Product> projectFUENContext = _context.Products;
 
-            .Where(p => p.CategoryId == categoryId)
-            .Where(p => p.BrandId == brandId)
-            .Select(p => p.ToProductSearchVM());
-            return projectFUENContext.ToList();
+            if (!string.IsNullOrEmpty(name))
+            {
+                projectFUENContext =
+                projectFUENContext.Where(p => p.Name.ToLower().Contains(name.ToLower()));
+            }
+            if (categoryId != null && categoryId != 0)
+            {
+                projectFUENContext =
+               projectFUENContext.Where(a => a.CategoryId == categoryId);
+
+            }
+            if (brandId != null && brandId != 0)
+            {
+                projectFUENContext =
+               projectFUENContext.Where(a => a.BrandId == brandId);
+            }
+
+            return projectFUENContext.Select(p => p.ToProductSearchDTO()).ToList();
         }
-
-        //public IEnumerable<ProductSearchVM> Search(string? name, int? categoryId, int? brandId)
-        //{
-        //    var projectFUENContext = _context.Products
-        //        .Include(x => x.ProductPhotos);
-
-        //    if (!string.IsNullOrEmpty(name))
-        //    {
-        //       projectFUENContext.Where(p => p.Name.Contains(name));
-        //    }
-        //    else if(categoryId != null && categoryId != 0)
-        //    {
-        //      projectFUENContext.Where(a => a.CategoryId == categoryId);
-        //    }else if (brandId != null && brandId != 0)
-        //    {
-        //        projectFUENContext.Where(a => a.BrandId == brandId);
-        //    }else
-        //    {
-        //        return projectFUENContext.Select(p => p.ToProductSearchVM()).ToList();
-        //    }
-
-        //    return projectFUENContext.Select(p => p.ToProductSearchVM()).ToList();
-        //}
-
+      
         // Get api/Event/Eventphotos
         //顯示活動圖（首頁輪播圖要用）
         [HttpGet]
@@ -113,6 +106,7 @@ namespace ServiceFUEN.Controllers
                 .Select(e => e.ToEventVM());
             return projectFUENContext.ToList();
         }
+
 
     }
 }
