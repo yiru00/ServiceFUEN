@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ServiceFUEN.Models.DTOs;
@@ -7,9 +8,9 @@ using System.Collections.Generic;
 
 namespace ServiceFUEN.Controllers
 {
-	
+	[EnableCors("AllowAny")]
 	[ApiController]
-	public class AlbumController : ControllerBase
+	public class AlbumController : Controller
 	{
 		private readonly ProjectFUENContext _dbContext;
 		public AlbumController(ProjectFUENContext dbContext)
@@ -104,11 +105,7 @@ namespace ServiceFUEN.Controllers
 			try { 
 
 				var album = _dbContext.Albums.Include(a => a.AlbumItems).FirstOrDefault(a => a.Id == albumDTO.AlbumDTO.AlbumId);
-				if (album == null) 
-				{
-					num = 0;
-					return num;
-				}
+				if (album == null) return num;
 
 				album.Name = albumDTO.AlbumDTO.AlbumName;
 				album.CoverImage = albumDTO.AlbumDTO.CoverImg;

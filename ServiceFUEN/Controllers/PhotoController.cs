@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ServiceFUEN.Models.DTOs;
@@ -7,7 +8,7 @@ using System.Reflection.Metadata.Ecma335;
 
 namespace ServiceFUEN.Controllers
 {
-
+	[EnableCors("AllowAny")]
 	[ApiController]
 	public class PhotoController : Controller
 	{
