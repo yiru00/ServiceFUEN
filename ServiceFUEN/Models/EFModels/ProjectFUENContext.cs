@@ -9,9 +9,14 @@ namespace ServiceFUEN.Models.EFModels
 {
     public partial class ProjectFUENContext : DbContext
     {
-        public ProjectFUENContext()
+       
+
+		
+		public ProjectFUENContext()
         {
-        }
+			
+
+		}
 
         public ProjectFUENContext(DbContextOptions<ProjectFUENContext> options)
             : base(options)
