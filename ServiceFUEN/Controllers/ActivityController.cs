@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors;
@@ -104,14 +106,14 @@ namespace ServiceFUEN.Controllers
         //依照搜尋條件取得所有未舉辦的活動 按活動集合日期小到大排
         [HttpGet]
         [Route("api/Activity/Search")]
-        public IEnumerable<ActivityVM> Search(string? activityName,int? categoryId,string? address,DateTime? time)
+        public IEnumerable<ActivityVM> Search(string? activityName,int? categoryId,string? address,DateTime? time,int memberId)
         {
             var now = DateTime.Now;
             if (time!=null&&time>now)//沒傳入日期或傳入日期小於當下 一律以當下為準
             {
                 now = (DateTime)time;
             }
-
+            IEnumerable<ActivityVM> activityVM = new List<ActivityVM>();
             var projectFUENContext = _context.Activities
                 .Include(a => a.Category)
                 .Include(a => a.ActivityMembers)
@@ -135,10 +137,22 @@ namespace ServiceFUEN.Controllers
                projectFUENContext.Where(a => a.CategoryId==categoryId);
             }
             else {
-                return projectFUENContext.Select(a => a.ToActivityVM()).ToList().OrderBy(a=>a.GatheringTime);
+                activityVM= projectFUENContext.OrderBy(a => a.GatheringTime).Select(a => a.ToActivityVM()).ToList();
             }
 
-            return projectFUENContext.Select(a => a.ToActivityVM()).ToList().OrderBy(a => a.GatheringTime);
+            foreach(ActivityVM vm in activityVM)
+            {
+                var isSaved = _context.ActivityCollections.Where(a => a.ActivityId == vm.ActivityId).FirstOrDefault(a => a.UserId == memberId);
+                if (memberId !=0 && isSaved != null) //有會員 且收藏過（在此活動中的收藏名單有此會員）
+                {
+                    vm.statusId = 4;
+                    vm.message = "已收藏過";
+                    vm.UnSaveId = isSaved.Id;
+                }
+            }
+
+            return activityVM;
+            //return projectFUENContext.Select(a => a.ToActivityVM()).ToList().OrderBy(a => a.GatheringTime);
         }
 
         //GET api/Activity/Details

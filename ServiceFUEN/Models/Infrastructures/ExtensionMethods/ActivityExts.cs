@@ -12,18 +12,21 @@ namespace ServiceFUEN.Models.ViewModels
                 CoverImage = source.CoverImage,
                 ActivityName = source.ActivityName,
                 Address = source.Address,
-                CategoryId=source.CategoryId,
+                CategoryId = source.CategoryId,
                 CategoryName = source.Category.CategoryName,
                 Description = source.Description,
                 GatheringTime = source.GatheringTime,
-                Deadline=source.Deadline,
-                DateOfCreated=source.DateOfCreated,
+                Deadline = source.Deadline,
+                DateOfCreated = source.DateOfCreated,
                 NumOfEnrolment = source.ActivityMembers.Count,
-                MemberLimit=source.MemberLimit,
+                MemberLimit = source.MemberLimit,
                 NumOfCollections = source.ActivityCollections.Count,
                 EnrolmentRate = source.ActivityMembers.Count / source.MemberLimit,
-                InstructorName=source.Instructor.InstructorName,
-                InstructorResumePhoto=source.Instructor.ResumePhoto
+                InstructorName = source.Instructor.InstructorName,
+                InstructorResumePhoto = source.Instructor.ResumePhoto,
+                statusId = 3,
+                message = "可收藏",
+                UnSaveId = 0
             };
         }
 
