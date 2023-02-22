@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Cors;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +10,7 @@ using ServiceFUEN.Models.DTOs;
 using ServiceFUEN.Models.EFModels;
 using System.IO.Pipelines;
 using System.Reflection.Metadata.Ecma335;
+using System.Security.Claims;
 
 namespace ServiceFUEN.Controllers
 {
@@ -22,7 +26,7 @@ namespace ServiceFUEN.Controllers
 
         [Route("api/Photo/Create")]
         [HttpPost]
-        public void Create([FromForm]CreatePhotoDTO dto)
+        public void Create([FromForm] CreatePhotoDTO dto)
         {
             // 將Photo儲存進Project的Images資料夾中
             string path = System.Environment.CurrentDirectory + "/Images/";
@@ -42,7 +46,7 @@ namespace ServiceFUEN.Controllers
             // Photo加入Album
             if (!dto.IsCollection)
             {
-                foreach(int item in dto.AlbumIds)
+                foreach (int item in dto.AlbumIds)
                 {
                     photo.AlbumItems.Add(new AlbumItem()
                     {
@@ -55,20 +59,20 @@ namespace ServiceFUEN.Controllers
             _dbContext.SaveChanges();
         }
 
-		//[Route("api/Photo/Edit")]
-		//[HttpPut]
-		//public void Edit()
-		//{
+        //[Route("api/Photo/Edit")]
+        //[HttpPut]
+        //public void Edit()
+        //{
 
-		//}
+        //}
 
-		//[Route("api/Photo/GetInformation")]
-		//PhotoInformationDTO GetInformation(IFormFile file)
-		//{
+        //[Route("api/Photo/GetInformation")]
+        //PhotoInformationDTO GetInformation(IFormFile file)
+        //{
 
-		//}
+        //}
 
-		[Route("api/Photo/GetAlbums")]
+        [Route("api/Photo/GetAlbums")]
         [HttpGet]
         public IEnumerable<AlbumDTO> GetAlbums()
         {
@@ -95,27 +99,27 @@ namespace ServiceFUEN.Controllers
             dto.Title = photo.Title;
             dto.Description = photo.Description;
             dto.ISO = photo.ISO;
-            dto.Pixel= photo.Pixel;
-            dto.Aperture= photo.Aperture;
-            dto.Shutter= photo.Shutter;
-            dto.Camera= photo.Camera;
+            dto.Pixel = photo.Pixel;
+            dto.Aperture = photo.Aperture;
+            dto.Shutter = photo.Shutter;
+            dto.Camera = photo.Camera;
             dto.Negative = photo.Negative;
-            dto.Location= photo.Location;
+            dto.Location = photo.Location;
             dto.ShootingTime = photo.ShootingTime;
-            dto.UploadTime= photo.UploadTime;
+            dto.UploadTime = photo.UploadTime;
 
             // Get Author Information
-            MemberDTO memberDTO= new MemberDTO();
-            memberDTO.Id = memberId;
+            MemberDTO memberDTO = new MemberDTO();
+            memberDTO.Id = photo.Author;
             memberDTO.Name = photo.AuthorNavigation.NickName;
             memberDTO.Source = photo.AuthorNavigation.PhotoSticker;
-            dto.Author= memberDTO;
+            dto.Author = memberDTO;
 
             // Determine Photo Collection
             if (photo.Author == memberId) dto.IsCollection = photo.IsCollection;
             else
             {
-                var collection = _dbContext.OthersCollections.FirstOrDefault(p => p.MemberId== memberId && p.PhotoId == photoId); 
+                var collection = _dbContext.OthersCollections.FirstOrDefault(p => p.MemberId == memberId && p.PhotoId == photoId);
                 if (collection != null) dto.IsCollection = true;
                 else dto.IsCollection = false;
             }
@@ -138,7 +142,7 @@ namespace ServiceFUEN.Controllers
             dto.Tags = photo.Tags.Select(t => new TagDTO()
             {
                 Id = t.Id,
-                Name= t.Name,
+                Name = t.Name,
             });
 
             // Views
@@ -153,19 +157,28 @@ namespace ServiceFUEN.Controllers
         public void Collect(int photoId, int memberId)
         {
             var photo = _dbContext.Photos.FirstOrDefault(p => p.Id == photoId);
-            
+
             // 判斷是否是典藏
             if (photo.Author == memberId)
             {
-                if (photo.IsCollection) photo.IsCollection = false;
-                else photo.IsCollection = true;
+                if (photo.IsCollection)
+                {
+                    photo.IsCollection = false;
+                    photo.CollectionTime = null;
+                }
+                else
+                {
+                    photo.IsCollection = true;
+                    photo.CollectionTime = DateTime.Now;
+                }
+
             }
             else
             {
-				var collection = _dbContext.OthersCollections.FirstOrDefault(p => p.MemberId == memberId && p.PhotoId == photoId);
+                var collection = _dbContext.OthersCollections.FirstOrDefault(p => p.MemberId == memberId && p.PhotoId == photoId);
                 if (collection != null) _dbContext.OthersCollections.Remove(collection);
                 else
-				{
+                {
                     OthersCollection otherCollection = new OthersCollection()
                     {
                         MemberId = memberId,
@@ -173,28 +186,28 @@ namespace ServiceFUEN.Controllers
                     };
                     _dbContext.OthersCollections.Add(otherCollection);
                 }
-			}
-			_dbContext.SaveChanges();
-		}
+            }
+            _dbContext.SaveChanges();
+        }
 
         [Route("api/Photo/AddView")]
         [HttpPut]
         public string AddView(int photoId, int memberId)
         {
-            var view = _dbContext.Views.FirstOrDefault(v => v.MemberId == memberId && v.PhotoId == photoId);
+            var view = _dbContext.Views.FirstOrDefault(v => v.MemberId == memberId && v.PhotoId == photoId && v.ViewDate.Date == DateTime.Today);
 
             if (view == null)
             {
-				View entity = new View()
-				{
-					MemberId = memberId,
-					PhotoId = photoId
-				};
-				_dbContext.Views.Add(entity);
+                View entity = new View()
+                {
+                    MemberId = memberId,
+                    PhotoId = photoId
+                };
+                _dbContext.Views.Add(entity);
                 _dbContext.SaveChanges();
 
                 return "增加成功";
-			}
+            }
 
             return "已經存在DB";
         }

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using ServiceFUEN.Models.EFModels;
 
@@ -8,6 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 var ProjectFUENconnectionString = builder.Configuration.GetConnectionString("azure") ?? throw new InvalidOperationException("Connection string 'azure' not found.");
 builder.Services.AddDbContext<ProjectFUENContext>(options =>
     options.UseSqlServer(ProjectFUENconnectionString));
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options => options.LoginPath = "/Login/Index");
 
 builder.Services.AddControllers();
 

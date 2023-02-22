@@ -20,6 +20,9 @@
     [V]Delete(Follow)
     [V]GetAllFollower(Follow)
     [V]GetAllFollowing(Follow)
+8.  [V]Edit GetPhoto(Photo)
+    [V]Edit Collect(Photo)
+    [V]Edit AddViews(Photo)
 
 [X]GetInformation(Photo)
 [X]Edit(Photo)
