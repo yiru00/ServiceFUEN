@@ -36,11 +36,11 @@ namespace ServiceFUEN.Controllers
 
 		[Route("api/Statistic/DateViews")]
 		[HttpPost]
-		public IEnumerable<DateViewDTO> DateViews(int memberId)
+		public DateResultDTO DateViews(int memberId)
 		{
 			//某天的總相片瀏覽次數
 			var photos = _dbContext.Views.Include(v => v.Photo)
-				.Where(v => v.Photo.Author == memberId)
+				.Where(v => v.Photo.Author == memberId && v.ViewDate >= DateTime.Today.AddDays(-7))
 				.OrderByDescending(v => v.ViewDate)
 				.GroupBy(v => v.ViewDate).Select(v => new DateViewDTO
 				{
@@ -52,22 +52,21 @@ namespace ServiceFUEN.Controllers
 
 			int j = 0;
 			int count = photos.Count();
-			for(int i = 0; i > -8; i--)
+			for(int i = -7; i < 1; i++)
 			{
-				result.Date.Add(DateTime.Today.AddDays(i).ToString());
-				if (photos[j].Date == DateTime.Today.AddDays(i).ToString() && j < count)
+				result.Date.Add(DateTime.Today.AddDays(i).ToString("yyyy-MM-dd"));
+
+				if (j < count && photos[j].Date == DateTime.Today.AddDays(i).ToString("yyyy-MM-dd"))
 				{
 					result.DateViews.Add(photos[j].DateViews);
 					j++;
-					//if (j > count) j= count;
 				}
 				else { 
 					result.DateViews.Add(0);
-
 				};
 			}
 
-			return photos;
+			return result;
 		}
 
 		[Route("api/Statistic/CameraCount")]
