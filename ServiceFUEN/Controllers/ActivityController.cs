@@ -126,12 +126,13 @@ namespace ServiceFUEN.Controllers
             {
                 projectFUENContext=
                 projectFUENContext.Where(a => a.ActivityName.Contains(activityName));
-            }else if (!string.IsNullOrEmpty(address))
+            }
+            if (!string.IsNullOrEmpty(address))
             {
                 projectFUENContext =
                projectFUENContext.Where(a => a.Address.Contains(address));
             }
-            else if (categoryId !=null&&categoryId!=0)//數字沒值預設是0
+            if (categoryId !=null&&categoryId!=0)//數字沒值預設是0
             {
                 projectFUENContext =
                projectFUENContext.Where(a => a.CategoryId==categoryId);
