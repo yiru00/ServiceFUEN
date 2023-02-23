@@ -91,6 +91,7 @@ namespace ServiceFUEN.Controllers
         {
             int memberId = sameCategoryReq.memberId;
             int categoryId = sameCategoryReq.categoryId;
+            int activityId = sameCategoryReq.activityId;
             IEnumerable<ActivityResVM> activityResVM = new List<ActivityResVM>();
 
             var projectFUENContext = _context.Activities
@@ -100,6 +101,7 @@ namespace ServiceFUEN.Controllers
                  .Include(a => a.Instructor)
                 .Where(a => a.GatheringTime > DateTime.Now)
                 .Where(a => a.CategoryId == categoryId)
+                .Where(a=>a.Id!=activityId)
                 .Select(a => a.ToActivityResVM()).ToList()
                 .OrderByDescending(a=>a.NumOfCollections);
 
