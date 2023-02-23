@@ -2,9 +2,10 @@
 
 namespace ServiceFUEN.Models.ViewModels
 {
-    public class FavoritesDTO
+    public class favoriteAllVM
     {
         public virtual ICollection<Member> Members { get; set; }
         public virtual ICollection<Product> Products { get; set; }
+
     }
 }

@@ -45,8 +45,16 @@ namespace ServiceFUEN.Models.ViewModels
         {
             return new CategoryVM
             {
-                Id = category.Id,   
-                Name = category.Name,
+                 Id= category.Id,
+                 Name = category.Name,
+            };
+        }
+        public static BrandVM ToBrandVM(this Brand brand)
+        {
+            return new BrandVM
+            {
+                Id = brand.Id,
+                Name = brand.Name,
             };
         }
         public static ProductSearchDTO ToProductSearchDTO(this Product product)
@@ -57,8 +65,6 @@ namespace ServiceFUEN.Models.ViewModels
                 Name= product.Name,
                 CategoryId= product.CategoryId,
                 BrandId= product.BrandId,
-                //Price = product.Price,
-                //Source = product.ProductPhotos.Select(x => x.Source).ToList(),
 
             };
         }

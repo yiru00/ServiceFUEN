@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ServiceFUEN.Models.EFModels;
 using ServiceFUEN.Models.ViewModels;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace ServiceFUEN.Controllers
             _context = context;
         }
         // Post api/Favorites/ProductFavorites
-        //收藏商品
+        //會員收藏商品
         [HttpPost]
         [Route("api/Favorites/ProductFavorites")]
         public void ProductFavorites(int memberId, int productId)
@@ -31,11 +32,11 @@ namespace ServiceFUEN.Controllers
 
             if (member != null)
             {
-                if(product!= null)
+                if (product != null)
                 {
-                    var ismember = _context.Members.Where(m => m.Id==memberId);
+                    var ismember = _context.Members.Where(m => m.Id == memberId);
                     var isproduct = _context.Products.Where(p => p.Id == productId);
-                    if (ismember == null&& isproduct == null)
+                    if (ismember != null && isproduct != null)
                     {
                         member.Products.Add(product);
 
@@ -53,10 +54,8 @@ namespace ServiceFUEN.Controllers
                     fav.reply = "商品不存在";
                 }
             }
-            else
-            {
-                fav.reply = "會員不存在";
-            }
+            fav.reply = "會員不存在";
+
         }
         //// Post api/Favorites/ProductFavorites
         ////收藏商品
@@ -75,6 +74,38 @@ namespace ServiceFUEN.Controllers
         //    _context.SaveChanges();
 
         //}
+        // Delete api/Favorites/UnFavorites
+        //會員取消收藏商品
+        //待完成
+        [HttpDelete]
+        [Route("api/Favorites/UnFavorites")]
+        public void UnFavorite(int memberId, int productId)
+        {
+ 
+            var member = _context.Members.Include(p => p.Products).FirstOrDefault(m => m.Id == memberId);
 
+            var product = member.Products.FirstOrDefault(p => p.Id == productId);
+
+            member.Products.Remove(product);
+            _context.SaveChanges();
+
+        }
+
+        // Get api/Favorites/FavoritesAll
+        //會員查看已收藏商品
+        //待完成
+
+        [HttpGet]
+        [Route("api/Favorites/FavoritesAll")]
+        public void FavoritesAll(int memberId)
+        {
+            var member = _context.Members
+                .Include(p => p.Products)
+                .FirstOrDefault(m => m.Id == memberId);
+            
+
+           member.Products.ToList();
+           
+        }
     }
 }

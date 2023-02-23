@@ -59,17 +59,31 @@ namespace ServiceFUEN.Controllers
             return projectFUENContext;
         }
 
+        // Get api/Category/Categorylist
+        //類別下拉選單
         [HttpGet]
-        [Route("api/Category/Category")]
-        public IEnumerable<CategoryVM> Category()
+        [Route("api/Category/Categorylist")]
+        public IEnumerable<CategoryVM> Categorylist()
         {
             var projectFUENContext = _context.Categories
              .Select(p => p.ToCategoryVM());
             return projectFUENContext.ToList();
         }
-       // Get api/Product/Search
-       //依搜尋條件搜尋商品，包含商品圖、品名、價格
-       [HttpGet]
+
+        // Get api/Category/Categorylist
+        //類別下拉選單
+        [HttpGet]
+        [Route("api/Brands/Brandlist")]
+        public IEnumerable<BrandVM> Brandlist()
+        {
+            var projectFUENContext = _context.Brands
+             .Select(p => p.ToBrandVM());
+            return projectFUENContext.ToList();
+        }
+
+        // Get api/Product/Search
+        //依搜尋條件搜尋商品，包含商品圖、品名、價格
+        [HttpGet]
        [Route("api/Product/Search")]
 
         public IEnumerable<ProductSearchDTO> Search(string? name, int? categoryId, int? brandId)
