@@ -2,7 +2,7 @@
 
 namespace ServiceFUEN.Models.ViewModels
 {
-    public class ActivityVM
+    public class ActivityResVM
 	{
         public int ActivityId { get; set; }
         public string CoverImage { get; set; }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ServiceFUEN.Models.DTOs;
 using ServiceFUEN.Models.EFModels;
 using ServiceFUEN.Models.ViewModels;
 
@@ -82,12 +83,15 @@ namespace ServiceFUEN.Controllers
 
         }
 
-        // GET api/Activity/SameCategory
+        // post api/Activity/SameCategory
         //取得某分類未舉辦活動，按收藏數大到小排
-        [HttpGet]
-        [Route("api/Activity/SameCategory/{categoryId}")]
-        public IEnumerable<ActivityVM> SameCategory(int categoryId)
+        [HttpPost]
+        [Route("api/Activity/SameCategory")]
+        public IEnumerable<ActivityResVM> SameCategory(SameCategoryReqDTO sameCategoryReq)
         {
+            int memberId = sameCategoryReq.memberId;
+            int categoryId = sameCategoryReq.categoryId;
+            IEnumerable<ActivityResVM> activityResVM = new List<ActivityResVM>();
 
             var projectFUENContext = _context.Activities
                 .Include(a => a.Category)
@@ -96,8 +100,20 @@ namespace ServiceFUEN.Controllers
                  .Include(a => a.Instructor)
                 .Where(a => a.GatheringTime > DateTime.Now)
                 .Where(a => a.CategoryId == categoryId)
-                .Select(a => a.ToActivityVM()).ToList()
+                .Select(a => a.ToActivityResVM()).ToList()
                 .OrderByDescending(a=>a.NumOfCollections);
+
+            activityResVM = projectFUENContext;
+            foreach (ActivityResVM vm in activityResVM)
+            {
+                var isSaved = _context.ActivityCollections.Where(a => a.ActivityId == vm.ActivityId).FirstOrDefault(a => a.UserId == memberId);
+                if (memberId != 0 && isSaved != null) //有會員 且收藏過（在此活動中的收藏名單有此會員）
+                {
+                    vm.statusId = 4;
+                    vm.message = "已收藏過";
+                    vm.UnSaveId = isSaved.Id;
+                }
+            }
 
             return projectFUENContext.ToList();
 
@@ -106,14 +122,15 @@ namespace ServiceFUEN.Controllers
         //依照搜尋條件取得所有未舉辦的活動 按活動集合日期小到大排
         [HttpGet]
         [Route("api/Activity/Search")]
-        public IEnumerable<ActivityVM> Search(string? activityName,int? categoryId,string? address,DateTime? time,int memberId)
+        public IEnumerable<ActivityResVM> Search(string? activityName,int? categoryId,string? address,DateTime? time,int memberId)
         {
             var now = DateTime.Now;
             if (time!=null&&time>now)//沒傳入日期或傳入日期小於當下 一律以當下為準
             {
                 now = (DateTime)time;
             }
-            IEnumerable<ActivityVM> activityVM = new List<ActivityVM>();
+            IEnumerable<ActivityResVM> activityResVM = new List<ActivityResVM>();
+
             var projectFUENContext = _context.Activities
                 .Include(a => a.Category)
                 .Include(a => a.ActivityMembers)
@@ -137,11 +154,11 @@ namespace ServiceFUEN.Controllers
                 projectFUENContext =
                projectFUENContext.Where(a => a.CategoryId==categoryId);
             }
-            
-                activityVM= projectFUENContext.OrderBy(a => a.GatheringTime).Select(a => a.ToActivityVM()).ToList();
+
+            activityResVM = projectFUENContext.OrderBy(a => a.GatheringTime).Select(a => a.ToActivityResVM()).ToList();
             
 
-            foreach(ActivityVM vm in activityVM)
+            foreach(ActivityResVM vm in activityResVM)
             {
                 var isSaved = _context.ActivityCollections.Where(a => a.ActivityId == vm.ActivityId).FirstOrDefault(a => a.UserId == memberId);
                 if (memberId !=0 && isSaved != null) //有會員 且收藏過（在此活動中的收藏名單有此會員）
@@ -152,7 +169,7 @@ namespace ServiceFUEN.Controllers
                 }
             }
 
-            return activityVM;
+            return activityResVM;
             //return projectFUENContext.Select(a => a.ToActivityVM()).ToList().OrderBy(a => a.GatheringTime);
         }
 
@@ -160,7 +177,7 @@ namespace ServiceFUEN.Controllers
         //搜尋某個活動//找不到會回傳所有欄位都是null
         [HttpGet]
         [Route("api/Activity/Details")]
-         public ActivityDetailsVM Details(int activityId)
+         public ActivityDetailsVM Details(int activityId,int categoryId)
         {
             var projectFUENContext = _context.Activities
                 .Include(a => a.Category)

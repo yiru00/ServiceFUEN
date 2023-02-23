@@ -24,6 +24,30 @@ namespace ServiceFUEN.Models.ViewModels
                 EnrolmentRate = source.ActivityMembers.Count / source.MemberLimit,
                 InstructorName = source.Instructor.InstructorName,
                 InstructorResumePhoto = source.Instructor.ResumePhoto,
+               
+            };
+        }
+
+        public static ActivityResVM ToActivityResVM(this Activity source)
+        {
+            return new ActivityResVM
+            {
+                ActivityId = source.Id,
+                CoverImage = source.CoverImage,
+                ActivityName = source.ActivityName,
+                Address = source.Address,
+                CategoryId = source.CategoryId,
+                CategoryName = source.Category.CategoryName,
+                Description = source.Description,
+                GatheringTime = source.GatheringTime,
+                Deadline = source.Deadline,
+                DateOfCreated = source.DateOfCreated,
+                NumOfEnrolment = source.ActivityMembers.Count,
+                MemberLimit = source.MemberLimit,
+                NumOfCollections = source.ActivityCollections.Count,
+                EnrolmentRate = source.ActivityMembers.Count / source.MemberLimit,
+                InstructorName = source.Instructor.InstructorName,
+                InstructorResumePhoto = source.Instructor.ResumePhoto,
                 statusId = 3,
                 message = "可收藏",
                 UnSaveId = 0
