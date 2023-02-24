@@ -27,11 +27,13 @@ namespace ServiceFUEN.Controllers
 	[ApiController]
 	public class MembersController : Controller
 	{
+		private IHttpContextAccessor _contextAccessor;
 
 		private readonly ProjectFUENContext _context;
-		public MembersController(ProjectFUENContext context)
+		public MembersController(ProjectFUENContext context, IHttpContextAccessor contextAccessor)
 		{
 			_context = context;
+			_contextAccessor = contextAccessor;
 		}
 		private string salt = "@!#IUBNKLF";
 
@@ -62,7 +64,7 @@ namespace ServiceFUEN.Controllers
 			_context.SaveChanges();
 
 			SendSignUpEmail(member.MailUser());
-			return "註冊成功，請至信箱查看激活郵件。";
+			return "註冊成功，請至信箱查看啟用郵件。";
 			
 		}
 		
@@ -99,7 +101,7 @@ namespace ServiceFUEN.Controllers
 			}
 			else if (user.IsConfirmed == false)
 			{
-				return "帳號尚未激活，請至信箱查看。";
+				return "帳號尚未啟用，請至信箱查看。";
 			}
 			else if (user.IsInBlackList == true)
 			{
@@ -108,6 +110,7 @@ namespace ServiceFUEN.Controllers
 
 			var claims = new List<Claim>
 				{
+				    new Claim("Id",user.Id.ToString()),
 					new Claim(ClaimTypes.Name, user.EmailAccount),
 					new Claim("FullName", user.NickName),
                    // new Claim(ClaimTypes.Role, "Administrator")
@@ -118,6 +121,18 @@ namespace ServiceFUEN.Controllers
 
 			return "登入";
 			//Json(new { status = "登入", isSucess = true,  });
+		}
+		/// <summary>
+		/// 讀取登入資訊
+		/// </summary>
+		/// 輸入 => 0-讀取Id，1-讀取帳號，2-讀取暱稱
+		[HttpGet]
+		[Route("api/Members/Read")]
+		public string Read(int index)
+		{
+			var claim = _contextAccessor.HttpContext.User.Claims.ToArray();
+			return claim[index].Value.ToString();
+
 		}
 
 		[HttpDelete]
@@ -145,7 +160,7 @@ namespace ServiceFUEN.Controllers
 			message.Subject = "歡迎使用";
 
 			BodyBuilder body = new BodyBuilder();
-			string url = $"https://localhost:7259/api/Members/ActiveRegister?memberId={source.Id}&confirmCode={source.ConfirmCode}";
+			string url = Request.Scheme + "://" + Request.Host + $"/api/Members/ActiveRegister?Id={source.Id}&confirmCode={source.ConfirmCode}";
 			body.HtmlBody = $"<a href=\"{url}\">啟用帳號</a>";
 			
 			message.Body = body.ToMessageBody();
@@ -261,7 +276,6 @@ namespace ServiceFUEN.Controllers
 			member.BirthOfDate = source.BirthOfDate;
 			member.Mobile = source.Mobile;
 			member.Address = source.Address;
-			//要寫一支照片傳入的方法
 			member.PhotoSticker = fullName;
 			member.About = source.About;
 						
@@ -291,7 +305,7 @@ namespace ServiceFUEN.Controllers
 		[Authorize]
 		[HttpPost]
 		[Route("api/Members/ForgotPassword")]
-		public string ForgotPassword(Forgotpassword source)
+		public string ForgotPassword(ForgotPasswordDTO source)
 		{
 			var member = _context.Members.SingleOrDefault(x => x.Id == source.Id);
 			if (member.EmailAccount == null)
