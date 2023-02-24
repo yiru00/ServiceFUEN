@@ -64,6 +64,25 @@ namespace ServiceFUEN.Controllers
             return projectFUENContext;
         }
 
+        // 找某分類的文章
+        [HttpGet]
+        [Route("api/Article/PopularArticle")]
+        public IEnumerable<ArticleListVM> ForumArticle(int ForumId)
+        {
+            var projectFUENContext = _context.Articles
+                .Include(a => a.Member).Include(a => a.Forum).Include(a => a.Messages).Where(a=>a.ForumId==ForumId).OrderByDescending(a=>a.Time).Select(a => new ArticleListVM
+                {
+                    ArticleId = a.Id,
+                    MemberId = a.MemberId,
+                    Title = a.Title,
+                    ForumId = a.ForumId,
+                    Time = a.Time,
+                    NickName = a.Member.NickName,
+                    ForumName = a.Forum.Name,
+                })
+           .ToList();
+            return projectFUENContext;
+        }
         //Search文章標題
         [HttpGet]
         [Route("api/Article/Search")]
