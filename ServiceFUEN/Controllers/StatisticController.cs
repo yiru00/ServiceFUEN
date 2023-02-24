@@ -19,7 +19,7 @@ namespace ServiceFUEN.Controllers
 
 		[Route("api/Statistic/TopViews")]
 		[HttpPost]
-		public IEnumerable<PhotoViewDTO> TopViews(int memberId)
+		public IEnumerable<PhotoViewDTO> TopViews([FromBody]int memberId)
 		{
 			//瀏覽次數最高的照片
 			var photos = _dbContext.Views.Include(v => v.Photo)
@@ -92,6 +92,28 @@ namespace ServiceFUEN.Controllers
 			}
 
 			return result;
+		}
+
+		[Route("api/Statistic/AddView")]
+		[HttpPut]
+		public string AddView(int photoId, int memberId)
+		{
+			var view = _dbContext.Views.FirstOrDefault(v => v.MemberId == memberId && v.PhotoId == photoId && v.ViewDate.Date == DateTime.Today);
+
+			if (view == null)
+			{
+				View entity = new View()
+				{
+					MemberId = memberId,
+					PhotoId = photoId
+				};
+				_dbContext.Views.Add(entity);
+				_dbContext.SaveChanges();
+
+				return "增加成功";
+			}
+
+			return "已經存在DB";
 		}
 	}
 }

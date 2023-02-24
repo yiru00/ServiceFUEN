@@ -52,6 +52,44 @@ namespace ServiceFUEN.Controllers
 
 			return othersCollection;
 		}
+
+		[Route("api/Collection/Collect")]
+		[HttpPut]
+		public void Collect(int photoId, int memberId)
+		{
+			var photo = _dbContext.Photos.FirstOrDefault(p => p.Id == photoId);
+
+			// 判斷是否是典藏
+			if (photo.Author == memberId)
+			{
+				if (photo.IsCollection)
+				{
+					photo.IsCollection = false;
+					photo.CollectionTime = null;
+				}
+				else
+				{
+					photo.IsCollection = true;
+					photo.CollectionTime = DateTime.Now;
+				}
+
+			}
+			else
+			{
+				var collection = _dbContext.OthersCollections.FirstOrDefault(p => p.MemberId == memberId && p.PhotoId == photoId);
+				if (collection != null) _dbContext.OthersCollections.Remove(collection);
+				else
+				{
+					OthersCollection otherCollection = new OthersCollection()
+					{
+						MemberId = memberId,
+						PhotoId = photoId,
+					};
+					_dbContext.OthersCollections.Add(otherCollection);
+				}
+			}
+			_dbContext.SaveChanges();
+		}
 	}
 
 	
