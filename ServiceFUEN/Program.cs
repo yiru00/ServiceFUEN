@@ -12,6 +12,9 @@ var ProjectFUENconnectionString = builder.Configuration.GetConnectionString("azu
 builder.Services.AddDbContext<ProjectFUENContext>(options =>
     options.UseSqlServer(ProjectFUENconnectionString));
 
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options => options.LoginPath = "/Login/Index");
+
 builder.Services.AddControllers();
 
 string MyAllowOrigins = "AllowAny";

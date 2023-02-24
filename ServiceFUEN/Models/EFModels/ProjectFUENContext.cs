@@ -171,6 +171,11 @@ namespace ServiceFUEN.Models.EFModels
 
             modelBuilder.Entity<Album>(entity =>
             {
+                entity.Property(e => e.CoverImage)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.CreatedTime)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
@@ -598,9 +603,8 @@ namespace ServiceFUEN.Models.EFModels
 
                 entity.Property(e => e.Source)
                     .IsRequired()
-                    .HasMaxLength(32)
-                    .IsUnicode(false)
-                    .IsFixedLength();
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.Title)
                     .IsRequired()
@@ -740,7 +744,7 @@ namespace ServiceFUEN.Models.EFModels
             modelBuilder.Entity<View>(entity =>
             {
                 entity.Property(e => e.ViewDate)
-                    .HasColumnType("datetime")
+                    .HasColumnType("date")
                     .HasDefaultValueSql("(getdate())");
 
                 entity.HasOne(d => d.Member)
