@@ -2,7 +2,7 @@
 
 namespace ServiceFUEN.Models.DTOs
 {
-	public class Forgotpassword
+	public class ForgotPasswordDTO
 	{
 		public int Id { get; set; }
 
