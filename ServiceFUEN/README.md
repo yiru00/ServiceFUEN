@@ -24,6 +24,12 @@
     [V]Edit Collect(Photo)
     [V]Edit AddViews(Photo)
 
+9.  [V]Add two action(PhotoCtroller)
+    [V]Add PhotoSrcDTO
+    [V]Delete GetAlbums(PhotoController)
+    [V]Delete Collect(PhotoController)
+    [V]Delete AddView(PhotoController)
+
 [X]GetInformation(Photo)
 [X]Edit(Photo)
 [X]How to get Photo Exif

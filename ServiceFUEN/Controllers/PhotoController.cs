@@ -72,14 +72,15 @@ namespace ServiceFUEN.Controllers
 
         //}
 
-        [Route("api/Photo/GetAlbums")]
-        [HttpGet]
-        public IEnumerable<AlbumDTO> GetAlbums()
-        {
-            var albums = _dbContext.Albums.Select(a => a.EntityTODto());
+        // Move to HuanYu
+        //[Route("api/Photo/GetAlbums")]
+        //[HttpGet]
+        //public IEnumerable<AlbumDTO> GetAlbums()
+        //{
+        //    var albums = _dbContext.Albums.Select(a => a.EntityTODto());
 
-            return albums;
-        }
+        //    return albums;
+        //}
 
         [Route("api/Photo/GetPhoto")]
         [HttpGet]
@@ -152,64 +153,100 @@ namespace ServiceFUEN.Controllers
             return dto;
         }
 
-        [Route("api/Photo/Collect")]
-        [HttpPut]
-        public void Collect(int photoId, int memberId)
+        // Move to HuanYu
+        //[Route("api/Photo/Collect")]
+        //[HttpPut]
+        //public void Collect(int photoId, int memberId)
+        //{
+        //    var photo = _dbContext.Photos.FirstOrDefault(p => p.Id == photoId);
+
+        //    // 判斷是否是典藏
+        //    if (photo.Author == memberId)
+        //    {
+        //        if (photo.IsCollection)
+        //        {
+        //            photo.IsCollection = false;
+        //            photo.CollectionTime = null;
+        //        }
+        //        else
+        //        {
+        //            photo.IsCollection = true;
+        //            photo.CollectionTime = DateTime.Now;
+        //        }
+
+        //    }
+        //    else
+        //    {
+        //        var collection = _dbContext.OthersCollections.FirstOrDefault(p => p.MemberId == memberId && p.PhotoId == photoId);
+        //        if (collection != null) _dbContext.OthersCollections.Remove(collection);
+        //        else
+        //        {
+        //            OthersCollection otherCollection = new OthersCollection()
+        //            {
+        //                MemberId = memberId,
+        //                PhotoId = photoId,
+        //            };
+        //            _dbContext.OthersCollections.Add(otherCollection);
+        //        }
+        //    }
+        //    _dbContext.SaveChanges();
+        //}
+
+        // Move to HuanYu
+        //[Route("api/Photo/AddView")]
+        //[HttpPut]
+        //public string AddView(int photoId, int memberId)
+        //{
+        //    var view = _dbContext.Views.FirstOrDefault(v => v.MemberId == memberId && v.PhotoId == photoId && v.ViewDate.Date == DateTime.Today);
+
+        //    if (view == null)
+        //    {
+        //        View entity = new View()
+        //        {
+        //            MemberId = memberId,
+        //            PhotoId = photoId
+        //        };
+        //        _dbContext.Views.Add(entity);
+        //        _dbContext.SaveChanges();
+
+        //        return "增加成功";
+        //    }
+
+        //    return "已經存在DB";
+        //}
+
+        // HuanYu
+        [HttpGet]
+        [Route("api/Photo/GetMemberPhotos")]
+        public IEnumerable<PhotoSrcDTO> GetMemberPhotos(int memberId)
         {
-            var photo = _dbContext.Photos.FirstOrDefault(p => p.Id == photoId);
-
-            // 判斷是否是典藏
-            if (photo.Author == memberId)
-            {
-                if (photo.IsCollection)
+            //撈某人已公開(非典藏)的照片
+            var photos = _dbContext.Photos.Include(p => p.AuthorNavigation)
+                .Where(p => p.AuthorNavigation.Id == memberId && p.IsCollection == false)
+                .Select(p => new PhotoSrcDTO
                 {
-                    photo.IsCollection = false;
-                    photo.CollectionTime = null;
-                }
-                else
-                {
-                    photo.IsCollection = true;
-                    photo.CollectionTime = DateTime.Now;
-                }
-
-            }
-            else
-            {
-                var collection = _dbContext.OthersCollections.FirstOrDefault(p => p.MemberId == memberId && p.PhotoId == photoId);
-                if (collection != null) _dbContext.OthersCollections.Remove(collection);
-                else
-                {
-                    OthersCollection otherCollection = new OthersCollection()
-                    {
-                        MemberId = memberId,
-                        PhotoId = photoId,
-                    };
-                    _dbContext.OthersCollections.Add(otherCollection);
-                }
-            }
-            _dbContext.SaveChanges();
+                    PhotoId = p.Id,
+                    PhotoSrc = p.Source,
+                });
+            return photos;
         }
 
-        [Route("api/Photo/AddView")]
-        [HttpPut]
-        public string AddView(int photoId, int memberId)
+        // HuanYu
+        [HttpGet]
+        [Route("api/Photo/CommunityPage")]
+        public IEnumerable<PhotoSrcDTO> CommunityPage(int tagId)
         {
-            var view = _dbContext.Views.FirstOrDefault(v => v.MemberId == memberId && v.PhotoId == photoId && v.ViewDate.Date == DateTime.Today);
-
-            if (view == null)
-            {
-                View entity = new View()
+            //社群主頁-取得某tag的照片們
+            //一個tag對應多張照片，Where(撈多筆).First(撈一筆)所以可以用.Photos，
+            var photos = _dbContext.Tags.Include(t => t.Photos)
+                .FirstOrDefault(t => t.Id == tagId).Photos
+                .Select(t => new PhotoSrcDTO
                 {
-                    MemberId = memberId,
-                    PhotoId = photoId
-                };
-                _dbContext.Views.Add(entity);
-                _dbContext.SaveChanges();
+                    PhotoId = t.Id,
+                    PhotoSrc = t.Source,
+                });
 
-                return "增加成功";
-            }
-
-            return "已經存在DB";
+            return photos;
         }
     }
 }
