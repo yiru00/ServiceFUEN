@@ -1,6 +1,6 @@
 ﻿namespace ServiceFUEN.Models.DTOs
 {
-    public class MemberDTO
+    public class CommunityMemberDTO
     {
         public int Id { get; set; }
         public string Name { get; set; }

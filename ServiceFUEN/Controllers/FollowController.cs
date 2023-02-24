@@ -43,12 +43,12 @@ namespace ServiceFUEN.Controllers
 
 		[Route("api/Follow/GetAllFollower")]
 		[HttpGet]
-		public IEnumerable<MemberDTO> GetAllFollower(int memberId)
+		public IEnumerable<CommunityMemberDTO> GetAllFollower(int memberId)
 		{
 			return _dbContext.FollowInfos
 					.Include(f => f.FollowerNavigation)
 					.Where(f => f.Following == memberId)
-					.Select(f => new MemberDTO()
+					.Select(f => new CommunityMemberDTO()
 					{
 						Id = f.FollowerNavigation.Id,
 						Name = f.FollowerNavigation.NickName,
@@ -59,12 +59,12 @@ namespace ServiceFUEN.Controllers
 
 		[Route("api/Follow/GetAllFollowing")]
 		[HttpGet]
-		public IEnumerable<MemberDTO> GetAllFollowing(int memberId)
+		public IEnumerable<CommunityMemberDTO> GetAllFollowing(int memberId)
 		{
 			return _dbContext.FollowInfos
 					.Include(f => f.FollowingNavigation)
 					.Where(f => f.Follower == memberId)
-					.Select(f => new MemberDTO()
+					.Select(f => new CommunityMemberDTO()
 					{
 						Id = f.FollowingNavigation.Id,
 						Name = f.FollowingNavigation.NickName,
