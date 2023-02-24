@@ -65,29 +65,30 @@ namespace ServiceFUEN.Controllers
         }
 
         //Search文章標題
-        //[HttpGet]
-        //[Route("api/Article/Search")]
-        //public IEnumerable<ArticleVM> Search(string? title)
-        //{
-        //    IEnumerable<Article> projectFUENContext = _context.Articles;
-        //    if (!string.IsNullOrEmpty(title))
-        //    {
-        //        projectFUENContext =
-        //        projectFUENContext.Where(a => a.Title.Contains(title)) ;
-        //    }
-        //    var result = projectFUENContext.Select(a => new ArticleVM()
-        //    {
-        //        Id= a.Id,
-        //        Time = a.Time,
-        //        Title = a.Title,
-        //        Content= a.Content,
-        //        MemberId= a.MemberId,
-        //        ForumId= a.ForumId,
-        //    });
-        //    return result;
-        //}
+        [HttpGet]
+        [Route("api/Article/Search")]
+        public IEnumerable<ArticleListVM> Search(string? title)
+        {
+            IEnumerable<Article> projectFUENContext = _context.Articles.Include(a => a.Member).Include(a => a.Forum).Include(a => a.Messages);
+            if (!string.IsNullOrEmpty(title))
+            {
+                projectFUENContext =
+                projectFUENContext.Where(a => a.Title.Contains(title));
+            }
+            var result = projectFUENContext.Select(a => new ArticleListVM()
+            {
+                ArticleId = a.Id,
+                MemberId = a.MemberId,
+                Title = a.Title,
+                ForumId = a.ForumId,
+                Time = a.Time,
+                NickName = a.Member.NickName,
+                ForumName = a.Forum.Name,
+            });
+            return result;
+        }
 
-        
+
         //全部看板
         [HttpGet]
         [Route("api/Forum/ForumAll")]

@@ -19,6 +19,7 @@ namespace ServiceFUEN.Models.DTOs
                 Content = source.Content,
                 MemberId = source.MemberId,
                 ArticleId = source.ArticleId,
+                Time = DateTime.Now,
             };
         }
     }
