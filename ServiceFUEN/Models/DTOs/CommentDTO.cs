@@ -5,6 +5,6 @@
         public int Id { get; set; }
         public string Content { get; set; }
         public DateTime CommentTime { get; set; }
-        public MemberDTO Author { get; set; }
+        public CommunityMemberDTO Author { get; set; }
     }
 }

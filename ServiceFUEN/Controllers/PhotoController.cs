@@ -110,7 +110,7 @@ namespace ServiceFUEN.Controllers
             dto.UploadTime = photo.UploadTime;
 
             // Get Author Information
-            MemberDTO memberDTO = new MemberDTO();
+            CommunityMemberDTO memberDTO = new CommunityMemberDTO();
             memberDTO.Id = photo.Author;
             memberDTO.Name = photo.AuthorNavigation.NickName;
             memberDTO.Source = photo.AuthorNavigation.PhotoSticker;
@@ -131,7 +131,7 @@ namespace ServiceFUEN.Controllers
                 Id = c.Id,
                 Content = c.Content,
                 CommentTime = c.CommentTime,
-                Author = new MemberDTO()
+                Author = new CommunityMemberDTO()
                 {
                     Id = c.Member.Id,
                     Source = c.Member.PhotoSticker,
