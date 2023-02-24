@@ -55,7 +55,7 @@ namespace ServiceFUEN.Controllers
 
            .Include(x => x.ProductPhotos)
             .Select(p => p.ToProductNewVM()).ToList()
-            .OrderByDescending(p => p.ReleaseDate).Take(10);
+            .OrderByDescending(p => p.ReleaseDate).Take(8);
             return projectFUENContext;
         }
 
