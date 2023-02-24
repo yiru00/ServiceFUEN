@@ -17,7 +17,7 @@ namespace ServiceFUEN.Models.DTOs
         public string Location { get; set; }
         public DateTime ShootingTime { get; set; }
         public DateTime UploadTime { get; set; }
-        public MemberDTO Author { get; set; }
+        public CommunityMemberDTO Author { get; set; }
         public bool IsCollection { get; set; }
         public IEnumerable<CommentDTO> Comments { get; set; }
         public IEnumerable<TagDTO> Tags { get; set; }
