@@ -50,9 +50,14 @@ namespace ServiceFUEN.Controllers
             //回傳結果
             ActivityAskResVM activityAskRes = new ActivityAskResVM();
             activityAskRes.result = false;
+            activityAskRes.qId = 0;
+            activityAskRes.qDateCreated = null;
 
             var member = _context.Members.Find(memberId);
             var activity = _context.Activities.Find(activityId);
+            activityAskRes.nickName = "no data";
+            activityAskRes.photoSticker ="no data";
+            activityAskRes.qContent = "no data";
 
             //活動是否存在
             if (activity!=null)//存在
@@ -63,6 +68,9 @@ namespace ServiceFUEN.Controllers
                     //是否有會員（不用驗證）
                     if (member != null)
                     {
+                        activityAskRes.nickName = member.NickName;
+                        activityAskRes.photoSticker = member.PhotoSticker;
+
                         if (!string.IsNullOrEmpty(content))//發問是有文字的
                         {
                             //發問
@@ -70,6 +78,15 @@ namespace ServiceFUEN.Controllers
                             _context.SaveChanges();
                             activityAskRes.message = "發問成功";
                             activityAskRes.result = true;
+
+
+                            //每個人在每篇文都可以有多個留言，找到該活動的留言並按照留言順序舊到新排=>找到最後一個（最新發問）memberId=此留言發問者id=>找到新增上去的那筆留言資料
+                            var question = _context.Questions.Where(a => a.ActivityId == activityId).OrderBy(a=>a.DateCreated).LastOrDefault(a => a.MemberId == memberId);
+
+                            activityAskRes.qId = question.Id;
+                            activityAskRes.qDateCreated = question.DateCreated;
+                            activityAskRes.qContent = question.Content;
+                            
 
                         }
                         else
