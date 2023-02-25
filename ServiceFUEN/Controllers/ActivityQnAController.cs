@@ -33,7 +33,7 @@ namespace ServiceFUEN.Controllers
                 .Include(a => a.Answers)
                 .Include(a => a.Member).Where(a=>a.ActivityId==activityId)
                 .Select(a => a.ToQnAResVM()).ToList()
-                .OrderByDescending(a => a.QDateCreated);
+                .OrderBy(a => a.QDateCreated);
             return projectFUENContext.ToList();
         }
 
