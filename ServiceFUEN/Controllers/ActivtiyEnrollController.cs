@@ -37,6 +37,7 @@ namespace ServiceFUEN.Controllers
             //準備回傳資料
             EnrollResVM enrollRes = new EnrollResVM();
             enrollRes.result = false;
+            enrollRes.deleteId = 0;
 
             var member = _context.Members.Find(memberId);
             var activity = _context.Activities.Find(activityId);
@@ -76,6 +77,9 @@ namespace ServiceFUEN.Controllers
                                     enrollRes.result = true;
                                     enrollRes.memberRealName = member.RealName;
                                     enrollRes.mobile = member.Mobile;
+
+                                    int activityMemberId = _context.ActivityMembers.Where(a => a.ActivityId == activityId).FirstOrDefault(a => a.MemberId == memberId).Id;
+                                    enrollRes.deleteId = activityMemberId;
                                 }
                                 else //已額滿
                                 {
@@ -157,34 +161,39 @@ namespace ServiceFUEN.Controllers
                 //活動是否截止？
                 if (activity.Deadline > DateTime.Now)//未截止（活動截止日大於現在）
                 {
-
-                    //報名人數
-                    int numOfEnrolment = _context.Activities.Include(a => a.ActivityMembers).FirstOrDefault(a => a.Id == activityId).ActivityMembers.Count;
-
-                    //人數限制
-                    int memberLimit = _context.Activities.FirstOrDefault(a => a.Id == activityId).MemberLimit;
-
-                    //活動是否額滿?
-                    if (memberLimit > numOfEnrolment)//未額滿（限制人數>報名人數）
+                    //該會員是否報名過？
+                    var isEnrolled = _context.ActivityMembers.Where(a => a.ActivityId == activityId).FirstOrDefault(a => a.MemberId == memberId);
+                    if (member != null && isEnrolled != null) //會員有存在 且報名過（在此活動中的參加名單有此會員）
                     {
-                        enrollStatusRes.statusId = 4;
-                        enrollStatusRes.message = "可報名";
+                        enrollStatusRes.statusId = 5;
+                        enrollStatusRes.message = "已報名";
+                        enrollStatusRes.deleteId = isEnrolled.Id;
 
-                        //該會員是否報名過？
-                        var isEnrolled = _context.ActivityMembers.Where(a => a.ActivityId == activityId).FirstOrDefault(a => a.MemberId == memberId);
-                        if (member != null&& isEnrolled != null) //會員有存在 且報名過（在此活動中的參加名單有此會員）
+                    }
+                    else
+                    {
+                        //報名人數
+                        int numOfEnrolment = _context.Activities.Include(a => a.ActivityMembers).FirstOrDefault(a => a.Id == activityId).ActivityMembers.Count;
+
+                        //人數限制
+                        int memberLimit = _context.Activities.FirstOrDefault(a => a.Id == activityId).MemberLimit;
+
+                        //活動是否額滿?
+                        if (memberLimit > numOfEnrolment)//未額滿（限制人數>報名人數）
                         {
-                            enrollStatusRes.statusId = 5;
-                            enrollStatusRes.message = "已報名";
-                            enrollStatusRes.deleteId = isEnrolled.Id;
-                            
+                            enrollStatusRes.statusId = 4;
+                            enrollStatusRes.message = "可報名";
+
+
+                        }
+                        else //已額滿
+                        {
+                            enrollStatusRes.statusId = 3;
+                            enrollStatusRes.message = "已額滿";
                         }
                     }
-                    else //已額滿
-                    {
-                        enrollStatusRes.statusId = 3;
-                        enrollStatusRes.message = "已額滿";
-                    }
+
+                    
                 }
                 else //截止
                 {

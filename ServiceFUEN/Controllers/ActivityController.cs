@@ -84,7 +84,7 @@ namespace ServiceFUEN.Controllers
         }
 
         // post api/Activity/SameCategory
-        //取得某分類未舉辦活動，按收藏數大到小排
+        //取得某分類未截止活動，按收藏數大到小排
         [HttpPost]
         [Route("api/Activity/SameCategory")]
         public IEnumerable<ActivityResVM> SameCategory(SameCategoryReqDTO sameCategoryReq)
@@ -99,7 +99,7 @@ namespace ServiceFUEN.Controllers
                 .Include(a => a.ActivityMembers)
                 .Include(a => a.ActivityCollections)
                  .Include(a => a.Instructor)
-                .Where(a => a.GatheringTime > DateTime.Now)
+                .Where(a => a.Deadline > DateTime.Now)
                 .Where(a => a.CategoryId == categoryId)
                 .Where(a=>a.Id!=activityId)
                 .Select(a => a.ToActivityResVM()).ToList()
