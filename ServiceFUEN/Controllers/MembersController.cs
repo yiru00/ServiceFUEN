@@ -19,6 +19,7 @@ using static System.Net.WebRequestMethods;
 using Microsoft.AspNetCore.Authorization;
 using System.Text;
 using System.Security.Cryptography;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace ServiceFUEN.Controllers
 {
@@ -27,15 +28,17 @@ namespace ServiceFUEN.Controllers
 	[ApiController]
 	public class MembersController : Controller
 	{
-		private IHttpContextAccessor _contextAccessor;
+        private IHttpContextAccessor _contextAccessor;
+        private readonly ProjectFUENContext _context;
+        private readonly IConfiguration _configuration;
+        public MembersController(ProjectFUENContext context, IConfiguration configuration, IHttpContextAccessor contextAccessor)
+        {
+            _context = context;
+            _configuration = configuration;
+            _contextAccessor = contextAccessor;
 
-		private readonly ProjectFUENContext _context;
-		public MembersController(ProjectFUENContext context, IHttpContextAccessor contextAccessor)
-		{
-			_context = context;
-			_contextAccessor = contextAccessor;
-		}
-		private string salt = "@!#IUBNKLF";
+        }
+        private string salt = "@!#IUBNKLF";
 
 		[HttpPost]
 		[Route("api/Members/SignUp")]
@@ -83,59 +86,137 @@ namespace ServiceFUEN.Controllers
 					return sb.ToString();
 				}
 			}
-		
 
-		[HttpPost]
-		[Route("api/Members/Login")]
-		public string Login([FromForm]string account, [FromForm] string password)
-		{
-			
-		    var user = (from a in _context.Members
-						where a.EmailAccount == account
-						&& a.EncryptedPassword == ToSHA256(password,salt)
-						select a).SingleOrDefault();
+        [HttpPost]
+        [Route("api/Members/JwtLogin")]
+        public string JwtLogin(string account, string password)
+        {
+            var user = (from a in _context.Members
+                        where a.EmailAccount == account
+                        && a.EncryptedPassword == password
+                        select a).SingleOrDefault();
 
-			if (user == null)
-			{
-				return "帳號密碼錯誤";
-			}
-			else if (user.IsConfirmed == false)
-			{
-				return "帳號尚未啟用，請至信箱查看。";
-			}
-			else if (user.IsInBlackList == true)
-			{
-				return "此帳戶已是黑名單";
-			}
+            if (user == null)
+            {
+                return "帳號密碼錯誤";
+            }
+            else if (user.IsConfirmed == false)
+            {
+                return "帳號尚未啟用，請至信箱查看。";
+            }
+            else if (user.IsInBlackList == true)
+            {
+                return "此帳戶已是黑名單";
+            }
+            else
+            {
+                //設定使用者資訊
+                var claims = new List<Claim>
+                {
+                    new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
+                    new Claim(JwtRegisteredClaimNames.Email, user.EmailAccount),
+                    new Claim("FullName", user.NickName),
 
-			var claims = new List<Claim>
-				{
-				    new Claim("Id",user.Id.ToString()),
-					new Claim(ClaimTypes.Name, user.EmailAccount),
-					new Claim("FullName", user.NickName),
-                   // new Claim(ClaimTypes.Role, "Administrator")
                 };
 
-			var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-			HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+                //var role = from a in _todoContext.Roles
+                //           where a.EmployeeId == user.EmployeeId
+                //           select a;
+                ////設定Role
+                //foreach (var temp in role)
+                //{
+                //    claims.Add(new Claim(ClaimTypes.Role, temp.Name));
+                //}
 
-			return "登入";
-			//Json(new { status = "登入", isSucess = true,  });
-		}
-		/// <summary>
-		/// 讀取登入資訊
-		/// </summary>
-		/// 輸入 => 0-讀取Id，1-讀取帳號，2-讀取暱稱
-		[HttpGet]
-		[Route("api/Members/Read")]
-		public string Read(int index)
-		{
-			var claim = _contextAccessor.HttpContext.User.Claims.ToArray();
-			return claim[index].Value.ToString();
+                //取出appsettings.json裡的KEY處理
+                var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:KEY"]));
 
-		}
+                //設定jwt相關資訊
+                var jwt = new JwtSecurityToken
+                (
+                    issuer: _configuration["JWT:Issuer"],
+                    audience: _configuration["JWT:Audience"],
+                    claims: claims,
+                    expires: DateTime.Now.AddMinutes(30),
+                    signingCredentials: new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256)
+                );
 
-		[HttpDelete]
+                //產生JWT Token
+                var token = new JwtSecurityTokenHandler().WriteToken(jwt);
+
+                //回傳JWT Token給認證通過的使用者
+                return token;
+            }
+        }
+
+        //讀取使用者Id
+        [Authorize]
+        [HttpGet]
+        [Route("api/Members/Read")]
+        public string Read()
+        {
+
+            var claim = User.Claims.ToArray();
+
+            var userId = claim.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            return userId;
+        }
+
+
+
+        //無法取得cookie，先棄用~
+        //[HttpPost]
+        //[Route("api/Members/Login")]
+        //public string Login([FromForm]string account, [FromForm] string password)
+        //{
+
+        //    var user = (from a in _context.Members
+        //				where a.EmailAccount == account
+        //				&& a.EncryptedPassword == ToSHA256(password,salt)
+        //				select a).SingleOrDefault();
+
+        //	if (user == null)
+        //	{
+        //		return "帳號密碼錯誤";
+        //	}
+        //	else if (user.IsConfirmed == false)
+        //	{
+        //		return "帳號尚未啟用，請至信箱查看。";
+        //	}
+        //	else if (user.IsInBlackList == true)
+        //	{
+        //		return "此帳戶已是黑名單";
+        //	}
+
+        //	var claims = new List<Claim>
+        //		{
+        //		    new Claim("Id",user.Id.ToString()),
+        //			new Claim(ClaimTypes.Name, user.EmailAccount),
+        //			new Claim("FullName", user.NickName),
+        //                 // new Claim(ClaimTypes.Role, "Administrator")
+        //              };
+
+        //	var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        //	HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
+        //	return "登入";
+        //	//Json(new { status = "登入", isSucess = true,  });
+        //}
+        ///// <summary>
+        ///// 讀取登入資訊
+        ///// </summary>
+        ///// 輸入 => 0-讀取Id，1-讀取帳號，2-讀取暱稱
+        //[HttpGet]
+        //[Route("api/Members/Read")]
+        //public string Read(int index)
+        //{
+        //	var claim = _contextAccessor.HttpContext.User.Claims.ToArray();
+        //	return claim[index].Value.ToString();
+
+        //}
+
+        [Authorize]
+        [HttpDelete]
 		[Route("api/Members/Logout")]
 		public void Logout()
 		{
@@ -150,7 +231,7 @@ namespace ServiceFUEN.Controllers
 		}
 
 		/// <summary>
-		/// 註冊帳號寄出ConfirmCode
+		/// 註冊帳號寄出啟用郵件
 		/// </summary>
 		private void SendSignUpEmail(MailDTO source)
 		{
@@ -185,13 +266,14 @@ namespace ServiceFUEN.Controllers
 		}
 
 
-		/// <summary>
-		/// 激活的method
-		/// </summary>
-		/// <param name="Id"></param>
-		/// <param name="confirmCode"></param>
-		/// <returns></returns>
-		[HttpGet]
+        /// <summary>
+        /// 啟用的方法
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <param name="confirmCode"></param>
+        /// <returns></returns>
+        [Authorize]
+        [HttpGet]
 		[Route("api/Members/ActiveRegister")]
 		public string ActiveRegister(int Id, string confirmCode)
 		{
@@ -217,8 +299,9 @@ namespace ServiceFUEN.Controllers
 
 			return "success";
 		}
-		
-		[HttpGet]
+
+        [Authorize]
+        [HttpGet]
 		[Route("api/Members/IsExist")]
 		public bool IsExist(string account)
 		{
@@ -230,7 +313,7 @@ namespace ServiceFUEN.Controllers
 			return false;
 		}
 
-		//cookie id or其它值當參數寫入
+		
 		[Authorize]
 		[HttpGet]
 		[Route("api/Members/Profile")]
