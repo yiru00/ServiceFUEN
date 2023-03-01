@@ -30,7 +30,8 @@ namespace ServiceFUEN.Controllers
 
            .Include(x => x.ProductPhotos)
            .Where(x => x.Id == id)
-            .Select(p => p.ToProductDetailVM());
+            .Select(p => p.ToProductDetailVM()).ToList()
+            .OrderBy(x => x.Source);
             return projectFUENContext.ToList();
         }
         // Get api/Product/AllProducts
@@ -42,7 +43,7 @@ namespace ServiceFUEN.Controllers
             var projectFUENContext = _context.Products
 
            .Include(x => x.ProductPhotos)
-            .Select(p => p.ToProductAllVM());
+            .Select(p => p.ToProductAllVM()).ToList();
             return projectFUENContext.ToList();
         }
         // Get api/Product/NewProducts
@@ -121,6 +122,32 @@ namespace ServiceFUEN.Controllers
             return projectFUENContext.ToList();
         }
 
+        // Get api/Product/OrderByPriceS
+        //取得商品圖、品名、價格 => (低至高)
+        [HttpGet]
+        [Route("api/Product/OrderByPriceS")]
+        public IEnumerable<ProductAllVM> OrderByPriceS()
+        {
+            var projectFUENContext = _context.Products
 
+           .Include(x => x.ProductPhotos)
+            .OrderBy(p => p.Price)
+            .Select(p => p.ToProductAllVM());
+            return projectFUENContext.ToList();
+        }
+
+        // Get api/Product/OrderByPriceS
+        //取得商品圖、品名、價格 => (高至低)
+        [HttpGet]
+        [Route("api/Product/OrderByPriceB")]
+        public IEnumerable<ProductAllVM> OrderByPriceB()
+        {
+            var projectFUENContext = _context.Products
+
+           .Include(x => x.ProductPhotos)
+            .OrderByDescending(p => p.Price)
+            .Select(p => p.ToProductAllVM());
+            return projectFUENContext.ToList();
+        }
     }
 }
