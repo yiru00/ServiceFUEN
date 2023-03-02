@@ -40,7 +40,7 @@ namespace ServiceFUEN.Models.ViewModels
                 CategoryName = source.Category.CategoryName,
                 Description = source.Description,
                 GatheringTime = source.GatheringTime.ToString("yyyy-MM-dd HH:mm"),
-                Deadline = source.Deadline.ToString("yyyy-MM-dd HH:mm:ss"),
+                Deadline = source.Deadline.ToString("yyyy-MM-dd HH:mm"),
                 DateOfCreated = source.DateOfCreated.ToString("yyyy-MM-dd HH:mm"),
                 NumOfEnrolment = source.ActivityMembers.Count,
                 MemberLimit = source.MemberLimit,
