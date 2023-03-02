@@ -286,6 +286,7 @@ namespace ServiceFUEN.Controllers
         [Route("api/Article/EditArticle/{id}")]
         public void EditArticle(int id,[FromForm] CreateArticleVM articleVM)
         {
+
             List<ArticlePhoto> photos = new List<ArticlePhoto>();
 
             foreach (var file in articleVM.Files)
@@ -309,18 +310,12 @@ namespace ServiceFUEN.Controllers
                 photos.Add(photo);
             }
 
-            var article = _context.Articles.FirstOrDefault(a=>a.Id == id);
+            var article = _context.Articles.FirstOrDefault(a => a.Id == id);
             article.MemberId = articleVM.MemberId;
             article.Title = articleVM.Title;
             article.Content = articleVM.Content;
-            article.ArticlePhotos = photos;
             article.ForumId = articleVM.ForumId;
-            //foreach(string item in articleVM.Photos)
-            //{
-
-            //    //article.ArticlePhotos.Add(photo); 一樣
-            //}
-            //article.ArticlePhotos = photos;
+            article.ArticlePhotos = photos;
 
             _context.Articles.Update(article);
             _context.SaveChanges();
