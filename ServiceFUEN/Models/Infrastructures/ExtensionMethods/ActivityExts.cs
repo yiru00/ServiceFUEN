@@ -36,6 +36,7 @@ namespace ServiceFUEN.Models.ViewModels
                 CoverImage = source.CoverImage,
                 ActivityName = source.ActivityName,
                 Address = source.Address,
+                City=source.Address.Substring(0,3),
                 CategoryId = source.CategoryId,
                 CategoryName = source.Category.CategoryName,
                 Description = source.Description,
