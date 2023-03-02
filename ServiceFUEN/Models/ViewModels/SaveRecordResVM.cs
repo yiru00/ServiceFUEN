@@ -11,12 +11,12 @@ namespace ServiceFUEN.Models.ViewModels
         public string Address { get; set; }
         public int MemberLimit { get; set; }
         public string Description { get; set; }
-        public DateTime GatheringTime { get; set; }
-        public DateTime Deadline { get; set; }
-        public DateTime DateOfCreated { get; set; }
+        public string GatheringTime { get; set; }
+        public string Deadline { get; set; }
+        public string DateOfCreated { get; set; }
 
         public int SaveId { get; set; }
-        public DateTime DateOfSave { get; set; }
+        public string DateOfSave { get; set; }
     }
 }
 

@@ -18,11 +18,11 @@ namespace ServiceFUEN.Models.Infrastructures.ExtensionMethods
                 Address = source.Activity.Address,
                 MemberLimit = source.Activity.MemberLimit,
                 Description = source.Activity.Description,
-                GatheringTime = source.Activity.GatheringTime,
-                Deadline = source.Activity.Deadline,
-                DateOfCreated = source.Activity.DateOfCreated,
+                GatheringTime = source.Activity.GatheringTime.ToString("yyyy-MM-dd HH:mm"),
+                Deadline = source.Activity.Deadline.ToString("yyyy-MM-dd HH:mm"),
+                DateOfCreated = source.Activity.DateOfCreated.ToString("yyyy-MM-dd HH:mm"),
                 SaveId = source.Id,
-                DateOfSave = source.DateCreated
+                DateOfSave = source.DateCreated.ToString("yyyy-MM-dd HH:mm")
             };
 
         }

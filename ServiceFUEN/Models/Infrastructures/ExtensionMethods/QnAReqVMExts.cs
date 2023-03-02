@@ -17,7 +17,7 @@ namespace ServiceFUEN.Models.Infrastructures.ExtensionMethods
                     activityId = source.ActivityId,
                     QId = source.Id,
                     QContent = source.Content,
-                    QDateCreated = source.DateCreated,
+                    QDateCreated = source.DateCreated.ToString("yyyy-MM-dd HH:mm"),
                     MemberId = source.Member.Id,
 
                     NickName = source.Member.NickName,
@@ -34,7 +34,7 @@ namespace ServiceFUEN.Models.Infrastructures.ExtensionMethods
                 activityId = source.ActivityId,
                 QId = source.Id,
                 QContent = source.Content,
-                QDateCreated = source.DateCreated,
+                QDateCreated = source.DateCreated.ToString("yyyy-MM-dd HH:mm"),
                 MemberId = source.Member.Id,
 
                 NickName = source.Member.NickName,
@@ -43,7 +43,7 @@ namespace ServiceFUEN.Models.Infrastructures.ExtensionMethods
                 //一個問題只會有一個答案
                 AId = source.Answers.FirstOrDefault().Id,
                 AContent = source.Answers.FirstOrDefault().Content,
-                ADateCreated = source.Answers.FirstOrDefault().DateCreated
+                ADateCreated = source.Answers.FirstOrDefault().DateCreated.ToString("yyyy-MM-dd HH:mm"),
             };
     
         }

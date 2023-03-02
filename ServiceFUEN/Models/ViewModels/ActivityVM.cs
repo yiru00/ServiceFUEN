@@ -11,9 +11,9 @@ namespace ServiceFUEN.Models.ViewModels
         public int? CategoryId { get; set; }
         public string CategoryName { get; set; }
         public string Description { get; set; }
-        public DateTime GatheringTime { get; set; }
-        public DateTime Deadline { get; set; }
-        public DateTime DateOfCreated { get; set; }
+        public string GatheringTime { get; set; }
+        public string Deadline { get; set; }
+        public string DateOfCreated { get; set; }
         public int NumOfEnrolment { get; set; }
         public int MemberLimit { get; set; }
         public int NumOfCollections { get; set; }
