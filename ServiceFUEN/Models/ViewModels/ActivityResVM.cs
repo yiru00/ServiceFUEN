@@ -24,7 +24,7 @@ namespace ServiceFUEN.Models.ViewModels
         public string InstructorName { get; set; }
         public string InstructorResumePhoto { get; set; }
 
-        public int memberId { get; set; }
+      
 
         //狀態用
         public int statusId { get; set; }

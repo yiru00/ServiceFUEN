@@ -53,7 +53,7 @@ namespace ServiceFUEN.Models.ViewModels
                 statusId = 3,
                 message = "可收藏",
                 UnSaveId = 0,
-                memberId=0
+        
             };
         }
 
