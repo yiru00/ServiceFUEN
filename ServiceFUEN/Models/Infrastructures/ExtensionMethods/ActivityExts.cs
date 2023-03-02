@@ -52,7 +52,8 @@ namespace ServiceFUEN.Models.ViewModels
                 InstructorResumePhoto = source.Instructor.ResumePhoto,
                 statusId = 3,
                 message = "可收藏",
-                UnSaveId = 0
+                UnSaveId = 0,
+                memberId=0
             };
         }
 
