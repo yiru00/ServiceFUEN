@@ -10,9 +10,9 @@ namespace ServiceFUEN.Models.ViewModels
         public string? Address { get; set; }
         public int? MemberLimit { get; set; }
         public string? ActivityDescription { get; set; }
-        public DateTime? GatheringTime { get; set; }
-        public DateTime? Deadline { get; set; }
-        public DateTime? DateOfCreated { get; set; }
+        public string? GatheringTime { get; set; }
+        public string? Deadline { get; set; }
+        public string? DateOfCreated { get; set; }
         //報名人數
         public int? NumOfEnrolment { get; set; }
 
