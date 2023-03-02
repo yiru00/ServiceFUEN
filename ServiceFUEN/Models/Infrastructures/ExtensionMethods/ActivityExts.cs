@@ -33,6 +33,7 @@ namespace ServiceFUEN.Models.ViewModels
             return new ActivityResVM
             {
                 ActivityId = source.Id,
+                route="/Activity/"+ source.Id,
                 CoverImage = source.CoverImage,
                 ActivityName = source.ActivityName,
                 Address = source.Address,
