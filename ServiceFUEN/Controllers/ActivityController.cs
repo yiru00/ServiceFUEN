@@ -168,6 +168,7 @@ namespace ServiceFUEN.Controllers
                     vm.statusId = 4;
                     vm.message = "已收藏過";
                     vm.UnSaveId = isSaved.Id;
+                    vm.memberId = isSaved.UserId;
                 }
             }
 
