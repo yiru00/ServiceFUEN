@@ -8,7 +8,7 @@ namespace ServiceFUEN.Models.ViewModels
 		public int qId { get; set; }
 		public string nickName { get; set; }
 		public string photoSticker { get; set; }
-		public DateTime? qDateCreated { get; set; }
+		public string? qDateCreated { get; set; }
 		public string qContent { get; set; }
 	}
 }
