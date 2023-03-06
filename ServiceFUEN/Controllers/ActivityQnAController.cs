@@ -84,7 +84,7 @@ namespace ServiceFUEN.Controllers
                             var question = _context.Questions.Where(a => a.ActivityId == activityId).OrderBy(a=>a.DateCreated).LastOrDefault(a => a.MemberId == memberId);
 
                             activityAskRes.qId = question.Id;
-                            activityAskRes.qDateCreated = question.DateCreated;
+                            activityAskRes.qDateCreated = question.DateCreated.ToString("yyyy-MM-dd HH:mm");
                             activityAskRes.qContent = question.Content;
                             
 
