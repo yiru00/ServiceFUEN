@@ -22,7 +22,7 @@ namespace ServiceFUEN.Models.ViewModels
                 NumOfEnrolment = source.ActivityMembers.Count,
                 MemberLimit = source.MemberLimit,
                 NumOfCollections = source.ActivityCollections.Count,
-                EnrolmentRate = source.ActivityMembers.Count / source.MemberLimit,
+                EnrolmentRate = source.ActivityMembers.Count / source.MemberLimit * 100,
                 InstructorName = source.Instructor.InstructorName,
                 InstructorResumePhoto = source.Instructor.ResumePhoto,
                
@@ -48,7 +48,7 @@ namespace ServiceFUEN.Models.ViewModels
                 NumOfEnrolment = source.ActivityMembers.Count,
                 MemberLimit = source.MemberLimit,
                 NumOfCollections = source.ActivityCollections.Count,
-                EnrolmentRate = source.ActivityMembers.Count / source.MemberLimit,
+                EnrolmentRate = source.ActivityMembers.Count / source.MemberLimit*100,
                 InstructorName = source.Instructor.InstructorName,
                 InstructorResumePhoto = source.Instructor.ResumePhoto,
                 statusId = 3,
