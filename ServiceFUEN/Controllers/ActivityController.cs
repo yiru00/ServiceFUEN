@@ -28,7 +28,7 @@ namespace ServiceFUEN.Controllers
         }
 
         // GET: api/Activity/New
-        //取得所有未舉辦的活動（集合日期大於現在），並按照活動建立日期大到小排序
+        //取得所有未舉辦的活動（集合日期大於現在），並按照活動建立日期大到小排序前五個（取最新上架的五個活動）
         [HttpGet]
         [Route("api/Activity/New")]
         public IEnumerable<ActivityVM> New()
@@ -39,7 +39,7 @@ namespace ServiceFUEN.Controllers
                 .Include(a=>a.ActivityCollections)
                 .Include(a=>a.Instructor)
                 .Where(a=>a.GatheringTime>DateTime.Now)
-                .OrderByDescending(a=>a.DateOfCreated).Select(a=>a.ToActivityVM());
+                .OrderByDescending(a=>a.DateOfCreated).Take(5).Select(a=>a.ToActivityVM());
 
             return projectFUENContext.ToList();
         }
