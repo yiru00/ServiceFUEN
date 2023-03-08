@@ -58,7 +58,7 @@ namespace ServiceFUEN.Controllers
                  .Include(a => a.Instructor)
                 .Where(a => a.GatheringTime > DateTime.Now)
                 .Select(a => a.ToActivityVM()).ToList() //IQueryable查詢字串的條件在ToList()後才會到資料庫撈
-                .OrderByDescending(a => a.EnrolmentRate).ThenByDescending(a => a.NumOfCollections); //orderby是IEnumerable的擴充方法//前面不ToList() orderby就會是IQueryable的擴充方法=>查不到vm裡自訂的欄位
+                .OrderByDescending(a => a.EnrolmentRate).ThenByDescending(a => a.NumOfCollections).Take(6); //orderby是IEnumerable的擴充方法//前面不ToList() orderby就會是IQueryable的擴充方法=>查不到vm裡自訂的欄位
             return projectFUENContext.ToList();
 
         }
@@ -76,7 +76,7 @@ namespace ServiceFUEN.Controllers
                 .Include(a => a.ActivityCollections)
                  .Include(a => a.Instructor)
                 .Where(a => a.GatheringTime > DateTime.Now)
-                .OrderBy(a => a.GatheringTime)
+                .OrderBy(a => a.GatheringTime).Take(6)
                 .Select(a => a.ToActivityVM());
                 
             return projectFUENContext.ToList();

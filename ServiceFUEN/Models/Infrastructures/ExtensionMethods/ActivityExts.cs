@@ -11,6 +11,7 @@ namespace ServiceFUEN.Models.ViewModels
                 ActivityId = source.Id,
                 CoverImage = source.CoverImage,
                 ActivityName = source.ActivityName,
+                Route = "/Activity/" + source.Id,
                 Address = source.Address,
                 CategoryId = source.CategoryId,
                 CategoryName = source.Category.CategoryName,
