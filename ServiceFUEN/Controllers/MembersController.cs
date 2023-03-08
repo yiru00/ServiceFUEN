@@ -149,71 +149,20 @@ namespace ServiceFUEN.Controllers
             }
         }
 
-        //讀取使用者Id
-        [Authorize]
-        [HttpGet]
+		//讀取使用者Id
+		[Authorize]
+		[HttpGet]
         [Route("api/Members/Read")]
         public string Read()
         {
 
             var claim = User.Claims.ToArray();
-
+			
             var userId = claim.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-            return userId;
+			
+			return userId;
         }
 
-
-
-        //無法取得cookie，先棄用~
-        //[HttpPost]
-        //[Route("api/Members/Login")]
-        //public string Login([FromForm]string account, [FromForm] string password)
-        //{
-
-        //    var user = (from a in _context.Members
-        //				where a.EmailAccount == account
-        //				&& a.EncryptedPassword == ToSHA256(password,salt)
-        //				select a).SingleOrDefault();
-
-        //	if (user == null)
-        //	{
-        //		return "帳號密碼錯誤";
-        //	}
-        //	else if (user.IsConfirmed == false)
-        //	{
-        //		return "帳號尚未啟用，請至信箱查看。";
-        //	}
-        //	else if (user.IsInBlackList == true)
-        //	{
-        //		return "此帳戶已是黑名單";
-        //	}
-
-        //	var claims = new List<Claim>
-        //		{
-        //		    new Claim("Id",user.Id.ToString()),
-        //			new Claim(ClaimTypes.Name, user.EmailAccount),
-        //			new Claim("FullName", user.NickName),
-        //                 // new Claim(ClaimTypes.Role, "Administrator")
-        //              };
-
-        //	var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        //	HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-
-        //	return "登入";
-        //	//Json(new { status = "登入", isSucess = true,  });
-        //}
-        ///// <summary>
-        ///// 讀取登入資訊
-        ///// </summary>
-        ///// 輸入 => 0-讀取Id，1-讀取帳號，2-讀取暱稱
-        //[HttpGet]
-        //[Route("api/Members/Read")]
-        //public string Read(int index)
-        //{
-        //	var claim = _contextAccessor.HttpContext.User.Claims.ToArray();
-        //	return claim[index].Value.ToString();
-
-        //}
 
         [Authorize]
         [HttpDelete]
@@ -272,7 +221,6 @@ namespace ServiceFUEN.Controllers
         /// <param name="Id"></param>
         /// <param name="confirmCode"></param>
         /// <returns></returns>
-        [Authorize]
         [HttpGet]
 		[Route("api/Members/ActiveRegister")]
 		public string ActiveRegister(int Id, string confirmCode)
@@ -385,7 +333,7 @@ namespace ServiceFUEN.Controllers
 			return "變更成功";
 		}
 
-		[Authorize]
+		
 		[HttpPost]
 		[Route("api/Members/ForgotPassword")]
 		public string ForgotPassword(ForgotPasswordDTO source)
