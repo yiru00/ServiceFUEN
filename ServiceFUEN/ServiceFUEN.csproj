@@ -34,4 +34,8 @@
     <None Remove="Models\Infrastructures\Repositories\" />
     <None Remove="Models\Services\Interfaces\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FluentEcpay\FluentEcpay.csproj" />
+  </ItemGroup>
 </Project>
