@@ -20,33 +20,6 @@ namespace ServiceFUEN.Controllers
         {
             _context = context;
         }
-        // Get api/Product/DetailProducts
-        //取得商品所有資訊
-        [HttpGet]
-        [Route("api/Product/DetailProducts")]
-        public IEnumerable<ProductDetailVM> DetailProducts(int id)
-        {
-            var projectFUENContext = _context.Products
-
-           .Include(x => x.ProductPhotos)
-           .Where(x => x.Id == id)
-            .Select(p => p.ToProductDetailVM());
-            return projectFUENContext.ToList();
-        }
-        // Get api/Product/AllProducts
-        //取得商品圖、品名、價格
-        [HttpGet]
-        [Route("api/Product/AllProducts")]
-        public IEnumerable<ProductAllVM> AllProducts()
-        {
-            var projectFUENContext = _context.Products
-
-           .Include(x => x.ProductPhotos)
-            .Select(p => p.ToProductAllVM());
-            return projectFUENContext.ToList();
-        }
-        // Get api/Product/NewProducts
-        //取得新上架前十樣商品的商品圖、品名、價格
         [HttpGet]
         [Route("api/Product/NewProducts")]
         public IEnumerable<ProductNewVM> NewProducts()
@@ -55,7 +28,7 @@ namespace ServiceFUEN.Controllers
 
            .Include(x => x.ProductPhotos)
             .Select(p => p.ToProductNewVM()).ToList()
-            .OrderByDescending(p => p.ReleaseDate).Take(10);
+            .OrderByDescending(p => p.ReleaseDate).Take(8);
             return projectFUENContext;
         }
 
@@ -84,7 +57,7 @@ namespace ServiceFUEN.Controllers
         // Get api/Product/Search
         //依搜尋條件搜尋商品，包含商品圖、品名、價格
         [HttpGet]
-       [Route("api/Product/Search")]
+        [Route("api/Product/Search")]
 
         public IEnumerable<ProductSearchDTO> Search(string? name, int? categoryId, int? brandId)
         {
@@ -109,7 +82,7 @@ namespace ServiceFUEN.Controllers
 
             return projectFUENContext.Select(p => p.ToProductSearchDTO()).ToList();
         }
-      
+
         // Get api/Event/Eventphotos
         //顯示活動圖（首頁輪播圖要用）
         [HttpGet]
@@ -118,6 +91,77 @@ namespace ServiceFUEN.Controllers
         {
             var projectFUENContext = _context.Events
                 .Select(e => e.ToEventVM());
+            return projectFUENContext.ToList();
+        }
+
+
+        // Get api/Product/OrderByPriceS
+        //取得商品圖、品名、價格 => (低至高)
+        [HttpGet]
+        [Route("api/Product/OrderByPriceS")]
+        public IEnumerable<ProductAllVM> OrderByPriceS()
+        {
+            var projectFUENContext = _context.Products
+
+           .Include(x => x.ProductPhotos)
+            .OrderBy(p => p.Price)
+            .Select(p => p.ToProductAllVM());
+            return projectFUENContext.ToList();
+        }
+
+        // Get api/Product/OrderByPriceS
+        //取得商品圖、品名、價格 => (高至低)
+        [HttpGet]
+        [Route("api/Product/OrderByPriceB")]
+        public IEnumerable<ProductAllVM> OrderByPriceB()
+        {
+            var projectFUENContext = _context.Products
+
+           .Include(x => x.ProductPhotos)
+            .OrderByDescending(p => p.Price)
+            .Select(p => p.ToProductAllVM());
+            return projectFUENContext.ToList();
+        }
+        // Get api/Product/DetailProducts
+        //取得商品所有資訊
+        [HttpGet]
+        [Route("api/Product/DetailProducts")]
+        public IEnumerable<ProductDetailVM> DetailProducts(int id)
+        {
+            var projectFUENContext = _context.Products
+
+           .Include(x => x.ProductPhotos)
+           .Where(x => x.Id == id)
+            .Select(p => p.ToProductDetailVM()).ToList()
+             .OrderBy(x => x.Source);
+            return projectFUENContext.ToList();
+        }
+        // Get api/Product/AllProducts
+        //取得商品圖、品名、價格
+        [HttpGet]
+        [Route("api/Product/AllProducts")]
+        public IEnumerable<ProductAllVM> AllProducts()
+        {
+            var projectFUENContext = _context.Products
+
+           .Include(x => x.ProductPhotos)
+
+            .Select(p => p.ToProductAllVM()).ToList();
+            //.OrderBy(x => x.Source).Take(1);
+            return projectFUENContext.ToList();
+        }
+
+
+        // Get api/ProductPhoto/MeanPhoto
+        //顯示商品封面圖
+        [HttpGet]
+        [Route("api/ProductPhoto/MeanPhoto")]
+        public IEnumerable<MeanPhotoVM> MeanPhoto(int productId)
+        {
+            var projectFUENContext = _context.ProductPhotos
+            .Where(p => p.ProductId == productId)
+             .Select(p => p.ToMeanPhoto()).ToList()
+            .OrderBy(p => p.Source.Substring(0, 2));
             return projectFUENContext.ToList();
         }
 
