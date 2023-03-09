@@ -47,50 +47,60 @@ namespace ServiceFUEN.Controllers
             _dbContext.SaveChanges();
         }
 
-        [Route("api/Photo/AllPhotos")]
+        [Route("api/Photo/GetProfile")]
         [HttpGet]
-        public IEnumerable<ShowPhotoDTO> AllPhotos(int memberId)
+        public CommunityMemberDTO GetProfile(int memberId)
         {
-            // 取得所有的照片
-            var photos = _dbContext.Photos.Select(x => new ShowPhotoDTO()
-            {
-                Id = x.Id,
-                Source = x.Source,
-                Title = x.Title,
-                Camrea = x.Camera,
-                IsCollection = x.OthersCollections.Any(o => o.MemberId == memberId),
-                Author = new CommunityMemberDTO()
-                {
-                    Id = x.AuthorNavigation.Id,
-                    Source = x.AuthorNavigation.PhotoSticker,
-                    Name = x.AuthorNavigation.NickName
-                }
-            });
-
-            return photos;
+            // 取得某人的個人檔案
+            var member = _dbContext.Members.FirstOrDefault(x => x.Id == memberId);
+			var profile = new CommunityMemberDTO() 
+			{ 
+				Id = member.Id,
+				Name = member.NickName,
+				Source = member.PhotoSticker,
+				About = member.About
+			};
+            return profile;
         }
 
-        // Move to HuanYu
-        //[Route("api/Photo/AddView")]
-        //[HttpPut]
-        //public string AddView(int photoId, int memberId)
-        //{
-        //    var view = _dbContext.Views.FirstOrDefault(v => v.MemberId == memberId && v.PhotoId == photoId && v.ViewDate.Date == DateTime.Today);
+		[Route("api/Photo/AllPhotos")]
+		[HttpGet]
+		public IEnumerable<ShowPhotoDTO> AllPhotos(int memberId)
+		{
+			// 取得某人的照片
+			var photos = _dbContext.Photos.Where(x => x.Author == memberId).Select(x => new ShowPhotoDTO()
+			{
+				Id = x.Id,
+				Source = x.Source,
+				Title = x.Title,
+				Camrea = x.Camera,
+				IsCollection = x.OthersCollections.Any(o => o.MemberId == memberId),
+			});
 
-        //    if (view == null)
-        //    {
-        //        View entity = new View()
-        //        {
-        //            MemberId = memberId,
-        //            PhotoId = photoId
-        //        };
-        //        _dbContext.Views.Add(entity);
-        //        _dbContext.SaveChanges();
+			return photos;
+		}
 
-        //        return "增加成功";
-        //    }
+		// Move to HuanYu
+		//[Route("api/Photo/AddView")]
+		//[HttpPut]
+		//public string AddView(int photoId, int memberId)
+		//{
+		//    var view = _dbContext.Views.FirstOrDefault(v => v.MemberId == memberId && v.PhotoId == photoId && v.ViewDate.Date == DateTime.Today);
 
-        //    return "已經存在DB";
-        //}
-    }
+		//    if (view == null)
+		//    {
+		//        View entity = new View()
+		//        {
+		//            MemberId = memberId,
+		//            PhotoId = photoId
+		//        };
+		//        _dbContext.Views.Add(entity);
+		//        _dbContext.SaveChanges();
+
+		//        return "增加成功";
+		//    }
+
+		//    return "已經存在DB";
+		//}
+	}
 }

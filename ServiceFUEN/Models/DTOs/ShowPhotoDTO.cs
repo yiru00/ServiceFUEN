@@ -9,7 +9,6 @@ namespace ServiceFUEN.Models.DTOs
         public string Title { get; set; }
         public bool IsCollection { get; set; }
         public string Camrea { get; set; }
-        public CommunityMemberDTO Author { get; set; }
         
     }
 }
