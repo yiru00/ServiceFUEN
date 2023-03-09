@@ -6,5 +6,7 @@
 		public int? PhotoId { get; set; }
 
 		public string PhotoSrc { get; set; }
+		public string PhotoTitle { get; set; }
+		
 	}
 }
