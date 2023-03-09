@@ -20,7 +20,6 @@ namespace ServiceFUEN.Models.EFModels
 
         public virtual Member Member { get; set; }
         public virtual Photo Photo { get; set; }
-
         public virtual ICollection<CommentReport> CommentReports { get; set; }
     }
 }

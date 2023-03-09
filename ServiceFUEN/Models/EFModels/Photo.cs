@@ -20,19 +20,9 @@ namespace ServiceFUEN.Models.EFModels
         public int Id { get; set; }
         public string Source { get; set; }
         public string Title { get; set; }
-        public string Description { get; set; }
         public int Author { get; set; }
-        public int? ISO { get; set; }
-        public string Pixel { get; set; }
-        public string Aperture { get; set; }
-        public string Shutter { get; set; }
         public string Camera { get; set; }
-        public string Negative { get; set; }
-        public string Location { get; set; }
-        public DateTime ShootingTime { get; set; }
         public DateTime UploadTime { get; set; }
-        public bool IsCollection { get; set; }
-        public DateTime? CollectionTime { get; set; }
 
         public virtual Member AuthorNavigation { get; set; }
         public virtual ICollection<AlbumItem> AlbumItems { get; set; }

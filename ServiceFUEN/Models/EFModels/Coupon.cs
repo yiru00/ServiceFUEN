@@ -9,7 +9,7 @@ namespace ServiceFUEN.Models.EFModels
     {
         public Coupon()
         {
-            Members = new HashSet<Member>();
+            OrderDetails = new HashSet<OrderDetail>();
         }
 
         public int Id { get; set; }
@@ -19,6 +19,6 @@ namespace ServiceFUEN.Models.EFModels
         public int LeastCost { get; set; }
         public int Count { get; set; }
 
-        public virtual ICollection<Member> Members { get; set; }
+        public virtual ICollection<OrderDetail> OrderDetails { get; set; }
     }
 }

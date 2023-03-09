@@ -25,7 +25,6 @@ namespace ServiceFUEN.Models.EFModels
             Questions = new HashSet<Question>();
             ShoppingCarts = new HashSet<ShoppingCart>();
             Views = new HashSet<View>();
-            Coupons = new HashSet<Coupon>();
             Products = new HashSet<Product>();
         }
 
@@ -60,7 +59,6 @@ namespace ServiceFUEN.Models.EFModels
         public virtual ICollection<ShoppingCart> ShoppingCarts { get; set; }
         public virtual ICollection<View> Views { get; set; }
 
-        public virtual ICollection<Coupon> Coupons { get; set; }
         public virtual ICollection<Product> Products { get; set; }
     }
 }
