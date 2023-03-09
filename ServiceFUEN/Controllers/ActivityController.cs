@@ -39,7 +39,7 @@ namespace ServiceFUEN.Controllers
                 .Include(a=>a.ActivityCollections)
                 .Include(a=>a.Instructor)
                 .Where(a=>a.GatheringTime>DateTime.Now)
-                .OrderByDescending(a=>a.DateOfCreated).Take(5).Select(a=>a.ToActivityVM());
+                .OrderByDescending(a=>a.DateOfCreated).Take(6).Select(a=>a.ToActivityVM());
 
             return projectFUENContext.ToList();
         }
