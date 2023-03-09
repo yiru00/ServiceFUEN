@@ -11,7 +11,7 @@ namespace ServiceFUEN.Models.ViewModels
                 ActivityId = source.Id,
                 CoverImage = source.CoverImage,
                 ActivityName = source.ActivityName,
-                Route = "/Activity/" + source.Id,
+                //Route = "/Activity/" + source.Id,
                 Address = source.Address,
                 CategoryId = source.CategoryId,
                 CategoryName = source.Category.CategoryName,
@@ -34,7 +34,7 @@ namespace ServiceFUEN.Models.ViewModels
             return new ActivityResVM
             {
                 ActivityId = source.Id,
-                route="/Activity/"+ source.Id,
+                //route="/Activity/"+ source.Id,
                 CoverImage = source.CoverImage,
                 ActivityName = source.ActivityName,
                 Address = source.Address,

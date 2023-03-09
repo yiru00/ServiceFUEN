@@ -6,7 +6,7 @@ namespace ServiceFUEN.Models.ViewModels
 	{
         public int ActivityId { get; set; }
         public string CoverImage { get; set; }
-        public string Route { get; set; }
+        //public string Route { get; set; }
         public string ActivityName { get; set; }
         public string Address { get; set; }
         public int? CategoryId { get; set; }

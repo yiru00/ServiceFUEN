@@ -5,7 +5,7 @@ namespace ServiceFUEN.Models.ViewModels
     {
         public int MemberId { get; set; }
         public int ActivityId { get; set; }
-        public string Route { get; set; }
+        //public string Route { get; set; }
         public string CoverImage { get; set; }
         public string ActivityName { get; set; }
         public string Recommendation { get; set; }

@@ -12,7 +12,7 @@ namespace ServiceFUEN.Models.Infrastructures.ExtensionMethods
             {
                 MemberId = source.UserId,
                 ActivityId = source.ActivityId,
-                Route = "/Activity/" + source.ActivityId,
+                //Route = "/Activity/" + source.ActivityId,
                 CoverImage = source.Activity.CoverImage,
                 ActivityName = source.Activity.ActivityName,
                 Recommendation = source.Activity.Recommendation,
