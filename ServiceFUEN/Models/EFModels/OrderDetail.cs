@@ -17,8 +17,12 @@ namespace ServiceFUEN.Models.EFModels
         public DateTime OrderDate { get; set; }
         public string Address { get; set; }
         public int State { get; set; }
+        public int Total { get; set; }
+        public string PaymentId { get; set; }
+        public int? UsedCoupon { get; set; }
 
         public virtual Member Member { get; set; }
+        public virtual Coupon UsedCouponNavigation { get; set; }
         public virtual ICollection<OrderItem> OrderItems { get; set; }
     }
 }
