@@ -49,8 +49,8 @@ namespace ServiceFUEN.Controllers
                 if (activity != null)//存在
                 {
 
-                    //會員是否通過實名驗證（抓手機有沒有填就好）
-                    if (member.Mobile != null) //有填
+                    //會員是否通過實名驗證（抓手機、姓名有沒有填）
+                    if (member.Mobile != null&&member.RealName!=null) //有填
                     {
                         //該會員是否報名過？
                         var isEnrolled = _context.ActivityMembers.Where(a => a.ActivityId == activityId).FirstOrDefault(a => a.MemberId == memberId);
