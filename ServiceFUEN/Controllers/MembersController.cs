@@ -93,8 +93,8 @@ namespace ServiceFUEN.Controllers
         {
             var user = (from a in _context.Members
                         where a.EmailAccount == account
-                        && a.EncryptedPassword == password
-                        select a).SingleOrDefault();
+                        && a.EncryptedPassword == ToSHA256(password , salt)
+						select a).SingleOrDefault();
 
             if (user == null)
             {
@@ -118,7 +118,6 @@ namespace ServiceFUEN.Controllers
                     new Claim("FullName", user.NickName),
 
                 };
-
                 //var role = from a in _todoContext.Roles
                 //           where a.EmployeeId == user.EmployeeId
                 //           select a;
@@ -137,7 +136,7 @@ namespace ServiceFUEN.Controllers
                     issuer: _configuration["JWT:Issuer"],
                     audience: _configuration["JWT:Audience"],
                     claims: claims,
-                    expires: DateTime.Now.AddMinutes(30),
+                    expires: DateTime.Now.AddDays(3),
                     signingCredentials: new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256)
                 );
 
@@ -163,56 +162,21 @@ namespace ServiceFUEN.Controllers
 			return userId;
         }
 
+  //      [Authorize]
+  //      [HttpDelete]
+		//[Route("api/Members/Logout")]
+		//public void Logout()
+		//{
+		//	HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+		//}
 
-        [Authorize]
-        [HttpDelete]
-		[Route("api/Members/Logout")]
-		public void Logout()
-		{
-			HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-		}
-
-		[HttpGet]
-		[Route("api/Members/NoLogin")]
-		public string NoLogin()
-		{
-			return "未登入";
-		}
-
-		/// <summary>
-		/// 註冊帳號寄出啟用郵件
-		/// </summary>
-		private void SendSignUpEmail(MailDTO source)
-		{
-			var message = new MimeMessage();
-			message.From.Add(new MailboxAddress("攝影", "shirtyingplan@gmail.com"));
-			message.To.Add(new MailboxAddress("使用者", source.EmailAccount));
-			message.Subject = "歡迎使用";
-
-			BodyBuilder body = new BodyBuilder();
-			string url = Request.Scheme + "://" + Request.Host + $"/api/Members/ActiveRegister?Id={source.Id}&confirmCode={source.ConfirmCode}";
-			body.HtmlBody = $"<a href=\"{url}\">啟用帳號</a>";
-			
-			message.Body = body.ToMessageBody();
-
-
-			Send(message);
-		}
-
-		/// <summary>
-		/// Gmail資訊
-		/// </summary>
-		/// <param name="message"></param>
-		private void Send(MimeMessage message)
-		{
-			using (var client = new SmtpClient())
-			{
-				client.Connect("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-				client.Authenticate("shirtyingplan@gmail.com", "iskdjbmbuzbcylth");
-				client.Send(message);
-				client.Disconnect(true);
-			}
-		}
+		//[HttpGet]
+		//[Route("api/Members/NoLogin")]
+		//public string NoLogin()
+		//{
+		//	return "未登入";
+		//}
+		
 
 
         /// <summary>
@@ -223,7 +187,7 @@ namespace ServiceFUEN.Controllers
         /// <returns></returns>
         [HttpGet]
 		[Route("api/Members/ActiveRegister")]
-		public string ActiveRegister(int Id, string confirmCode)
+		public IActionResult ActiveRegister(int Id, string confirmCode)
 		{
 			
 			Member entity = _context.Members.SingleOrDefault(x => x.Id == Id);
@@ -238,17 +202,20 @@ namespace ServiceFUEN.Controllers
 				ConfirmCode = entity.ConfirmCode
 			};
 
-			if (string.Compare(result.ConfirmCode, confirmCode) != 0) return "Failure";
-						
+			if (string.Compare(result.ConfirmCode, confirmCode) != 0)
+			{
+				return NotFound();
+			}
+
 			var member = _context.Members.Find(Id);
 			member.IsConfirmed = true;
 			member.ConfirmCode = null;
 			_context.SaveChanges();
 
-			return "success";
+			return Redirect("http://localhost:5173/HomeView");
 		}
 
-        [Authorize]
+        
         [HttpGet]
 		[Route("api/Members/IsExist")]
 		public bool IsExist(string account)
@@ -321,10 +288,16 @@ namespace ServiceFUEN.Controllers
 		public string EditPassword(EditPasswordDTO source)
 		//原密碼-輸入兩次新密碼-儲存變更-寫入資料庫變更
 		{
-			var member = _context.Members.SingleOrDefault(x => x.Id == source.Id);
+			var claim = User.Claims.ToArray();
+
+			var userId = claim.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+
+			var Id = int.Parse(userId.ToString());
+
+			var member = _context.Members.SingleOrDefault(x => x.Id == Id);
 			if (member == null)
 			{
-				return "Fail";
+				return "Null";
 			}
 
 			member.EncryptedPassword = ToSHA256(source.EncryptedPassword,salt);
@@ -333,37 +306,68 @@ namespace ServiceFUEN.Controllers
 			return "變更成功";
 		}
 
-		
+
 		[HttpPost]
 		[Route("api/Members/ForgotPassword")]
 		public string ForgotPassword(ForgotPasswordDTO source)
 		{
-			var member = _context.Members.SingleOrDefault(x => x.Id == source.Id);
-			if (member.EmailAccount == null)
+			var member = _context.Members.SingleOrDefault(x => x.RealName == source.RealName && x.EmailAccount == source.EmailAccount && x.Mobile == source.Mobile);
+			if (member == null)
 			{
-				return "無此帳號";
-			}else if(string.IsNullOrEmpty(member.RealName))
-			{
-				return "無此姓名";
+				return "資料有誤";
 			}
-			member.EmailAccount = source.EmailAccount;
-			member.RealName = source.RealName;
 
-			member.EncryptedPassword = Guid.NewGuid().ToString("N").Substring(1, 7);
+			else
+			{
+				member.EncryptedPassword = Guid.NewGuid().ToString("N").Substring(1, 7);
+				SendForgotPasswordEmail(member.MailUser());
 
-
-			SendForgotpasswordEmail(member.MailUser());
-
-			member.EncryptedPassword = ToSHA256(member.EncryptedPassword, salt);
-			_context.SaveChanges();
+				member.EncryptedPassword = ToSHA256(member.EncryptedPassword, salt);
+				_context.SaveChanges();
+			}
 			return "success";
+		}
+
+		/// <summary>
+		/// 註冊帳號寄出啟用郵件
+		/// </summary>
+		private void SendSignUpEmail(MailDTO source)
+		{
+			var message = new MimeMessage();
+			message.From.Add(new MailboxAddress("攝影", "shirtyingplan@gmail.com"));
+			message.To.Add(new MailboxAddress("使用者", source.EmailAccount));
+			message.Subject = "歡迎使用";
+
+			BodyBuilder body = new BodyBuilder();
+			string url = Request.Scheme + "://" + Request.Host + $"/api/Members/ActiveRegister?Id={source.Id}&confirmCode={source.ConfirmCode}";
+			body.HtmlBody = $"<a href=\"{url}\">啟用帳號</a>";
+
+			message.Body = body.ToMessageBody();
+
+
+			Send(message);
+		}
+
+		/// <summary>
+		/// Gmail資訊
+		/// </summary>
+		/// <param name="message"></param>
+		private void Send(MimeMessage message)
+		{
+			using (var client = new SmtpClient())
+			{
+				client.Connect("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
+				client.Authenticate("shirtyingplan@gmail.com", "iskdjbmbuzbcylth");
+				client.Send(message);
+				client.Disconnect(true);
+			}
 		}
 
 		/// <summary>
 		/// 忘記密碼寄信
 		/// </summary>
 		/// <param name="source"></param>
-		private void SendForgotpasswordEmail(MailDTO source)
+		private void SendForgotPasswordEmail(MailDTO source)
 		{
 			var message = new MimeMessage();
 			message.From.Add(new MailboxAddress("攝影", "shirtyingplan@gmail.com"));

@@ -4,7 +4,6 @@ namespace ServiceFUEN.Models.DTOs
 {
 	public class EditPasswordDTO
 	{
-		public int Id { get; set; }
 
 		[Required]
 		[StringLength(12)]
