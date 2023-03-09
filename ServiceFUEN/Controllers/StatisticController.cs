@@ -19,19 +19,35 @@ namespace ServiceFUEN.Controllers
 
 		[Route("api/Statistic/TopViews")]
 		[HttpPost]
-		public IEnumerable<PhotoViewDTO> TopViews(CommunityMPIdDTO member)
+		public TopPhotoResultDTO TopViews(CommunityMPIdDTO member)
 		{
 			//某人瀏覽次數最高的照片
 			var photos = _dbContext.Views.Include(v => v.Photo)
 				.Where(v => v.Photo.Author == member.Id)
-				.GroupBy(v => new { v.PhotoId, v.Photo.Source}).Select(v => new PhotoViewDTO
+				.GroupBy(v => new { v.PhotoId, v.Photo.Source,v.Photo.Title}).Select(v => new PhotoViewDTO
 				{
 					PhotoSrc = v.Key.Source,
 					PhotoId = v.Key.PhotoId,
+					PhotoTitle = v.Key.Title,
 					PhotoViews = v.Count()
 				}).OrderByDescending(v=>v.PhotoViews);
 
-			return photos;
+			TopPhotoResultDTO result = new TopPhotoResultDTO();
+
+			List<TopPhotoSrc> src = new List<TopPhotoSrc>();
+
+			foreach(var photo in photos)
+			{
+				TopPhotoSrc photoSrc = new TopPhotoSrc() { src = photo.PhotoSrc, height = 40, width = 45 };
+				result.PhotoId.Add(photo.PhotoId);
+				result.PhotoTitle.Add(photo.PhotoTitle);
+				src.Add(photoSrc);
+				result.PhotoViews.Add(photo.PhotoViews);
+			}
+
+			result.PhotoSrc = src;
+
+			return result;
 		}
 
 		[Route("api/Statistic/DateViews")]
