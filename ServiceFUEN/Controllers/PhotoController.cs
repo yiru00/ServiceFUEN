@@ -80,27 +80,18 @@ namespace ServiceFUEN.Controllers
 			return photos;
 		}
 
-		// Move to HuanYu
-		//[Route("api/Photo/AddView")]
-		//[HttpPut]
-		//public string AddView(int photoId, int memberId)
-		//{
-		//    var view = _dbContext.Views.FirstOrDefault(v => v.MemberId == memberId && v.PhotoId == photoId && v.ViewDate.Date == DateTime.Today);
+        [Route("api/Photo/DeletePhoto")]
+        [HttpDelete]
+        public void DeletePhoto(int photoId)
+        {
+            var photo = _dbContext.Photos.FirstOrDefault(x => x.Id == photoId);
+            if (photo != null)
+            {
+                _dbContext.Photos.Remove(photo);
+                _dbContext.SaveChanges();
+            }
+        }
 
-		//    if (view == null)
-		//    {
-		//        View entity = new View()
-		//        {
-		//            MemberId = memberId,
-		//            PhotoId = photoId
-		//        };
-		//        _dbContext.Views.Add(entity);
-		//        _dbContext.SaveChanges();
 
-		//        return "增加成功";
-		//    }
-
-		//    return "已經存在DB";
-		//}
 	}
 }
