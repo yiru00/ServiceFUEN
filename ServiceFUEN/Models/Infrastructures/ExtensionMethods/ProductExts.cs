@@ -38,7 +38,7 @@ namespace ServiceFUEN.Models.ViewModels
                 Name = product.Name,
                 Price = product.Price,
                 ReleaseDate = product.ReleaseDate,
-                Source = product.ProductPhotos.Select(x => x.Source).Where(x => x.Substring(0, 2) == "01").ToList(),
+                Source = product.ProductPhotos.Select(x => x.Source).Where(x => x.Substring(0, 2) == "01").ToList()[0]
             };
         }
         public static CategoryVM ToCategoryVM(this Category category)

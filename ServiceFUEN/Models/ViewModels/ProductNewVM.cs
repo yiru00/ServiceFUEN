@@ -7,6 +7,6 @@
         public int Price { get; set; }
         public DateTime ReleaseDate { get; set; }
 
-        public List<string> Source { get; set; }
+        public string Source { get; set; }
     }
 }
