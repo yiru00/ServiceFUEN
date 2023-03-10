@@ -19,28 +19,44 @@ namespace ServiceFUEN.Controllers
 
 		[Route("api/Statistic/TopViews")]
 		[HttpPost]
-		public IEnumerable<PhotoViewDTO> TopViews([FromBody]int memberId)
+		public TopPhotoResultDTO TopViews(CommunityMPIdDTO member)
 		{
-			//瀏覽次數最高的照片
+			//某人瀏覽次數最高的照片
 			var photos = _dbContext.Views.Include(v => v.Photo)
-				.Where(v => v.Photo.Author == memberId)
-				.GroupBy(v => new { v.PhotoId, v.Photo.Source}).Select(v => new PhotoViewDTO
+				.Where(v => v.Photo.Author == member.Id)
+				.GroupBy(v => new { v.PhotoId, v.Photo.Source,v.Photo.Title}).Select(v => new PhotoViewDTO
 				{
 					PhotoSrc = v.Key.Source,
 					PhotoId = v.Key.PhotoId,
+					PhotoTitle = v.Key.Title,
 					PhotoViews = v.Count()
 				}).OrderByDescending(v=>v.PhotoViews);
 
-			return photos;
+			TopPhotoResultDTO result = new TopPhotoResultDTO();
+
+			List<TopPhotoSrc> src = new List<TopPhotoSrc>();
+
+			foreach(var photo in photos)
+			{
+				TopPhotoSrc photoSrc = new TopPhotoSrc() { src = photo.PhotoSrc, height = 40, width = 45 };
+				result.PhotoId.Add(photo.PhotoId);
+				result.PhotoTitle.Add(photo.PhotoTitle);
+				src.Add(photoSrc);
+				result.PhotoViews.Add(photo.PhotoViews);
+			}
+
+			result.PhotoSrc = src;
+
+			return result;
 		}
 
 		[Route("api/Statistic/DateViews")]
 		[HttpPost]
-		public DateResultDTO DateViews(int memberId)
+		public DateResultDTO DateViews(CommunityMPIdDTO member)
 		{
 			//某天的總相片瀏覽次數
 			var photos = _dbContext.Views.Include(v => v.Photo)
-				.Where(v => v.Photo.Author == memberId && v.ViewDate >= DateTime.Today.AddDays(-7))
+				.Where(v => v.Photo.Author == member.Id && v.ViewDate >= DateTime.Today.AddDays(-7))
 				.OrderByDescending(v => v.ViewDate)
 				.GroupBy(v => v.ViewDate).Select(v => new DateViewDTO
 				{
@@ -71,10 +87,10 @@ namespace ServiceFUEN.Controllers
 
 		[Route("api/Statistic/CameraCount")]
 		[HttpPost]
-		public CameraResultDTO CameraCount(int memberId)
+		public CameraResultDTO CameraCount(CommunityMPIdDTO member)
 		{
 			// 某人的相機使用率
-			var cameras = _dbContext.Photos.Where(v => v.Author == memberId)
+			var cameras = _dbContext.Photos.Where(v => v.Author == member.Id)
 				.GroupBy(v => v.Camera).Select(v => new CameraCountDTO
 				{
 					CameraCategory = v.Key,
@@ -96,16 +112,16 @@ namespace ServiceFUEN.Controllers
 
 		[Route("api/Statistic/AddView")]
 		[HttpPut]
-		public string AddView(int photoId, int memberId)
+		public string AddView(CommunityMPIdDTO member)
 		{
-			var view = _dbContext.Views.FirstOrDefault(v => v.MemberId == memberId && v.PhotoId == photoId && v.ViewDate.Date == DateTime.Today);
+			var view = _dbContext.Views.FirstOrDefault(v => v.MemberId == member.Id && v.PhotoId == member.PhotoId && v.ViewDate.Date == DateTime.Today);
 
 			if (view == null)
 			{
 				View entity = new View()
 				{
-					MemberId = memberId,
-					PhotoId = photoId
+					MemberId = member.Id,
+					PhotoId = member.PhotoId
 				};
 				_dbContext.Views.Add(entity);
 				_dbContext.SaveChanges();

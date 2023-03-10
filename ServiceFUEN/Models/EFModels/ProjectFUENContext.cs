@@ -59,8 +59,6 @@ namespace ServiceFUEN.Models.EFModels
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.UseCollation("Chinese_Taiwan_Stroke_CI_AS");
-
             modelBuilder.Entity<Activity>(entity =>
             {
                 entity.Property(e => e.ActivityName)
@@ -78,7 +76,7 @@ namespace ServiceFUEN.Models.EFModels
 
                 entity.Property(e => e.DateOfCreated)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(((getdate() AT TIME ZONE 'UTC') AT TIME ZONE 'Taipei Standard Time'))");
 
                 entity.Property(e => e.Deadline).HasColumnType("datetime");
 
@@ -119,7 +117,7 @@ namespace ServiceFUEN.Models.EFModels
             {
                 entity.Property(e => e.DateCreated)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(((getdate() AT TIME ZONE 'UTC') AT TIME ZONE 'Taipei Standard Time'))");
 
                 entity.HasOne(d => d.Activity)
                     .WithMany(p => p.ActivityCollections)
@@ -129,14 +127,14 @@ namespace ServiceFUEN.Models.EFModels
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.ActivityCollections)
                     .HasForeignKey(d => d.UserId)
-                    .HasConstraintName("FK__ActivityC__UserI__3493CFA7");
+                    .HasConstraintName("FK__ActivityC__UserI__3587F3E0");
             });
 
             modelBuilder.Entity<ActivityMember>(entity =>
             {
                 entity.Property(e => e.DateJoined)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(((getdate() AT TIME ZONE 'UTC') AT TIME ZONE 'Taipei Standard Time'))");
 
                 entity.HasOne(d => d.Activity)
                     .WithMany(p => p.ActivityMembers)
@@ -146,13 +144,13 @@ namespace ServiceFUEN.Models.EFModels
                 entity.HasOne(d => d.Member)
                     .WithMany(p => p.ActivityMembers)
                     .HasForeignKey(d => d.MemberId)
-                    .HasConstraintName("FK__ActivityM__Membe__367C1819");
+                    .HasConstraintName("FK__ActivityM__Membe__37703C52");
             });
 
             modelBuilder.Entity<Administrator>(entity =>
             {
                 entity.HasKey(e => e.Account)
-                    .HasName("PK__Administ__B0C3AC4777D4EFCA");
+                    .HasName("PK__Administ__B0C3AC47E35DE4BE");
 
                 entity.ToTable("Administrator");
 
@@ -162,7 +160,7 @@ namespace ServiceFUEN.Models.EFModels
 
                 entity.Property(e => e.CreateTime)
                     .HasColumnType("date")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(((getdate() AT TIME ZONE 'UTC') AT TIME ZONE 'Taipei Standard Time'))");
 
                 entity.Property(e => e.Password)
                     .HasMaxLength(50)
@@ -178,9 +176,11 @@ namespace ServiceFUEN.Models.EFModels
 
                 entity.Property(e => e.CreatedTime)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(((getdate() AT TIME ZONE 'UTC') AT TIME ZONE 'Taipei Standard Time'))");
 
-                entity.Property(e => e.Name).HasMaxLength(50);
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50);
 
                 entity.HasOne(d => d.Member)
                     .WithMany(p => p.Albums)
@@ -191,11 +191,11 @@ namespace ServiceFUEN.Models.EFModels
             modelBuilder.Entity<AlbumItem>(entity =>
             {
                 entity.HasKey(e => new { e.AlbumId, e.PhotoId })
-                    .HasName("PK__AlbumIte__A5AFC569B2F7D39F");
+                    .HasName("PK__AlbumIte__A5AFC56967A2F53A");
 
                 entity.Property(e => e.AddTime)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(((getdate() AT TIME ZONE 'UTC') AT TIME ZONE 'Taipei Standard Time'))");
 
                 entity.HasOne(d => d.Album)
                     .WithMany(p => p.AlbumItems)
@@ -216,7 +216,7 @@ namespace ServiceFUEN.Models.EFModels
 
                 entity.Property(e => e.DateCreated)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(((getdate() AT TIME ZONE 'UTC') AT TIME ZONE 'Taipei Standard Time'))");
 
                 entity.HasOne(d => d.Question)
                     .WithMany(p => p.Answers)
@@ -232,7 +232,7 @@ namespace ServiceFUEN.Models.EFModels
 
                 entity.Property(e => e.Time)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(((getdate() AT TIME ZONE 'UTC') AT TIME ZONE 'Taipei Standard Time'))");
 
                 entity.Property(e => e.Title)
                     .IsRequired()
@@ -253,9 +253,8 @@ namespace ServiceFUEN.Models.EFModels
             {
                 entity.Property(e => e.Photo)
                     .IsRequired()
-                    .HasMaxLength(32)
-                    .IsUnicode(false)
-                    .IsFixedLength();
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
 
                 entity.HasOne(d => d.Article)
                     .WithMany(p => p.ArticlePhotos)
@@ -302,7 +301,7 @@ namespace ServiceFUEN.Models.EFModels
             {
                 entity.Property(e => e.ReportTime)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(((getdate() AT TIME ZONE 'UTC') AT TIME ZONE 'Taipei Standard Time'))");
 
                 entity.HasOne(d => d.Comment)
                     .WithMany(p => p.CommentReports)
@@ -312,7 +311,7 @@ namespace ServiceFUEN.Models.EFModels
                 entity.HasOne(d => d.ReporterNavigation)
                     .WithMany(p => p.CommentReports)
                     .HasForeignKey(d => d.Reporter)
-                    .HasConstraintName("FK__CommentRe__Repor__3C34F16F");
+                    .HasConstraintName("FK__CommentRe__Repor__3D2915A8");
             });
 
             modelBuilder.Entity<Coupon>(entity =>
@@ -340,9 +339,8 @@ namespace ServiceFUEN.Models.EFModels
 
                 entity.Property(e => e.Photo)
                     .IsRequired()
-                    .HasMaxLength(32)
-                    .IsUnicode(false)
-                    .IsFixedLength();
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.StartDate).HasColumnType("datetime");
 
@@ -354,7 +352,7 @@ namespace ServiceFUEN.Models.EFModels
                         r => r.HasOne<Event>().WithMany().HasForeignKey("EventId").HasConstraintName("FK__EventItem__Event__40058253"),
                         j =>
                         {
-                            j.HasKey("EventId", "ProductId").HasName("PK__EventIte__B204047C0FEA57E8");
+                            j.HasKey("EventId", "ProductId").HasName("PK__EventIte__B204047C79890C7E");
 
                             j.ToTable("EventItems");
                         });
@@ -363,11 +361,11 @@ namespace ServiceFUEN.Models.EFModels
             modelBuilder.Entity<FollowInfo>(entity =>
             {
                 entity.HasKey(e => new { e.Follower, e.Following })
-                    .HasName("PK__FollowIn__512B98D274B01D0A");
+                    .HasName("PK__FollowIn__512B98D236F2F79F");
 
                 entity.Property(e => e.FollowTime)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(((getdate() AT TIME ZONE 'UTC') AT TIME ZONE 'Taipei Standard Time'))");
 
                 entity.HasOne(d => d.FollowerNavigation)
                     .WithMany(p => p.FollowInfoFollowerNavigations)
@@ -390,9 +388,8 @@ namespace ServiceFUEN.Models.EFModels
 
                 entity.Property(e => e.CoverPhoto)
                     .IsRequired()
-                    .HasMaxLength(32)
-                    .IsUnicode(false)
-                    .IsFixedLength();
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.Name)
                     .IsRequired()
@@ -402,7 +399,7 @@ namespace ServiceFUEN.Models.EFModels
             modelBuilder.Entity<IndiscriminateReport>(entity =>
             {
                 entity.HasKey(e => e.MemberId)
-                    .HasName("PK__Indiscri__0CF04B1822E56360");
+                    .HasName("PK__Indiscri__0CF04B189E4CADBB");
 
                 entity.Property(e => e.MemberId).ValueGeneratedNever();
             });
@@ -425,7 +422,7 @@ namespace ServiceFUEN.Models.EFModels
 
             modelBuilder.Entity<Member>(entity =>
             {
-                entity.HasIndex(e => e.EmailAccount, "UQ__Members__005407CDB4B82AF7")
+                entity.HasIndex(e => e.EmailAccount, "UQ__Members__005407CD3FE2CF5C")
                     .IsUnique();
 
                 entity.Property(e => e.About).HasMaxLength(500);
@@ -458,24 +455,10 @@ namespace ServiceFUEN.Models.EFModels
                 entity.Property(e => e.NickName).HasMaxLength(50);
 
                 entity.Property(e => e.PhotoSticker)
-                    .HasMaxLength(32)
-                    .IsUnicode(false)
-                    .IsFixedLength();
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.RealName).HasMaxLength(50);
-
-                entity.HasMany(d => d.Coupons)
-                    .WithMany(p => p.Members)
-                    .UsingEntity<Dictionary<string, object>>(
-                        "UsedCoupon",
-                        l => l.HasOne<Coupon>().WithMany().HasForeignKey("CouponId").HasConstraintName("FK__UsedCoupo__Coupo__58D1301D"),
-                        r => r.HasOne<Member>().WithMany().HasForeignKey("MemberId").HasConstraintName("FK__UsedCoupo__Membe__57DD0BE4"),
-                        j =>
-                        {
-                            j.HasKey("MemberId", "CouponId").HasName("PK__UsedCoup__BF74E4039914C327");
-
-                            j.ToTable("UsedCoupons");
-                        });
 
                 entity.HasMany(d => d.Products)
                     .WithMany(p => p.Members)
@@ -485,7 +468,7 @@ namespace ServiceFUEN.Models.EFModels
                         r => r.HasOne<Member>().WithMany().HasForeignKey("MemberId").HasConstraintName("FK__Favorites__Membe__41EDCAC5"),
                         j =>
                         {
-                            j.HasKey("MemberId", "ProductId").HasName("PK__Favorite__C7B0877499B4959C");
+                            j.HasKey("MemberId", "ProductId").HasName("PK__Favorite__C7B087748E7C5ECA");
 
                             j.ToTable("Favorites");
                         });
@@ -497,7 +480,9 @@ namespace ServiceFUEN.Models.EFModels
                     .IsRequired()
                     .HasMaxLength(500);
 
-                entity.Property(e => e.Time).HasColumnType("datetime");
+                entity.Property(e => e.Time)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(((getdate() AT TIME ZONE 'UTC') AT TIME ZONE 'Taipei Standard Time'))");
 
                 entity.HasOne(d => d.Article)
                     .WithMany(p => p.Messages)
@@ -519,18 +504,28 @@ namespace ServiceFUEN.Models.EFModels
 
                 entity.Property(e => e.OrderDate)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(((getdate() AT TIME ZONE 'UTC') AT TIME ZONE 'Taipei Standard Time'))");
+
+                entity.Property(e => e.PaymentId)
+                    .IsRequired()
+                    .HasMaxLength(25)
+                    .IsUnicode(false);
 
                 entity.HasOne(d => d.Member)
                     .WithMany(p => p.OrderDetails)
                     .HasForeignKey(d => d.MemberId)
                     .HasConstraintName("FK__OrderDeta__Membe__45BE5BA9");
+
+                entity.HasOne(d => d.UsedCouponNavigation)
+                    .WithMany(p => p.OrderDetails)
+                    .HasForeignKey(d => d.UsedCoupon)
+                    .HasConstraintName("FK__OrderDeta__UsedC__6EC0713C");
             });
 
             modelBuilder.Entity<OrderItem>(entity =>
             {
                 entity.HasKey(e => new { e.OrderId, e.ProductId })
-                    .HasName("PK__OrderIte__08D097A3FED0A207");
+                    .HasName("PK__OrderIte__08D097A306C9CADE");
 
                 entity.Property(e => e.ProductName)
                     .IsRequired()
@@ -550,11 +545,11 @@ namespace ServiceFUEN.Models.EFModels
             modelBuilder.Entity<OthersCollection>(entity =>
             {
                 entity.HasKey(e => new { e.MemberId, e.PhotoId })
-                    .HasName("PK__OthersCo__3EEB30463C5BA14B");
+                    .HasName("PK__OthersCo__3EEB30462FAD909B");
 
                 entity.Property(e => e.AddTime)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(((getdate() AT TIME ZONE 'UTC') AT TIME ZONE 'Taipei Standard Time'))");
 
                 entity.HasOne(d => d.Member)
                     .WithMany(p => p.OthersCollections)
@@ -569,36 +564,9 @@ namespace ServiceFUEN.Models.EFModels
 
             modelBuilder.Entity<Photo>(entity =>
             {
-                entity.Property(e => e.Aperture)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
                 entity.Property(e => e.Camera)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.CollectionTime).HasColumnType("datetime");
-
-                entity.Property(e => e.Description)
                     .IsRequired()
-                    .HasMaxLength(300);
-
-                entity.Property(e => e.Location)
-                    .IsRequired()
-                    .HasMaxLength(50);
-
-                entity.Property(e => e.Negative)
                     .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Pixel)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.ShootingTime).HasColumnType("datetime");
-
-                entity.Property(e => e.Shutter)
-                    .HasMaxLength(20)
                     .IsUnicode(false);
 
                 entity.Property(e => e.Source)
@@ -612,7 +580,7 @@ namespace ServiceFUEN.Models.EFModels
 
                 entity.Property(e => e.UploadTime)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(((getdate() AT TIME ZONE 'UTC') AT TIME ZONE 'Taipei Standard Time'))");
 
                 entity.HasOne(d => d.AuthorNavigation)
                     .WithMany(p => p.Photos)
@@ -625,18 +593,18 @@ namespace ServiceFUEN.Models.EFModels
             {
                 entity.Property(e => e.ReportTime)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(((getdate() AT TIME ZONE 'UTC') AT TIME ZONE 'Taipei Standard Time'))");
 
                 entity.HasOne(d => d.Photo)
                     .WithMany(p => p.PhotoReports)
                     .HasForeignKey(d => d.PhotoId)
-                    .HasConstraintName("FK__PhotoRepo__Photo__4D5F7D71");
+                    .HasConstraintName("FK__PhotoRepo__Photo__4C6B5938");
 
                 entity.HasOne(d => d.ReporterNavigation)
                     .WithMany(p => p.PhotoReports)
                     .HasForeignKey(d => d.Reporter)
                     .OnDelete(DeleteBehavior.SetNull)
-                    .HasConstraintName("FK__PhotoRepo__Repor__4C6B5938");
+                    .HasConstraintName("FK__PhotoRepo__Repor__4D5F7D71");
             });
 
             modelBuilder.Entity<Product>(entity =>
@@ -653,19 +621,19 @@ namespace ServiceFUEN.Models.EFModels
 
                 entity.Property(e => e.ReleaseDate)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(((getdate() AT TIME ZONE 'UTC') AT TIME ZONE 'Taipei Standard Time'))");
 
                 entity.HasOne(d => d.Brand)
                     .WithMany(p => p.Products)
                     .HasForeignKey(d => d.BrandId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Products__BrandI__51300E55");
+                    .HasConstraintName("FK__Products__BrandI__503BEA1C");
 
                 entity.HasOne(d => d.Category)
                     .WithMany(p => p.Products)
                     .HasForeignKey(d => d.CategoryId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Products__Catego__503BEA1C");
+                    .HasConstraintName("FK__Products__Catego__51300E55");
             });
 
             modelBuilder.Entity<ProductPhoto>(entity =>
@@ -688,7 +656,7 @@ namespace ServiceFUEN.Models.EFModels
 
                 entity.Property(e => e.DateCreated)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(((getdate() AT TIME ZONE 'UTC') AT TIME ZONE 'Taipei Standard Time'))");
 
                 entity.HasOne(d => d.Activity)
                     .WithMany(p => p.Questions)
@@ -704,7 +672,7 @@ namespace ServiceFUEN.Models.EFModels
             modelBuilder.Entity<ShoppingCart>(entity =>
             {
                 entity.HasKey(e => new { e.MemberId, e.ProductId })
-                    .HasName("PK__Shopping__C7B087747917E272");
+                    .HasName("PK__Shopping__C7B08774C7CBFB1B");
 
                 entity.HasOne(d => d.Member)
                     .WithMany(p => p.ShoppingCarts)
@@ -721,7 +689,7 @@ namespace ServiceFUEN.Models.EFModels
             {
                 entity.Property(e => e.CreatedTime)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(((getdate() AT TIME ZONE 'UTC') AT TIME ZONE 'Taipei Standard Time'))");
 
                 entity.Property(e => e.Name)
                     .IsRequired()
@@ -731,11 +699,11 @@ namespace ServiceFUEN.Models.EFModels
                     .WithMany(p => p.Tags)
                     .UsingEntity<Dictionary<string, object>>(
                         "TagItem",
-                        l => l.HasOne<Photo>().WithMany().HasForeignKey("PhotoId").HasConstraintName("FK__TagItems__PhotoI__56E8E7AB"),
-                        r => r.HasOne<Tag>().WithMany().HasForeignKey("TagId").HasConstraintName("FK__TagItems__TagId__55F4C372"),
+                        l => l.HasOne<Photo>().WithMany().HasForeignKey("PhotoId").HasConstraintName("FK__TagItems__PhotoI__55F4C372"),
+                        r => r.HasOne<Tag>().WithMany().HasForeignKey("TagId").HasConstraintName("FK__TagItems__TagId__56E8E7AB"),
                         j =>
                         {
-                            j.HasKey("TagId", "PhotoId").HasName("PK__TagItems__576782F2E4C93F0E");
+                            j.HasKey("TagId", "PhotoId").HasName("PK__TagItems__576782F284A95932");
 
                             j.ToTable("TagItems");
                         });
@@ -744,18 +712,18 @@ namespace ServiceFUEN.Models.EFModels
             modelBuilder.Entity<View>(entity =>
             {
                 entity.Property(e => e.ViewDate)
-                    .HasColumnType("date")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(((getdate() AT TIME ZONE 'UTC') AT TIME ZONE 'Taipei Standard Time'))");
 
                 entity.HasOne(d => d.Member)
                     .WithMany(p => p.Views)
                     .HasForeignKey(d => d.MemberId)
-                    .HasConstraintName("FK__Views__MemberId__5AB9788F");
+                    .HasConstraintName("FK__Views__MemberId__59C55456");
 
                 entity.HasOne(d => d.Photo)
                     .WithMany(p => p.Views)
                     .HasForeignKey(d => d.PhotoId)
-                    .HasConstraintName("FK__Views__PhotoId__59C55456");
+                    .HasConstraintName("FK__Views__PhotoId__5AB9788F");
             });
 
             OnModelCreatingPartial(modelBuilder);
