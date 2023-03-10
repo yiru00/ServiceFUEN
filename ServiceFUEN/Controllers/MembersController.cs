@@ -293,17 +293,20 @@ namespace ServiceFUEN.Controllers
 		public string EditPassword(EditPasswordDTO source)
 		//原密碼-輸入兩次新密碼-儲存變更-寫入資料庫變更
 		{
+
+
 			var claim = User.Claims.ToArray();
-
 			var userId = claim.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-
 			var Id = int.Parse(userId.ToString());
 
-			var member = _context.Members.SingleOrDefault(x => x.Id == Id);
-			if (member == null)
+			var oldpassword = ToSHA256(source.OldEncryptedPassword, salt);
+
+            var member = _context.Members.SingleOrDefault(x => x.Id == Id);
+			if (oldpassword != member.EncryptedPassword || source.EncryptedPassword!=source.ConfirmEncryptedPassword)
 			{
-				return "Null";
-			}
+                return "密碼有誤";
+            }
+            else
 
 			member.EncryptedPassword = ToSHA256(source.EncryptedPassword,salt);
 

@@ -4,8 +4,9 @@ namespace ServiceFUEN.Models.DTOs
 {
 	public class EditPasswordDTO
 	{
+        public string OldEncryptedPassword { get; set; }
 
-		[Required]
+        [Required]
 		[StringLength(12)]
 		[DataType(DataType.Password)]
 		public string EncryptedPassword { get; set; }
