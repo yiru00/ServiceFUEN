@@ -22,7 +22,7 @@
     <Folder Include="Models\Infrastructures\ExtensionMethods\" />
     <Folder Include="Models\Infrastructures\Repositories\" />
     <Folder Include="Models\Services\Interfaces\" />
-    <Folder Include="Images\" />
+    <Folder Include="wwwroot\Images\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,5 +34,30 @@
     <None Remove="Models\Services\" />
     <None Remove="Models\Infrastructures\ExtensionMethods\" />
     <None Remove="Models\Infrastructures\Repositories\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\Images\033dea94ecca4c5cae10204c13d3b544.webp" />
+    <None Include="wwwroot\Images\0dfbac67f3534d0c955df4b675472ad1.html" />
+    <None Include="wwwroot\Images\18699045fa1a4423bc7d10a33dbdee43.webp" />
+    <None Include="wwwroot\Images\268a17186e9c42858fe6676aa168787f.jpeg" />
+    <None Include="wwwroot\Images\386f8d96709e4ed4826382e30605c1c6.jpeg" />
+    <None Include="wwwroot\Images\399300edc74842e58d89c285e0c48af4.webp" />
+    <None Include="wwwroot\Images\39ddf7e8a73343cf8cd46ba92f263bcc.jpeg" />
+    <None Include="wwwroot\Images\4102e068865a4fff9b4e514f8771556c.jpeg" />
+    <None Include="wwwroot\Images\5e8f08ce34404f4eac1a4de280128ce6.webp" />
+    <None Include="wwwroot\Images\61a700d8c7474a58bea47874e82721ed.jpeg" />
+    <None Include="wwwroot\Images\6835b7072f5641f09eff5bc86c130e5f.jpeg" />
+    <None Include="wwwroot\Images\85b0b2386fcc49f8997dfc1fd6358f87.jpeg" />
+    <None Include="wwwroot\Images\8619f945f4284a2b8fee3d1e696221fa.jpeg" />
+    <None Include="wwwroot\Images\8ca5cca395c94c97b390ab92f191b766.jpeg" />
+    <None Include="wwwroot\Images\8f8ab71abd7c44fa93f71677816f483c.jpeg" />
+    <None Include="wwwroot\Images\9b752bb06aa748a58e2249006fdab39d.webp" />
+    <None Include="wwwroot\Images\a4636da0d04e456a81cd362c48e38024.webp" />
+    <None Include="wwwroot\Images\b2a730ba956848678756a3f0ef806b21.jpeg" />
+    <None Include="wwwroot\Images\c409376c803f43b3bd77f02fc9eac617.webp" />
+    <None Include="wwwroot\Images\c62371bf473747e0a8dcb7c652e69959.jpeg" />
+    <None Include="wwwroot\Images\ce1020b325c24849b9edd5b29b2364c4.jpeg" />
+    <None Include="wwwroot\Images\f52955bb12a645c897b795a657e09129.jpeg" />
   </ItemGroup>
 </Project>

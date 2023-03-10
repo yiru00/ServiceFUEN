@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Text;
 using System.Security.Cryptography;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.VisualBasic;
 
 namespace ServiceFUEN.Controllers
 {
@@ -254,7 +255,11 @@ namespace ServiceFUEN.Controllers
 		[Route("api/Members/EditProfile")]
 		public string EditProfile([FromForm]EditProfileDTO source)
 		{
-			var member = _context.Members.SingleOrDefault(x=>x.Id== source.Id);
+			var claim = User.Claims.ToArray();
+			var userId = claim.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+			var Id = int.Parse(userId.ToString());
+
+			var member = _context.Members.SingleOrDefault(x=>x.Id== Id);
 			if (member == null)
 			{
 				return "Fail";
