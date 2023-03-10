@@ -43,210 +43,64 @@ namespace ServiceFUEN.Controllers
             var photo = dto.DtoToEntity();
             photo.Source = fullName;
 
-            // Photo加入Album
-            if (!dto.IsCollection)
-            {
-                foreach (int item in dto.AlbumIds)
-                {
-                    photo.AlbumItems.Add(new AlbumItem()
-                    {
-                        AlbumId = item,
-                    });
-                }
-            }
-
             _dbContext.Photos.Add(photo);
             _dbContext.SaveChanges();
         }
 
-        //[Route("api/Photo/Edit")]
-        //[HttpPut]
-        //public void Edit()
-        //{
-
-        //}
-
-        //[Route("api/Photo/GetInformation")]
-        //PhotoInformationDTO GetInformation(IFormFile file)
-        //{
-
-        //}
-
-        // Move to HuanYu
-        //[Route("api/Photo/GetAlbums")]
-        //[HttpGet]
-        //public IEnumerable<AlbumDTO> GetAlbums()
-        //{
-        //    var albums = _dbContext.Albums.Select(a => a.EntityTODto());
-
-        //    return albums;
-        //}
-
-        [Route("api/Photo/GetPhoto")]
+        [Route("api/Photo/GetProfile")]
         [HttpGet]
-        public ShowPhotoDTO GetPhoto(int photoId, int memberId)
+        public CommunityMemberDTO GetProfile(int memberId)
         {
-            // Create return DTO
-            ShowPhotoDTO dto = new ShowPhotoDTO();
-
-            // Get Photo Information
-            var photo = _dbContext.Photos
-                .Include(p => p.AuthorNavigation)
-                .Include(p => p.Comments).ThenInclude(c => c.Member)
-                .Include(p => p.Tags)
-                .FirstOrDefault(p => p.Id == photoId);
-            dto.Id = photo.Id;
-            dto.Source = photo.Source;
-            dto.Title = photo.Title;
-            dto.Description = photo.Description;
-            dto.ISO = photo.ISO;
-            dto.Pixel = photo.Pixel;
-            dto.Aperture = photo.Aperture;
-            dto.Shutter = photo.Shutter;
-            dto.Camera = photo.Camera;
-            dto.Negative = photo.Negative;
-            dto.Location = photo.Location;
-            dto.ShootingTime = photo.ShootingTime;
-            dto.UploadTime = photo.UploadTime;
-
-            // Get Author Information
-            CommunityMemberDTO memberDTO = new CommunityMemberDTO();
-            memberDTO.Id = photo.Author;
-            memberDTO.Name = photo.AuthorNavigation.NickName;
-            memberDTO.Source = photo.AuthorNavigation.PhotoSticker;
-            dto.Author = memberDTO;
-
-            // Determine Photo Collection
-            if (photo.Author == memberId) dto.IsCollection = photo.IsCollection;
-            else
-            {
-                var collection = _dbContext.OthersCollections.FirstOrDefault(p => p.MemberId == memberId && p.PhotoId == photoId);
-                if (collection != null) dto.IsCollection = true;
-                else dto.IsCollection = false;
-            }
-
-            // Comments
-            dto.Comments = photo.Comments.Select(c => new CommentDTO()
-            {
-                Id = c.Id,
-                Content = c.Content,
-                CommentTime = c.CommentTime,
-                Author = new CommunityMemberDTO()
-                {
-                    Id = c.Member.Id,
-                    Source = c.Member.PhotoSticker,
-                    Name = c.Member.NickName
-                }
-            });
-
-            // Tags
-            dto.Tags = photo.Tags.Select(t => new TagDTO()
-            {
-                Id = t.Id,
-                Name = t.Name,
-            });
-
-            // Views
-            var views = _dbContext.Views.Where(v => v.PhotoId == photoId).ToArray();
-            dto.Views = views.Length;
-
-            return dto;
+            // 取得某人的個人檔案
+            var member = _dbContext.Members.FirstOrDefault(x => x.Id == memberId);
+			var profile = new CommunityMemberDTO() 
+			{ 
+				Id = member.Id,
+				Name = member.NickName,
+				Source = member.PhotoSticker,
+				About = member.About
+			};
+            return profile;
         }
 
-        // Move to HuanYu
-        //[Route("api/Photo/Collect")]
-        //[HttpPut]
-        //public void Collect(int photoId, int memberId)
-        //{
-        //    var photo = _dbContext.Photos.FirstOrDefault(p => p.Id == photoId);
+		[Route("api/Photo/AllPhotos")]
+		[HttpGet]
+		public IEnumerable<ShowPhotoDTO> AllPhotos(int memberId)
+		{
+			// 取得某人的照片
+			var photos = _dbContext.Photos.Where(x => x.Author == memberId).Select(x => new ShowPhotoDTO()
+			{
+				Id = x.Id,
+				Source = x.Source,
+				Title = x.Title,
+				Camrea = x.Camera,
+				IsCollection = x.OthersCollections.Any(o => o.MemberId == memberId),
+			});
 
-        //    // 判斷是否是典藏
-        //    if (photo.Author == memberId)
-        //    {
-        //        if (photo.IsCollection)
-        //        {
-        //            photo.IsCollection = false;
-        //            photo.CollectionTime = null;
-        //        }
-        //        else
-        //        {
-        //            photo.IsCollection = true;
-        //            photo.CollectionTime = DateTime.Now;
-        //        }
+			return photos;
+		}
 
-        //    }
-        //    else
-        //    {
-        //        var collection = _dbContext.OthersCollections.FirstOrDefault(p => p.MemberId == memberId && p.PhotoId == photoId);
-        //        if (collection != null) _dbContext.OthersCollections.Remove(collection);
-        //        else
-        //        {
-        //            OthersCollection otherCollection = new OthersCollection()
-        //            {
-        //                MemberId = memberId,
-        //                PhotoId = photoId,
-        //            };
-        //            _dbContext.OthersCollections.Add(otherCollection);
-        //        }
-        //    }
-        //    _dbContext.SaveChanges();
-        //}
+		// Move to HuanYu
+		//[Route("api/Photo/AddView")]
+		//[HttpPut]
+		//public string AddView(int photoId, int memberId)
+		//{
+		//    var view = _dbContext.Views.FirstOrDefault(v => v.MemberId == memberId && v.PhotoId == photoId && v.ViewDate.Date == DateTime.Today);
 
-        // Move to HuanYu
-        //[Route("api/Photo/AddView")]
-        //[HttpPut]
-        //public string AddView(int photoId, int memberId)
-        //{
-        //    var view = _dbContext.Views.FirstOrDefault(v => v.MemberId == memberId && v.PhotoId == photoId && v.ViewDate.Date == DateTime.Today);
+		//    if (view == null)
+		//    {
+		//        View entity = new View()
+		//        {
+		//            MemberId = memberId,
+		//            PhotoId = photoId
+		//        };
+		//        _dbContext.Views.Add(entity);
+		//        _dbContext.SaveChanges();
 
-        //    if (view == null)
-        //    {
-        //        View entity = new View()
-        //        {
-        //            MemberId = memberId,
-        //            PhotoId = photoId
-        //        };
-        //        _dbContext.Views.Add(entity);
-        //        _dbContext.SaveChanges();
+		//        return "增加成功";
+		//    }
 
-        //        return "增加成功";
-        //    }
-
-        //    return "已經存在DB";
-        //}
-
-        // HuanYu
-        [HttpGet]
-        [Route("api/Photo/GetMemberPhotos")]
-        public IEnumerable<PhotoSrcDTO> GetMemberPhotos(int memberId)
-        {
-            //撈某人已公開(非典藏)的照片
-            var photos = _dbContext.Photos.Include(p => p.AuthorNavigation)
-                .Where(p => p.AuthorNavigation.Id == memberId && p.IsCollection == false)
-                .Select(p => new PhotoSrcDTO
-                {
-                    PhotoId = p.Id,
-                    PhotoSrc = p.Source,
-                });
-            return photos;
-        }
-
-        // HuanYu
-        [HttpGet]
-        [Route("api/Photo/CommunityPage")]
-        public IEnumerable<PhotoSrcDTO> CommunityPage(int tagId)
-        {
-            //社群主頁-取得某tag的照片們
-            //一個tag對應多張照片，Where(撈多筆).First(撈一筆)所以可以用.Photos，
-            var photos = _dbContext.Tags.Include(t => t.Photos)
-                .FirstOrDefault(t => t.Id == tagId).Photos
-                .Select(t => new PhotoSrcDTO
-                {
-                    PhotoId = t.Id,
-                    PhotoSrc = t.Source,
-                });
-
-            return photos;
-        }
-    }
+		//    return "已經存在DB";
+		//}
+	}
 }

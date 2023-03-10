@@ -17,23 +17,23 @@ namespace ServiceFUEN.Controllers
 			_dbContext = dbContext;
 		}
 
-		[Route("api/Collection/OwnCollections")]
-		[HttpPost]
-		public IEnumerable<PhotoSrcDTO> OwnCollections([FromBody]int memberId)
-		{
-			//[FromBody]data直接寫 1 2 3 不用任何格式 contentType一樣要application/json
-			//查看自己收藏自己的照片
-			var ownCollections = _dbContext.Photos
-				.Where(p => p.Author == memberId && p.IsCollection == true)
-				.OrderByDescending(p => p.CollectionTime)
-				.Select(p => new PhotoSrcDTO
-				{
-					PhotoId = p.Id,
-					PhotoSrc = p.Source
-				});
+		//[Route("api/Collection/OwnCollections")]
+		//[HttpPost]
+		//public IEnumerable<PhotoSrcDTO> OwnCollections([FromBody]int memberId)
+		//{
+		//	//[FromBody]data直接寫 1 2 3 不用任何格式 contentType一樣要application/json
+		//	//查看自己收藏自己的照片
+		//	var ownCollections = _dbContext.Photos
+		//		.Where(p => p.Author == memberId && p.IsCollection == true)
+		//		.OrderByDescending(p => p.CollectionTime)
+		//		.Select(p => new PhotoSrcDTO
+		//		{
+		//			PhotoId = p.Id,
+		//			PhotoSrc = p.Source
+		//		});
 
-			return ownCollections;
-		}
+		//	return ownCollections;
+		//}
 
 		[Route("api/Collection/OthersCollection")]
 		[HttpPost]
@@ -53,43 +53,43 @@ namespace ServiceFUEN.Controllers
 			return othersCollection;
 		}
 
-		[Route("api/Collection/Collect")]
-		[HttpPut]
-		public void Collect(int photoId, int memberId)
-		{
-			var photo = _dbContext.Photos.FirstOrDefault(p => p.Id == photoId);
+		//[Route("api/Collection/Collect")]
+		//[HttpPut]
+		//public void Collect(int photoId, int memberId)
+		//{
+		//	var photo = _dbContext.Photos.FirstOrDefault(p => p.Id == photoId);
 
-			// 判斷是否是典藏
-			if (photo.Author == memberId)
-			{
-				if (photo.IsCollection)
-				{
-					photo.IsCollection = false;
-					photo.CollectionTime = null;
-				}
-				else
-				{
-					photo.IsCollection = true;
-					photo.CollectionTime = DateTime.Now;
-				}
+		//	// 判斷是否是典藏
+		//	if (photo.Author == memberId)
+		//	{
+		//		if (photo.IsCollection)
+		//		{
+		//			photo.IsCollection = false;
+		//			photo.CollectionTime = null;
+		//		}
+		//		else
+		//		{
+		//			photo.IsCollection = true;
+		//			photo.CollectionTime = DateTime.Now;
+		//		}
 
-			}
-			else
-			{
-				var collection = _dbContext.OthersCollections.FirstOrDefault(p => p.MemberId == memberId && p.PhotoId == photoId);
-				if (collection != null) _dbContext.OthersCollections.Remove(collection);
-				else
-				{
-					OthersCollection otherCollection = new OthersCollection()
-					{
-						MemberId = memberId,
-						PhotoId = photoId,
-					};
-					_dbContext.OthersCollections.Add(otherCollection);
-				}
-			}
-			_dbContext.SaveChanges();
-		}
+		//	}
+		//	else
+		//	{
+		//		var collection = _dbContext.OthersCollections.FirstOrDefault(p => p.MemberId == memberId && p.PhotoId == photoId);
+		//		if (collection != null) _dbContext.OthersCollections.Remove(collection);
+		//		else
+		//		{
+		//			OthersCollection otherCollection = new OthersCollection()
+		//			{
+		//				MemberId = memberId,
+		//				PhotoId = photoId,
+		//			};
+		//			_dbContext.OthersCollections.Add(otherCollection);
+		//		}
+		//	}
+		//	_dbContext.SaveChanges();
+		//}
 	}
 
 	

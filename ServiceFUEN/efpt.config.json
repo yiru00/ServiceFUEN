@@ -155,15 +155,11 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[UsedCoupons]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[dbo].[Views]",
          "ObjectType": 0
       }
    ],
-   "UiHint": "fuen2531dbserver.ProjectFUEN",
+   "UiHint": "karza-project.FUENproject",
    "UncountableWords": null,
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": true,
