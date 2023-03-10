@@ -65,7 +65,7 @@ namespace ServiceFUEN.Models.ViewModels
                 Name= product.Name,
                 CategoryId= product.CategoryId,
                 BrandId= product.BrandId,
-
+                Price= product.Price,
             };
         }
         public static EventVM ToEventVM(this Event @event)
