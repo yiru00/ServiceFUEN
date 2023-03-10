@@ -11,9 +11,9 @@ namespace ServiceFUEN.Models.ViewModels
                 Id = product.Id,
                 Name = product.Name,
                 Price = product.Price,
-                BrandId= product.BrandId,
-                CategoryId= product.CategoryId,
-                ReleaseDate= product.ReleaseDate,
+                BrandName = product.Brand.Name,
+                CategoryName = product.Category.Name,
+                ReleaseDate = product.ReleaseDate,
                 ManufactorDate= product.ManufactorDate,
                 ProductSpec = product.ProductSpec,
                 Inventory= product.Inventory,
@@ -38,7 +38,7 @@ namespace ServiceFUEN.Models.ViewModels
                 Name = product.Name,
                 Price = product.Price,
                 ReleaseDate = product.ReleaseDate,
-                Source = product.ProductPhotos.Select(x => x.Source).ToList(),
+                Source = product.ProductPhotos.Select(x => x.Source).Where(x => x.Substring(0, 2) == "01").ToList(),
             };
         }
         public static CategoryVM ToCategoryVM(this Category category)
