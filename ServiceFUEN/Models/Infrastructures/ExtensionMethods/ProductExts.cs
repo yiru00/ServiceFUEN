@@ -17,7 +17,7 @@ namespace ServiceFUEN.Models.ViewModels
                 ManufactorDate= product.ManufactorDate,
                 ProductSpec = product.ProductSpec,
                 Inventory= product.Inventory,
-                Source = product.ProductPhotos.Select(x => x.Source).ToList(),
+                Source = product.ProductPhotos.Select(x => x.Source).OrderBy(p => p.Substring(0, 2)).ToList(),
             };
         }
         public static ProductAllVM ToProductAllVM(this Product product)
@@ -27,7 +27,7 @@ namespace ServiceFUEN.Models.ViewModels
                 Id = product.Id,
                 Name = product.Name,
                 Price = product.Price,
-                Source = product.ProductPhotos.Select(x => x.Source).ToList(),
+                Source = product.ProductPhotos.Select(x => x.Source).Where(x => x.Substring(0, 2) == "01").ToList(),
             };
         }
         public static ProductNewVM ToProductNewVM(this Product product)
@@ -77,6 +77,17 @@ namespace ServiceFUEN.Models.ViewModels
                 Photo = @event.Photo,
                 StartDate = @event.StartDate,
                 EndDate = @event.EndDate,
+            };
+        }
+        public static MeanPhotoVM ToMeanPhoto(this ProductPhoto mean)
+        {
+            return new MeanPhotoVM
+            {
+                Id = mean.Id,
+                ProductId = mean.ProductId,
+                
+                Source = mean.Source,
+
             };
         }
     }

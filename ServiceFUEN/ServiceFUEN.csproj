@@ -40,4 +40,8 @@
     <None Remove="Models\Services\Interfaces\" />
     <None Remove="Controllers\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FluentEcpay\FluentEcpay.csproj" />
+  </ItemGroup>
 </Project>
