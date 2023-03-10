@@ -66,6 +66,7 @@ namespace ServiceFUEN.Controllers
 		[Route("api/Photo/AllPhotos")]
 		[HttpGet]
 		public IEnumerable<ShowPhotoDTO> AllPhotos(int memberId)
+
 		{
 			// 取得某人的照片
 			var photos = _dbContext.Photos.Where(x => x.Author == memberId).Select(x => new ShowPhotoDTO()
@@ -80,6 +81,23 @@ namespace ServiceFUEN.Controllers
 			return photos;
 		}
 
+        [Route("api/Photo/CollectionPhoto")]
+        [HttpGet]
+        public IEnumerable<ShowPhotoDTO> CollectionPhoto(int memberId)
+        {
+            return _dbContext.OthersCollections
+                .Include(x => x.Photo)
+                .Where(x => x.MemberId == memberId)
+                .Select(x => new ShowPhotoDTO()
+                {
+                    Id = x.Photo.Id,
+                    Source = x.Photo.Source,
+                    Title = x.Photo.Title,
+                    IsCollection = true,
+                    Camrea = x.Photo.Camera
+                });
+		}
+
         [Route("api/Photo/DeletePhoto")]
         [HttpDelete]
         public void DeletePhoto(int photoId)
@@ -91,7 +109,5 @@ namespace ServiceFUEN.Controllers
                 _dbContext.SaveChanges();
             }
         }
-
-
 	}
 }

@@ -17,7 +17,8 @@ namespace ServiceFUEN.Controllers
         }
 
         [Route("api/Profile/GetAllMember")]
-        public IEnumerable<CommunityMemberDTO> GetAllMember(string searchInput)
+        [HttpGet]
+        public IEnumerable<CommunityMemberDTO> GetAllMember(string? searchInput)
         {
             IEnumerable<Member> members = _dbContext.Members;
 
