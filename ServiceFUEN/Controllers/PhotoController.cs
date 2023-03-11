@@ -29,7 +29,7 @@ namespace ServiceFUEN.Controllers
         public void Create([FromForm] CreatePhotoDTO dto)
         {
             // 將Photo儲存進Project的Images資料夾中
-            string path = System.Environment.CurrentDirectory + "/Images/";
+            string path = System.Environment.CurrentDirectory + "/wwwroot/Images/";
             string extension = Path.GetExtension(dto.File.FileName);
             string fileName = Guid.NewGuid().ToString("N");
             string fullName = fileName + extension;
@@ -69,32 +69,37 @@ namespace ServiceFUEN.Controllers
 
 		{
 			// 取得某人的照片
-			var photos = _dbContext.Photos.Where(x => x.Author == memberId).Select(x => new ShowPhotoDTO()
+			var photos = _dbContext.Photos.Where(x => x.Author == memberId).Include(x=>x.AuthorNavigation).Select(x => new ShowPhotoDTO()
 			{
 				Id = x.Id,
 				Source = x.Source,
 				Title = x.Title,
-				Camrea = x.Camera,
+				Camera = x.Camera,
 				IsCollection = x.OthersCollections.Any(o => o.MemberId == memberId),
+                Author=x.AuthorNavigation.NickName,
+                AuthorPhotoSticker=x.AuthorNavigation.PhotoSticker
 			});
 
 			return photos;
 		}
 
         [Route("api/Photo/CollectionPhoto")]
-        [HttpGet]
-        public IEnumerable<ShowPhotoDTO> CollectionPhoto(int memberId)
+        [HttpPost]
+        public IEnumerable<ShowPhotoDTO> CollectionPhoto(CommunityMPIdDTO member)
         {
             return _dbContext.OthersCollections
                 .Include(x => x.Photo)
-                .Where(x => x.MemberId == memberId)
+                .ThenInclude(x => x.AuthorNavigation)
+                .Where(x => x.MemberId == member.Id)
                 .Select(x => new ShowPhotoDTO()
                 {
                     Id = x.Photo.Id,
                     Source = x.Photo.Source,
                     Title = x.Photo.Title,
                     IsCollection = true,
-                    Camrea = x.Photo.Camera
+                    Camera = x.Photo.Camera,
+                    Author =x.Photo.AuthorNavigation.NickName,
+                    AuthorPhotoSticker = x.Photo.AuthorNavigation.PhotoSticker
                 });
 		}
 

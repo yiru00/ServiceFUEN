@@ -32,7 +32,7 @@ namespace ServiceFUEN.Controllers
                 Id = x.Id,
                 Name = x.NickName,
                 Source = x.PhotoSticker,
-                About= x.About,
+                About= "",
             });
         }
     }
