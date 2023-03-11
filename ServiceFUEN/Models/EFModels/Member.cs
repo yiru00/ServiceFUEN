@@ -15,6 +15,7 @@ namespace ServiceFUEN.Models.EFModels
             Articles = new HashSet<Article>();
             CommentReports = new HashSet<CommentReport>();
             Comments = new HashSet<Comment>();
+            Favorites = new HashSet<Favorite>();
             FollowInfoFollowerNavigations = new HashSet<FollowInfo>();
             FollowInfoFollowingNavigations = new HashSet<FollowInfo>();
             Messages = new HashSet<Message>();
@@ -25,7 +26,6 @@ namespace ServiceFUEN.Models.EFModels
             Questions = new HashSet<Question>();
             ShoppingCarts = new HashSet<ShoppingCart>();
             Views = new HashSet<View>();
-            Products = new HashSet<Product>();
         }
 
         public int Id { get; set; }
@@ -48,6 +48,7 @@ namespace ServiceFUEN.Models.EFModels
         public virtual ICollection<Article> Articles { get; set; }
         public virtual ICollection<CommentReport> CommentReports { get; set; }
         public virtual ICollection<Comment> Comments { get; set; }
+        public virtual ICollection<Favorite> Favorites { get; set; }
         public virtual ICollection<FollowInfo> FollowInfoFollowerNavigations { get; set; }
         public virtual ICollection<FollowInfo> FollowInfoFollowingNavigations { get; set; }
         public virtual ICollection<Message> Messages { get; set; }
@@ -58,7 +59,5 @@ namespace ServiceFUEN.Models.EFModels
         public virtual ICollection<Question> Questions { get; set; }
         public virtual ICollection<ShoppingCart> ShoppingCarts { get; set; }
         public virtual ICollection<View> Views { get; set; }
-
-        public virtual ICollection<Product> Products { get; set; }
     }
 }

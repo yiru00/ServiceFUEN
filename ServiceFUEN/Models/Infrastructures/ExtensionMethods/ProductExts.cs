@@ -90,5 +90,15 @@ namespace ServiceFUEN.Models.ViewModels
 
             };
         }
+        public static ProFavoriteVM ToProFavoriteVM(this Favorite favorite)
+        {
+            return new ProFavoriteVM
+            {
+                Id = favorite.Product.Id,
+                Name = favorite.Product.Name,
+                Price = favorite.Product.Price,
+                Source = null,
+            };
+        }
     }
 }

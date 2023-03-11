@@ -9,11 +9,11 @@ namespace ServiceFUEN.Models.EFModels
     {
         public Product()
         {
+            Favorites = new HashSet<Favorite>();
             OrderItems = new HashSet<OrderItem>();
             ProductPhotos = new HashSet<ProductPhoto>();
             ShoppingCarts = new HashSet<ShoppingCart>();
             Events = new HashSet<Event>();
-            Members = new HashSet<Member>();
         }
 
         public int Id { get; set; }
@@ -28,11 +28,11 @@ namespace ServiceFUEN.Models.EFModels
 
         public virtual Brand Brand { get; set; }
         public virtual Category Category { get; set; }
+        public virtual ICollection<Favorite> Favorites { get; set; }
         public virtual ICollection<OrderItem> OrderItems { get; set; }
         public virtual ICollection<ProductPhoto> ProductPhotos { get; set; }
         public virtual ICollection<ShoppingCart> ShoppingCarts { get; set; }
 
         public virtual ICollection<Event> Events { get; set; }
-        public virtual ICollection<Member> Members { get; set; }
     }
 }
