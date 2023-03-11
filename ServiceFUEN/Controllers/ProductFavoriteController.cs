@@ -100,71 +100,27 @@ namespace ServiceFUEN.Controllers
             
             return ProFavoriteVM;
 
-
-
         }
 
-        //[HttpPost]
-        //[Route("api/ProductSave/SaveFav")]
-        ////前台顯示活動收藏的四種可能情況(不存在/已舉辦/可收藏/已收藏(若沒傳memberId（=0）進來就不會走到這步判斷))
-        //public  SaveStatus(int memberId, int productId)
-        //{
-        //    //取得要求資料
-        //    int memberId = saveReq.MemberId;
-        //    int activityId = saveReq.ActivityId;
+        [HttpGet]
+        [Route("api/Favorites/FavoritesStatus")]
+        public favoriteVM FavoritesStatus(int memberId ,int productId)
+        {
+            favoriteVM  result = new favoriteVM();
+         
+            var favorited = _context.Favorites.Where(x => x.MemberId == memberId).FirstOrDefault(x => x.ProductId == productId);
+            if (memberId ==0 || favorited == null)
+            {
+                result.deleteId = 0;
+                result.reply = "沒收藏過";
+                result.upshot = false;
+                return result;
+            }
+            result.deleteId = favorited.Id;
+            result.reply = "已收藏過";
+            result.upshot = true;
+            return result;
 
-
-        //    var member = _context.Members.Find(memberId);
-        //    var activity = _context.Activities.Find(activityId);
-
-        //    //準備回傳資料
-        //    SaveStatusResVM saveStatusRes = new SaveStatusResVM();
-
-        //    //活動是否存在？
-        //    if (activity != null)//存在
-        //    {
-        //        saveStatusRes.ActivityName = activity.ActivityName;
-        //        //活動是否舉辦
-        //        if (activity.GatheringTime > DateTime.Now)//未舉辦
-        //        {
-
-        //            saveStatusRes.statusId = 3;
-        //            saveStatusRes.message = "可收藏";
-        //            saveStatusRes.activityId = activityId;
-
-        //            //該會員是否收藏過？
-        //            var isSaved = _context.ActivityCollections.Where(a => a.ActivityId == activityId).FirstOrDefault(a => a.UserId == memberId);
-        //            if (member != null && isSaved != null) //會員有存在 且收藏過（在此活動中的收藏名單有此會員）
-        //            {
-        //                saveStatusRes.statusId = 4;
-        //                saveStatusRes.message = "已收藏過";
-        //                saveStatusRes.UnSaveId = isSaved.Id;
-        //            }
-        //        }
-        //        else
-        //        {
-        //            saveStatusRes.statusId = 2;
-        //            saveStatusRes.message = "活動已舉辦";
-
-        //            //該會員是否收藏過？
-        //            var isSaved = _context.ActivityCollections.Where(a => a.ActivityId == activityId).FirstOrDefault(a => a.UserId == memberId);
-        //            if (member != null && isSaved != null) //會員有存在 且收藏過（在此活動中的收藏名單有此會員）
-        //            {
-        //                saveStatusRes.statusId = 5;
-        //                saveStatusRes.message = "活動已舉辦且已收藏過";
-        //                saveStatusRes.UnSaveId = isSaved.Id;
-        //            }
-        //        }
-
-
-
-        //    }
-        //    else //活動不存在
-        //    {
-        //        saveStatusRes.statusId = 1;
-        //        saveStatusRes.message = "沒有此活動";
-        //    }
-        //    return saveStatusRes;
-        //}
+        }
     }
 }
