@@ -7,5 +7,6 @@
         public int CategoryId { get; set; }
         public int BrandId { get; set; }
 
+        public int Price { get; set; }
     }
 }
