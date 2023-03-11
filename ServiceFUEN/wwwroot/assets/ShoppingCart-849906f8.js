@@ -1,0 +1,1 @@
+import{_ as o,r as s,o as r,c as a}from"./index-3f0bd573.js";const n={mounted(){let e=JSON.parse(sessionStorage.getItem("productSelItem"));e&&(this.$refs.CashView.addToCart(e,3),sessionStorage.removeItem("productSelItem"))}};function c(e,p,i,m,_,d){const t=s("CashView");return r(),a(t,{ref:"CashView"},null,512)}const l=o(n,[["render",c]]);export{l as default};
