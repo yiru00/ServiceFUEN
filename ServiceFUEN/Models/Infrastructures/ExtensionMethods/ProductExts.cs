@@ -66,6 +66,7 @@ namespace ServiceFUEN.Models.ViewModels
                 CategoryId= product.CategoryId,
                 BrandId= product.BrandId,
                 Price= product.Price,
+                Source = product.ProductPhotos.Select(x => x.Source).Where(x => x.Substring(0, 2) == "01").ToList()[0]
             };
         }
         public static EventVM ToEventVM(this Event @event)
