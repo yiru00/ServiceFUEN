@@ -6,6 +6,7 @@ using ServiceFUEN.Models.EFModels;
 using ServiceFUEN.Models.ViewModels;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 
 namespace ServiceFUEN.Controllers
 {
@@ -202,6 +203,12 @@ namespace ServiceFUEN.Controllers
                             throw new Exception(rtn.Messsage);
                         }
 
+                        if(product.Inventory == 0)
+                        {
+                            rtn.Messsage = $"商品{product.Name}已無庫存!!";
+                            throw new Exception(rtn.Messsage);
+                        }
+
                         // 找到商品加入訂單明細檔--
                         orderItemList.Add(new OrderItem
                         {
@@ -359,38 +366,58 @@ namespace ServiceFUEN.Controllers
         [HttpPost("CallBack")]
         public IActionResult Callback([FromForm] PaymentResult result)
         {
-            try
+            using (var transaction = _context.Database.BeginTransaction())
             {
-
-
-                // 務必判斷檢查碼是否正確。 (測試先不檢查)
-                //if (!CheckMac.PaymentResultIsValid(result, ECPayHashKey, ECPayHashIV))
-                //{
-                //    return BadRequest();
-                //}
-
-
-                // 處理後續訂單狀態的更動 
-                // 依付款號碼找到訂單主檔並修改State為0
-                // 抓已儲存訂單主檔
-                var orderDetailSaved = _context.OrderDetails
-                    .Where(a => a.PaymentId == result.MerchantTradeNo)
-                    .FirstOrDefault();
-
-                if (orderDetailSaved != null)
+                try
                 {
-                    orderDetailSaved.State = 0; // 將待付款-1 改為已出貨0
-                    _context.OrderDetails.Update(orderDetailSaved);
-                    _context.SaveChanges();
+                    // 務必判斷檢查碼是否正確。 (測試先不檢查)
+                    //if (!CheckMac.PaymentResultIsValid(result, ECPayHashKey, ECPayHashIV))
+                    //{
+                    //    return BadRequest();
+                    //}
+
+
+                    // 處理後續訂單狀態的更動 
+                    // 依付款號碼找到訂單主檔並修改State為0
+                    // 抓已儲存訂單主檔
+                    var orderDetailSaved = _context.OrderDetails
+                        .Where(a => a.PaymentId == result.MerchantTradeNo)
+                        .FirstOrDefault();
+                    var orderItemSaved = _context.OrderItems.Where(a => a.OrderId == orderDetailSaved.Id).ToList();
+                    
+                    foreach (var item in orderItemSaved)
+                    {
+                        var product = _context.Products.Where(a => a.Id == item.ProductId).FirstOrDefault();
+                        product.Inventory = product.Inventory - item.ProductNumber;
+
+                        _context.Products.Update(product);
+                        _context.SaveChanges();
+
+                    }
+
+
+
+                    if (orderDetailSaved != null)
+                    {
+                        orderDetailSaved.State = 0; // 將待付款-1 改為已出貨0
+                        _context.OrderDetails.Update(orderDetailSaved);
+                        _context.SaveChanges();
+                    }
+
+                    transaction.Commit();
+                    return Redirect($"{ECPayClientBackURL}/{result.MerchantTradeNo}");
+                 
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    return BadRequest();
+
                 }
 
 
-                return Redirect($"{ECPayClientBackURL}/{result.MerchantTradeNo}");
             }
-            catch (Exception ex)
-            {
-                return BadRequest();
-            }
+
         }
 
         // 以付款id取得訂單資訊並回傳
@@ -414,6 +441,8 @@ namespace ServiceFUEN.Controllers
 
                 // 抓出訂單明細檔
                 var orderItemSaved = _context.OrderItems.Where(a => a.OrderId == orderDetailSaved.Id).ToList();
+
+
 
 
                 if (orderItemSaved.Count == 0)
