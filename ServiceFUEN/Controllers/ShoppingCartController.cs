@@ -1,14 +1,11 @@
 ﻿using FluentEcpay;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ServiceFUEN.Models.EFModels;
 using ServiceFUEN.Models.ViewModels;
-using System.Diagnostics.Metrics;
-using System.Net;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace ServiceFUEN.Controllers
 {
@@ -33,6 +30,7 @@ namespace ServiceFUEN.Controllers
         private readonly string ECPayReturnURL;
         private readonly string ECPayClientBackURL;
         private readonly string ECPayOrderResultURL;
+        private readonly string ECPayServerURL;
         #endregion
 
         public ShoppingCartController(ProjectFUENContext context, IConfiguration configuration)
@@ -41,7 +39,7 @@ namespace ServiceFUEN.Controllers
             _context = context;
             _configuration = configuration;
 
-            //  讀取設定檔 (開發與生產環境相同)
+            //  讀取設定檔appsetting.json (開發與生產環境相同)
             ECPayServiceURL = _configuration["ECPay:ECPayServiceURL"] ?? "";
             ECPayHashKey = _configuration["ECPay:ECPayHashKey"] ?? "";
             ECPayHashIV = _configuration["ECPay:ECPayHashIV"] ?? "";
@@ -50,15 +48,25 @@ namespace ServiceFUEN.Controllers
             // 讀取設定檔 (開發與生產環境url會不同 所以分別存)
 #if DEBUG
             ECPayHomeURL = _configuration["ECPay:ECPayHomeURL_Dev"] ?? "";
-            ECPayReturnURL = _configuration["ECPay:ECPayReturnURL_Dev"] ?? "";
-            ECPayClientBackURL = _configuration["ECPay:ECPayClientBackURL_Dev"] ?? "";
-            ECPayOrderResultURL = _configuration["ECPay:ECPayOrderResultURL_Dev"] ?? "";
+
 #else
                         ECPayHomeURL = _configuration["ECPay:ECPayHomeURL_Prod"] ?? "";
-                        ECPayReturnURL = _configuration["ECPay:ECPayReturnURL__Prod"] ?? "";
-                        ECPayClientBackURL = _configuration["ECPay:ECPayClientBackURL_Prod"] ?? "";
-                        ECPayOrderResultURL = _configuration["ECPay:ECPayOrderResultURL_Prod"] ?? "";
 #endif
+
+            // domain + 網址
+            ECPayReturnURL =
+                string.IsNullOrWhiteSpace(_configuration["ECPay:ECPayReturnURL"]) ? "" :
+                $"{ECPayHomeURL}{_configuration["ECPay:ECPayReturnURL"]}";
+            ECPayClientBackURL =
+                string.IsNullOrWhiteSpace(_configuration["ECPay:ECPayClientBackURL"]) ? "" :
+                $"{ECPayHomeURL}{_configuration["ECPay:ECPayClientBackURL"]}";
+            ECPayOrderResultURL =
+                string.IsNullOrWhiteSpace(_configuration["ECPay:ECPayOrderResultURL"]) ? "" :
+                $"{ECPayHomeURL}{_configuration["ECPay:ECPayOrderResultURL"]}";
+            ECPayServerURL =
+                string.IsNullOrWhiteSpace(_configuration["ECPay:ECPayServerURL"]) ? "" :
+                $"{ECPayHomeURL}{_configuration["ECPay:ECPayServerURL"]}";
+
         }
 
         //discount
@@ -120,6 +128,10 @@ namespace ServiceFUEN.Controllers
         /// 接收購物車內容、算錢、存DB
         /// </summary>
         /// <param name="shoppingCartVM"></param>
+        /// <remarks>
+        /// 訂單狀態:
+        /// -1: "待付款" 0:"未出貨" 1:"已出貨" 2:"運送中" 3:"已簽收"; 4:"已完成"
+        /// </remarks>
         [HttpPost("SaveShoppingCart")]
         [AllowAnonymous]
         public async Task<IActionResult> SaveShoppingCart([Bind(nameof(ShoppingCartVM))] ShoppingCartVM shoppingCartVM)
@@ -156,7 +168,7 @@ namespace ServiceFUEN.Controllers
                         // 因為Azure伺服器在美國 所以要以美國時間 +8hr
                         OrderDate = DateTime.UtcNow.AddHours(08),
                         Address = shoppingCartVM.Adress.ZipCode + " " + shoppingCartVM.Adress.CountyName + shoppingCartVM.Adress.Name + shoppingCartVM.Adress.InputRegion,
-                        State = shoppingCartVM.State,
+                        State = -1, // 待付款
                         UsedCoupon = shoppingCartVM.CouponData.UsedCouponID,
                         Total = shoppingCartVM.Total,
                         PaymentId = "",
@@ -269,8 +281,9 @@ namespace ServiceFUEN.Controllers
                         MerchantId = ECPayMerchantID,
                         HashKey = ECPayHashKey,
                         HashIV = ECPayHashIV,
-                        ServerUrl = $"{ECPayHomeURL}/api/ShoppingCart/CallBack",
-                        ClientUrl = ECPayOrderResultURL
+                        ServerUrl = ECPayServerURL,
+                        ClientUrl = ECPayClientBackURL,
+                        OrderResultUrl = ECPayOrderResultURL,
                     };
 
                     var payInfo = new
@@ -294,8 +307,10 @@ namespace ServiceFUEN.Controllers
                             iv: service.HashIV)
                         .Return.ToServer(
                             url: service.ServerUrl)
+                        .Return.ToClient(url: service.ClientUrl)
                         .Return.ToClient(
-                            url: service.ClientUrl)
+                            url: service.OrderResultUrl,
+                            true)
                         .Transaction.New(
                             no: payInfo.No,
                             description: payInfo.Description,
@@ -306,6 +321,14 @@ namespace ServiceFUEN.Controllers
                             items: payInfo.Items,
                             amount: toatal)
                         .Generate();
+
+
+                    // 產生訂單物件後 回寫交易序號至訂單主檔 並且更新正確金額
+                    orderDetailSaved.PaymentId = payment.MerchantTradeNo;
+                    orderDetailSaved.Total = toatal;
+                    _context.OrderDetails.Update(orderDetail);
+                    _context.SaveChanges();
+
 
                     transaction.Commit();
 
@@ -328,22 +351,142 @@ namespace ServiceFUEN.Controllers
             }
         }
 
+        /// <summary>
+        /// 付款完成綠界回傳結果,修改訂單狀態, 導頁至訂單結果頁
+        /// </summary>
+        /// <param name="result"></param>
+        /// <returns></returns>
         [HttpPost("CallBack")]
-        public IActionResult Callback(PaymentResult result)
+        public IActionResult Callback([FromForm] PaymentResult result)
         {
+            try
+            {
 
 
-            // 務必判斷檢查碼是否正確。
-            if (!CheckMac.PaymentResultIsValid(result, ECPayHashKey, ECPayHashIV)) return BadRequest();
+                // 務必判斷檢查碼是否正確。 (測試先不檢查)
+                //if (!CheckMac.PaymentResultIsValid(result, ECPayHashKey, ECPayHashIV))
+                //{
+                //    return BadRequest();
+                //}
 
-            // 處理後續訂單狀態的更動等等...。
 
-            return Ok("1|OK");
+                // 處理後續訂單狀態的更動 
+                // 依付款號碼找到訂單主檔並修改State為0
+                // 抓已儲存訂單主檔
+                var orderDetailSaved = _context.OrderDetails
+                    .Where(a => a.PaymentId == result.MerchantTradeNo)
+                    .FirstOrDefault();
+
+                if (orderDetailSaved != null)
+                {
+                    orderDetailSaved.State = 0; // 將待付款-1 改為已出貨0
+                    _context.OrderDetails.Update(orderDetailSaved);
+                    _context.SaveChanges();
+                }
+
+
+                return Redirect($"{ECPayClientBackURL}/{result.MerchantTradeNo}");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
         }
 
+        // 以付款id取得訂單資訊並回傳
+        [HttpGet("GetPaymentResult")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetPaymentResult(string paymentId)
+        {
+            ReturnVM rtn = new ReturnVM();
+            try
+            {
+                // 抓已儲存訂單主檔
+                var orderDetailSaved = _context.OrderDetails
+                    .Where(a => a.PaymentId == paymentId)
+                    .FirstOrDefault();
+
+                if (orderDetailSaved == null)
+                {
+                    rtn.Messsage = "查無此訂單";
+                    throw new Exception(rtn.Messsage);
+                }
+
+                // 抓出訂單明細檔
+                var orderItemSaved = _context.OrderItems.Where(a => a.OrderId == orderDetailSaved.Id).ToList();
+
+
+                if (orderItemSaved.Count == 0)
+                {
+                    rtn.Messsage = "此訂單無商品";
+                    throw new Exception(rtn.Messsage);
+                }
+
+                //總金額
+                int toatal = orderItemSaved.Sum(a => a.ProductPrice * a.ProductNumber);
+                // 折扣前金額紀錄
+                int toatalBefore = toatal;
+
+                //使用的折價卷
+                var UsingCoupon = _context.Coupons.Where(x => x.Id == orderDetailSaved.UsedCoupon).FirstOrDefault();
+                // 折扣金額
+                int minusAmount = 0;
+
+
+                if (UsingCoupon != null)
+                {
+                    if (UsingCoupon.Discount > 1)
+                    {
+                        minusAmount = Convert.ToInt32(UsingCoupon.Discount);
+                        toatal = toatal - minusAmount;
+                    }
+                    else
+                    {
+                        // 折扣後
+                        toatal = Convert.ToInt32(Convert.ToDecimal(toatal) * UsingCoupon.Discount);
+                        // 折扣金額
+                        minusAmount = toatalBefore - toatal;
+                    }
+
+                }
+
+
+
+
+                // 回傳訂單結果資訊
+                rtn.Data = new PaymentResultVM
+                {
+                    OrderDetail = orderDetailSaved, // 訂單主檔
+                    ToatalBefore = toatalBefore, // 折扣前金額
+                    MinusAmount = minusAmount, // 折扣金額
+
+                };
+                rtn.Code = (int)RetunCode.呼叫成功;
+                rtn.Messsage = "已找到此訂單資訊";
+
+                // 會出現轉json循環錯誤 先序列化並設定再return
+                var options = new JsonSerializerOptions
+                {
+                    ReferenceHandler = ReferenceHandler.Preserve,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                };
+
+                var json = JsonSerializer.Serialize(rtn, options);
+
+
+                return Ok(json);
+            }
+            catch (Exception ex)
+            {
+                rtn.Code = (int)RetunCode.呼叫失敗;
+                if (string.IsNullOrWhiteSpace(rtn.Messsage)) rtn.Messsage = "其他錯誤";
+                return BadRequest(rtn);
+            }
+
+        }
 
         #region 購物車改localStorage儲存 以下為每按一下 就寫DB舊寫法
-        //抓取使用者購物車
+        //抓取使用者購物車 https://localhost:7259/checkoutreport/ServiceFUEN188368625
         //[HttpGet("GetUserCart")]
         //[AllowAnonymous]
         //public async Task<IActionResult> GetUserCart(int userId)

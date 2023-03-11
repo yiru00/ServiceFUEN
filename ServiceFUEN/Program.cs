@@ -69,7 +69,24 @@ if (app.Environment.IsDevelopment())
 app.UseCors();
 app.UseHttpsRedirection();
 
+app.UseDefaultFiles();
+app.Use(async (context, next) =>
+{
+    await next();
+    // 判斷是否要存取網頁，而不是發api請求
+    if (context.Response.StatusCode == 404 &&  // 該資源不存在
+        !System.IO.Path.HasExtension(context.Request.Path.Value) && // 網址最後沒有帶副檔名
+        !context.Request.Path.Value.StartsWith("/api")) // 網址不是/api開頭
+    {
+        context.Request.Path = "/index.html"; // 將網址改成index.html
+        context.Response.StatusCode = 200; // 並將HTTP狀態碼設200成功
+        await next();
+    }
+});
+app.UseStaticFiles();
+
 app.UseCookiePolicy();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
