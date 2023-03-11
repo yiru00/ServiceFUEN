@@ -39,6 +39,7 @@ namespace ServiceFUEN.Models.EFModels
         public virtual DbSet<CommentReport> CommentReports { get; set; }
         public virtual DbSet<Coupon> Coupons { get; set; }
         public virtual DbSet<Event> Events { get; set; }
+        public virtual DbSet<Favorite> Favorites { get; set; }
         public virtual DbSet<FollowInfo> FollowInfos { get; set; }
         public virtual DbSet<Forum> Forums { get; set; }
         public virtual DbSet<IndiscriminateReport> IndiscriminateReports { get; set; }
@@ -358,6 +359,19 @@ namespace ServiceFUEN.Models.EFModels
                         });
             });
 
+            modelBuilder.Entity<Favorite>(entity =>
+            {
+                entity.HasOne(d => d.Member)
+                    .WithMany(p => p.Favorites)
+                    .HasForeignKey(d => d.MemberId)
+                    .HasConstraintName("FK_Favorites_Members");
+
+                entity.HasOne(d => d.Product)
+                    .WithMany(p => p.Favorites)
+                    .HasForeignKey(d => d.ProductId)
+                    .HasConstraintName("FK_Favorites_Products");
+            });
+
             modelBuilder.Entity<FollowInfo>(entity =>
             {
                 entity.HasKey(e => new { e.Follower, e.Following })
@@ -459,19 +473,6 @@ namespace ServiceFUEN.Models.EFModels
                     .IsUnicode(false);
 
                 entity.Property(e => e.RealName).HasMaxLength(50);
-
-                entity.HasMany(d => d.Products)
-                    .WithMany(p => p.Members)
-                    .UsingEntity<Dictionary<string, object>>(
-                        "Favorite",
-                        l => l.HasOne<Product>().WithMany().HasForeignKey("ProductId").HasConstraintName("FK__Favorites__Produ__42E1EEFE"),
-                        r => r.HasOne<Member>().WithMany().HasForeignKey("MemberId").HasConstraintName("FK__Favorites__Membe__41EDCAC5"),
-                        j =>
-                        {
-                            j.HasKey("MemberId", "ProductId").HasName("PK__Favorite__C7B087748E7C5ECA");
-
-                            j.ToTable("Favorites");
-                        });
             });
 
             modelBuilder.Entity<Message>(entity =>

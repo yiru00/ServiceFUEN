@@ -11,9 +11,9 @@ namespace ServiceFUEN.Models.ViewModels
                 Id = product.Id,
                 Name = product.Name,
                 Price = product.Price,
-                BrandId= product.BrandId,
-                CategoryId= product.CategoryId,
-                ReleaseDate= product.ReleaseDate,
+                BrandName = product.Brand.Name,
+                CategoryName = product.Category.Name,
+                ReleaseDate = product.ReleaseDate,
                 ManufactorDate= product.ManufactorDate,
                 ProductSpec = product.ProductSpec,
                 Inventory= product.Inventory,
@@ -38,7 +38,7 @@ namespace ServiceFUEN.Models.ViewModels
                 Name = product.Name,
                 Price = product.Price,
                 ReleaseDate = product.ReleaseDate,
-                Source = product.ProductPhotos.Select(x => x.Source).ToList(),
+                Source = product.ProductPhotos.Select(x => x.Source).Where(x => x.Substring(0, 2) == "01").ToList()[0]
             };
         }
         public static CategoryVM ToCategoryVM(this Category category)
@@ -65,7 +65,8 @@ namespace ServiceFUEN.Models.ViewModels
                 Name= product.Name,
                 CategoryId= product.CategoryId,
                 BrandId= product.BrandId,
-
+                Price= product.Price,
+                Source = product.ProductPhotos.Select(x => x.Source).Where(x => x.Substring(0, 2) == "01").ToList()[0]
             };
         }
         public static EventVM ToEventVM(this Event @event)
@@ -88,6 +89,16 @@ namespace ServiceFUEN.Models.ViewModels
                 
                 Source = mean.Source,
 
+            };
+        }
+        public static ProFavoriteVM ToProFavoriteVM(this Favorite favorite)
+        {
+            return new ProFavoriteVM
+            {
+                Id = favorite.Product.Id,
+                Name = favorite.Product.Name,
+                Price = favorite.Product.Price,
+                Source = null,
             };
         }
     }

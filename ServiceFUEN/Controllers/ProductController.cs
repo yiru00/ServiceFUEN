@@ -61,7 +61,7 @@ namespace ServiceFUEN.Controllers
 
         public IEnumerable<ProductSearchDTO> Search(string? name, int? categoryId, int? brandId)
         {
-            IEnumerable<Product> projectFUENContext = _context.Products;
+            IEnumerable<Product> projectFUENContext = _context.Products.Include(x => x.ProductPhotos);
 
             if (!string.IsNullOrEmpty(name))
             {
@@ -126,15 +126,16 @@ namespace ServiceFUEN.Controllers
         //取得商品所有資訊
         [HttpGet]
         [Route("api/Product/DetailProducts")]
-        public IEnumerable<ProductDetailVM> DetailProducts(int id)
+        public ProductDetailVM DetailProducts(int id)
         {
             var projectFUENContext = _context.Products
-
+            .Include(x => x.Category)
+            .Include(x => x.Brand)
            .Include(x => x.ProductPhotos)
-           .Where(x => x.Id == id)
-            .Select(p => p.ToProductDetailVM()).ToList()
-             .OrderBy(x => x.Source);
-            return projectFUENContext.ToList();
+           .FirstOrDefault(x => x.Id == id)
+            .ToProductDetailVM();
+            
+            return projectFUENContext;
         }
         // Get api/Product/AllProducts
         //取得商品圖、品名、價格
