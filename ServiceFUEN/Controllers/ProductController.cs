@@ -61,7 +61,7 @@ namespace ServiceFUEN.Controllers
 
         public IEnumerable<ProductSearchDTO> Search(string? name, int? categoryId, int? brandId)
         {
-            IEnumerable<Product> projectFUENContext = _context.Products;
+            IEnumerable<Product> projectFUENContext = _context.Products.Include(x => x.ProductPhotos);
 
             if (!string.IsNullOrEmpty(name))
             {
