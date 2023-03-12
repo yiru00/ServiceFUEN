@@ -36,7 +36,7 @@ namespace ServiceFUEN.Controllers
 
         public ShoppingCartController(ProjectFUENContext context, IConfiguration configuration)
         {
-
+             
             _context = context;
             _configuration = configuration;
 

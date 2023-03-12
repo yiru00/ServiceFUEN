@@ -23,7 +23,6 @@
 		<Folder Include="Models\Services\" />
 		<Folder Include="Models\Infrastructures\Repositories\" />
 		<Folder Include="Models\Services\Interfaces\" />
-		<Folder Include="Controllers\" />
 		<Folder Include="Images\" />
 	</ItemGroup>
 
