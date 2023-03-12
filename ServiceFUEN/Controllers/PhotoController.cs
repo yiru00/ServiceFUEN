@@ -69,16 +69,20 @@ namespace ServiceFUEN.Controllers
 
 		{
 			// 取得某人的照片
-			var photos = _dbContext.Photos.Where(x => x.Author == memberId).Include(x=>x.AuthorNavigation).Select(x => new ShowPhotoDTO()
-			{
-				Id = x.Id,
-				Source = x.Source,
-				Title = x.Title,
-				Camera = x.Camera,
-				IsCollection = x.OthersCollections.Any(o => o.MemberId == memberId),
-                Author=x.AuthorNavigation.NickName,
-                AuthorPhotoSticker=x.AuthorNavigation.PhotoSticker
-			});
+			var photos = _dbContext.Photos
+                .Where(x => x.Author == memberId)
+                .Include(x=>x.AuthorNavigation)
+                .OrderByDescending (x=>x.UploadTime)
+                .Select(x => new ShowPhotoDTO()
+			    {
+				    Id = x.Id,
+				    Source = x.Source,
+				    Title = x.Title,
+				    Camera = x.Camera,
+				    IsCollection = x.OthersCollections.Any(o => o.MemberId == memberId),
+                    Author=x.AuthorNavigation.NickName,
+                    AuthorPhotoSticker=x.AuthorNavigation.PhotoSticker
+			    });
 
 			return photos;
 		}
@@ -91,6 +95,7 @@ namespace ServiceFUEN.Controllers
                 .Include(x => x.Photo)
                 .ThenInclude(x => x.AuthorNavigation)
                 .Where(x => x.MemberId == member.Id)
+                .OrderByDescending(x=>x.AddTime)
                 .Select(x => new ShowPhotoDTO()
                 {
                     Id = x.Photo.Id,
@@ -102,8 +107,20 @@ namespace ServiceFUEN.Controllers
                     AuthorPhotoSticker = x.Photo.AuthorNavigation.PhotoSticker
                 });
 		}
+		[Route("api/Photo/EditPhoto")]
+		[HttpPatch]
+		public void EditPhoto(EditPhotoDTO dto)
+		{
+			var photo = _dbContext.Photos.FirstOrDefault(x => x.Id == dto.PhotoId);
+			if (photo != null)
+			{
+                photo.Title = dto.Title;
+                photo.Camera = dto.Camera;
+				_dbContext.SaveChanges();
+			}
+		}
 
-        [Route("api/Photo/DeletePhoto")]
+		[Route("api/Photo/DeletePhoto")]
         [HttpDelete]
         public void DeletePhoto(int photoId)
         {
