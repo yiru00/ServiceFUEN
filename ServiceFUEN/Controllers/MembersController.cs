@@ -264,7 +264,7 @@ namespace ServiceFUEN.Controllers
 			{
 				return "Fail";
 			}
-			string path = System.Environment.CurrentDirectory + "/Images/";
+			string path = System.Environment.CurrentDirectory + "/wwwroot/Images/";
 			string extension = Path.GetExtension(source.File.FileName);
 			string fileName = Guid.NewGuid().ToString("N");
 			string fullName = fileName + extension;
@@ -348,7 +348,7 @@ namespace ServiceFUEN.Controllers
 
 			BodyBuilder body = new BodyBuilder();
 			string url = Request.Scheme + "://" + Request.Host + $"/api/Members/ActiveRegister?Id={source.Id}&confirmCode={source.ConfirmCode}";
-			body.HtmlBody = $"<a href=\"{url}\">啟用帳號</a>";
+			body.HtmlBody = $"<a href=\"{url}\">啟用帳號</a><br><p>點擊上面連結後即可登入，建議使用者登入後馬上完整個人資料，避免忘記密碼及相關其它功能無法使用。<p>";
 
 			message.Body = body.ToMessageBody();
 
@@ -383,7 +383,7 @@ namespace ServiceFUEN.Controllers
 			message.Subject = "忘記密碼";
 
 			BodyBuilder body = new BodyBuilder();
-			body.HtmlBody = $"<p>您的新密碼</p></br><p>{source.EncryptedPassword}</p>";
+			body.HtmlBody = $"<p>您的新密碼:</p><p>{source.EncryptedPassword}</p><br><p>建議使用者登入後立即修改密碼。<p>";
 
 			message.Body = body.ToMessageBody();
 
