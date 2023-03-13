@@ -21,6 +21,8 @@ using System.Text;
 using System.Security.Cryptography;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.VisualBasic;
+using System;
+using MimeKit.Utils;
 
 namespace ServiceFUEN.Controllers
 {
@@ -342,13 +344,21 @@ namespace ServiceFUEN.Controllers
 		private void SendSignUpEmail(MailDTO source)
 		{
 			var message = new MimeMessage();
-			message.From.Add(new MailboxAddress("攝影", "shirtyingplan@gmail.com"));
-			message.To.Add(new MailboxAddress("使用者", source.EmailAccount));
-			message.Subject = "歡迎使用";
+			message.From.Add(new MailboxAddress("Karza!", "shirtyingplan@gmail.com"));
+			message.To.Add(new MailboxAddress("New Member", source.EmailAccount));
+			message.Subject = "歡迎使用Karza!";
 
 			BodyBuilder body = new BodyBuilder();
 			string url = Request.Scheme + "://" + Request.Host + $"/api/Members/ActiveRegister?Id={source.Id}&confirmCode={source.ConfirmCode}";
-			body.HtmlBody = $"<a href=\"{url}\">啟用帳號</a><br><p>點擊上面連結後即可登入，建議使用者登入後馬上完整個人資料，避免忘記密碼及相關其它功能無法使用。<p>";
+			body.HtmlBody = $"<p style='font-size: 25px;'>感謝您註冊我們的網站！</p> <br> <a href=\"{url}\"><span style='font-size: 25px;'>啟用帳號</span></a><br>" +
+				$"<span style='font-size: 25px;'>點擊上面連結後即可登入，建議使用者登入後馬上完整個人資料，避免忘記密碼及其它功能無法使用。</span> <br>" +
+				$"<img src=\"cid:logo\" alt='網站Logo' width='50%'>";
+			
+			var image = body.LinkedResources.Add(@"wwwroot/images/logo.jpg");
+			image.ContentId = MimeUtils.GenerateMessageId();
+
+			// 將圖片插入到HTML中
+			body.HtmlBody = body.HtmlBody.Replace("cid:logo", $"cid:{image.ContentId}");
 
 			message.Body = body.ToMessageBody();
 
@@ -378,13 +388,13 @@ namespace ServiceFUEN.Controllers
 		private void SendForgotPasswordEmail(MailDTO source)
 		{
 			var message = new MimeMessage();
-			message.From.Add(new MailboxAddress("攝影", "shirtyingplan@gmail.com"));
-			message.To.Add(new MailboxAddress("使用者", source.EmailAccount));
+			message.From.Add(new MailboxAddress("Karza!", "shirtyingplan@gmail.com"));
+			message.To.Add(new MailboxAddress("New Member", source.EmailAccount));
 			message.Subject = "忘記密碼";
 
 			BodyBuilder body = new BodyBuilder();
-			body.HtmlBody = $"<p>您的新密碼:</p><p>{source.EncryptedPassword}</p><br><p>建議使用者登入後立即修改密碼。<p>";
-
+			body.HtmlBody = $"<p style='font-size: 25px;'>您的新密碼:</p><p style='font-size: 25px;'>{source.EncryptedPassword}</p><br><p style='font-size: 25px;'>建議使用者登入後立即修改密碼。</p>";
+			
 			message.Body = body.ToMessageBody();
 
 			Send(message);
