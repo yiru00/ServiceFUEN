@@ -68,21 +68,22 @@ namespace ServiceFUEN.Controllers
 		public IEnumerable<ShowPhotoDTO> AllPhotos(int memberId)
 
 		{
-			// 取得某人的照片
-			var photos = _dbContext.Photos
+            // 取得某人的照片
+            var photos = _dbContext.Photos
                 .Where(x => x.Author == memberId)
-                .Include(x=>x.AuthorNavigation)
-                .OrderByDescending (x=>x.UploadTime)
+                .Include(x => x.AuthorNavigation)
+                .OrderByDescending(x => x.UploadTime)
                 .Select(x => new ShowPhotoDTO()
-			    {
-				    Id = x.Id,
-				    Source = x.Source,
-				    Title = x.Title,
-				    Camera = x.Camera,
-				    IsCollection = x.OthersCollections.Any(o => o.MemberId == memberId),
-                    Author=x.AuthorNavigation.NickName,
-                    AuthorPhotoSticker=x.AuthorNavigation.PhotoSticker
-			    });
+                {
+                    Id = x.Id,
+                    Source = x.Source,
+                    Title = x.Title,
+                    Camera = x.Camera,
+                    IsCollection = x.OthersCollections.Any(o => o.MemberId == memberId),
+                    Author = x.AuthorNavigation.NickName,
+                    AuthorPhotoSticker = x.AuthorNavigation.PhotoSticker,
+                    AuthorId = x.AuthorNavigation.Id
+                });
 
 			return photos;
 		}
@@ -95,7 +96,7 @@ namespace ServiceFUEN.Controllers
                 .Include(x => x.Photo)
                 .ThenInclude(x => x.AuthorNavigation)
                 .Where(x => x.MemberId == member.Id)
-                .OrderByDescending(x=>x.AddTime)
+                .OrderByDescending(x => x.AddTime)
                 .Select(x => new ShowPhotoDTO()
                 {
                     Id = x.Photo.Id,
@@ -103,8 +104,9 @@ namespace ServiceFUEN.Controllers
                     Title = x.Photo.Title,
                     IsCollection = true,
                     Camera = x.Photo.Camera,
-                    Author =x.Photo.AuthorNavigation.NickName,
-                    AuthorPhotoSticker = x.Photo.AuthorNavigation.PhotoSticker
+                    Author = x.Photo.AuthorNavigation.NickName,
+                    AuthorPhotoSticker = x.Photo.AuthorNavigation.PhotoSticker,
+                    AuthorId = x.Photo.AuthorNavigation.Id
                 });
 		}
 		[Route("api/Photo/EditPhoto")]

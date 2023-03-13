@@ -11,7 +11,8 @@ namespace ServiceFUEN.Models.DTOs
         public string Camera { get; set; }
         public string Author { get; set; }
 		public string AuthorPhotoSticker { get; set; }
+        public int AuthorId { get; set; }
 
 
-	}
+    }
 }
