@@ -24,6 +24,7 @@ namespace ServiceFUEN.Controllers
 		{
 
 			var albums = _dbContext.Albums.Where(a => a.MemberId == memberId)
+				.OrderByDescending(x => x.CreatedTime)
 				.Select(a => new AlbumDTO
 				{
 					AlbumId = a.Id,
@@ -39,29 +40,27 @@ namespace ServiceFUEN.Controllers
 		public IEnumerable<AlbumPhotoDTO> AlbumPhotos(int albumId)
 		{
 			//撈出某相簿的相簿名稱、封面照片及照片們
-
-			var album = _dbContext.AlbumItems.Include(a => a.Photo).Include(a => a.Album)
+			//改memberId=1
+			var album = _dbContext.AlbumItems
+				.Include(a => a.Photo)
+				.ThenInclude(a => a.AuthorNavigation)
+				.Include(a => a.Album)
+				.OrderByDescending(a => a.AddTime)
 				.Where(a => a.AlbumId == albumId).Select(a => new AlbumPhotoDTO
 				{
-					PhotoSrcDTO =
-					new PhotoSrcDTO
-					{
-						PhotoId = a.Photo.Id,
-						PhotoSrc = a.Photo.Source
-					},
+					Id = a.Photo.Id,
+					Source = a.Photo.Source,
+					Title = a.Photo.Title,
+					Camera = a.Photo.Camera,
+					Author = a.Photo.AuthorNavigation.NickName,
+					AuthorId = a.Photo.AuthorNavigation.Id,
+					AuthorPhotoSticker = a.Photo.AuthorNavigation.PhotoSticker,
+					IsCollection = _dbContext.Photos
+					.FirstOrDefault(x => x.Id == a.PhotoId)
+					.OthersCollections.Any(o => o.MemberId == 1),
 					AlbumId = a.AlbumId,
 					AlbumName = a.Album.Name,
-					CoverImg = a.Album.CoverImage
 				});
-
-			//var test = _dbContext.Albums.Include(a => a.AlbumItems).ThenInclude(a => a.Photo).FirstOrDefault(a => a.Id == albumId).AlbumItems
-			//	.Select(a => new AlbumPhotoDTO
-			//	{
-			//		PhotoSrc = a.Photo.Source,
-			//		PhotoId = a.Photo.Id,
-			//		AlbumName = a.Album.Name,
-			//		CoverImg = a.Album.CoverImage
-			//	});
 
 			return album;
 		}
@@ -78,7 +77,7 @@ namespace ServiceFUEN.Controllers
 				Album album = new Album();
 				album.MemberId = albumDTO.MemberId;
 				album.Name = albumDTO.AlbumName;
-				album.CoverImage = albumDTO.CoverImg;
+				album.CoverImage = _dbContext.Photos.FirstOrDefault(x => x.Id == albumDTO.PhotoId[0]).Source;
 
 				List<AlbumItem> albumItem = new List<AlbumItem>();
 				foreach(int item in albumDTO.PhotoId)
@@ -104,11 +103,11 @@ namespace ServiceFUEN.Controllers
 
 			try { 
 
-				var album = _dbContext.Albums.Include(a => a.AlbumItems).FirstOrDefault(a => a.Id == albumDTO.AlbumDTO.AlbumId);
+				var album = _dbContext.Albums.Include(a => a.AlbumItems).FirstOrDefault(a => a.Id == albumDTO.AlbumId);
 				if (album == null) return num;
 
-				album.Name = albumDTO.AlbumDTO.AlbumName;
-				album.CoverImage = albumDTO.AlbumDTO.CoverImg;
+				album.Name = albumDTO.AlbumName;
+				album.CoverImage = _dbContext.Photos.FirstOrDefault(x => x.Id == albumDTO.PhotoId[0]).Source;
 
 				List<AlbumItem> albumItem = new List<AlbumItem>();
 				foreach (var item in albumDTO.PhotoId)
@@ -125,6 +124,16 @@ namespace ServiceFUEN.Controllers
 			catch { num = 0; }
 			
 			return num;
+		}
+
+		[HttpDelete]
+		[Route("api/Album/DeleteAlbumPhoto")]
+		public void DeleteAlbumPhoto(int PhotoId,int AlbumId)
+		{
+			var albumPhoto = _dbContext.AlbumItems
+				.FirstOrDefault(x => x.AlbumId == AlbumId && x.PhotoId == PhotoId);
+			_dbContext.Remove(albumPhoto);
+			_dbContext.SaveChanges();
 		}
 
 		[HttpDelete]
