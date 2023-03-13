@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Cors;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,85 +13,38 @@ namespace ServiceFUEN.Controllers
 	public class CollectionController : Controller
 	{
 		private readonly ProjectFUENContext _dbContext;
-		public CollectionController(ProjectFUENContext dbContext) 
-		{ 
+		public CollectionController(ProjectFUENContext dbContext)
+		{
 			_dbContext = dbContext;
 		}
 
-		//[Route("api/Collection/OwnCollections")]
-		//[HttpPost]
-		//public IEnumerable<PhotoSrcDTO> OwnCollections([FromBody]int memberId)
-		//{
-		//	//[FromBody]data直接寫 1 2 3 不用任何格式 contentType一樣要application/json
-		//	//查看自己收藏自己的照片
-		//	var ownCollections = _dbContext.Photos
-		//		.Where(p => p.Author == memberId && p.IsCollection == true)
-		//		.OrderByDescending(p => p.CollectionTime)
-		//		.Select(p => new PhotoSrcDTO
-		//		{
-		//			PhotoId = p.Id,
-		//			PhotoSrc = p.Source
-		//		});
-
-		//	return ownCollections;
-		//}
-
-		[Route("api/Collection/OthersCollection")]
+		[Route("api/Collection/Collect")]
 		[HttpPost]
-		public IEnumerable<PhotoSrcDTO> OthersCollection([FromBody]int memberId)
+		public void Collect(CommunityMPIdDTO dto)
 		{
-			//查看自己珍藏他人的照片
-			var othersCollection = _dbContext.OthersCollections
-				.Where(c => c.MemberId == memberId)
-				.Include(c => c.Photo)
-				.OrderByDescending(c => c.AddTime)
-				.Select(c => new PhotoSrcDTO
+			// 得登入的id
+			//var claim = User.Claims.ToArray();
+			//var userId = claim.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+			//var Id = int.Parse(userId.ToString());
+
+			var record = _dbContext.OthersCollections.FirstOrDefault(x => x.MemberId == dto.Id && x.PhotoId == dto.PhotoId);
+
+			// 表示table中某人尚未收藏此照片
+			if (record == null)
+			{
+				var collections = new OthersCollection()
 				{
-					PhotoId = c.Photo.Id,
-					PhotoSrc = c.Photo.Source
-				});
-
-			return othersCollection;
+					MemberId = dto.Id,
+					PhotoId = dto.PhotoId
+				};
+				_dbContext.OthersCollections.Add(collections);
+			}
+			// 表示某人以收藏此照片
+			else
+			{
+				_dbContext.OthersCollections.Remove(record);
+			}
+			_dbContext.SaveChanges();
 		}
-
-		//[Route("api/Collection/Collect")]
-		//[HttpPut]
-		//public void Collect(int photoId, int memberId)
-		//{
-		//	var photo = _dbContext.Photos.FirstOrDefault(p => p.Id == photoId);
-
-		//	// 判斷是否是典藏
-		//	if (photo.Author == memberId)
-		//	{
-		//		if (photo.IsCollection)
-		//		{
-		//			photo.IsCollection = false;
-		//			photo.CollectionTime = null;
-		//		}
-		//		else
-		//		{
-		//			photo.IsCollection = true;
-		//			photo.CollectionTime = DateTime.Now;
-		//		}
-
-		//	}
-		//	else
-		//	{
-		//		var collection = _dbContext.OthersCollections.FirstOrDefault(p => p.MemberId == memberId && p.PhotoId == photoId);
-		//		if (collection != null) _dbContext.OthersCollections.Remove(collection);
-		//		else
-		//		{
-		//			OthersCollection otherCollection = new OthersCollection()
-		//			{
-		//				MemberId = memberId,
-		//				PhotoId = photoId,
-		//			};
-		//			_dbContext.OthersCollections.Add(otherCollection);
-		//		}
-		//	}
-		//	_dbContext.SaveChanges();
-		//}
 	}
-
-	
 }

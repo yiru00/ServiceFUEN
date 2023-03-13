@@ -8,7 +8,11 @@ namespace ServiceFUEN.Models.DTOs
         public string Source { get; set; }
         public string Title { get; set; }
         public bool IsCollection { get; set; }
-        public string Camrea { get; set; }
-        
+        public string Camera { get; set; }
+        public string Author { get; set; }
+		public string AuthorPhotoSticker { get; set; }
+        public int AuthorId { get; set; }
+
+
     }
 }
