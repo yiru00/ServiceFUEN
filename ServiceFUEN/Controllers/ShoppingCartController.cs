@@ -442,9 +442,6 @@ namespace ServiceFUEN.Controllers
                 // 抓出訂單明細檔
                 var orderItemSaved = _context.OrderItems.Where(a => a.OrderId == orderDetailSaved.Id).ToList();
 
-
-
-
                 if (orderItemSaved.Count == 0)
                 {
                     rtn.Messsage = "此訂單無商品";

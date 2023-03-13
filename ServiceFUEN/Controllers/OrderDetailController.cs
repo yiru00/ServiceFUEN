@@ -39,7 +39,14 @@ namespace ServiceFUEN.Controllers
         {
             //var orderid = _context.OrderDetails.Where(x => x.MemberId == memberid).Select(x => x.Id).FirstOrDefault();
             //var qq = _context.OrderDetails.Where(x => x.MemberId == memberid);
-            var memberorderitems = _context.OrderItems.Where(x => x.OrderId == orderid);
+
+            var memberorderitems = _context.OrderItems.Include(x=>x.Product).Where(x => x.OrderId == orderid).Select(x => x.toorvm()).ToList();
+            foreach(var item in memberorderitems) 
+            {
+                var photo = _context.ProductPhotos.Where(x => x.ProductId == item.ProductId).Select(x => x.Source).Where(x => x.Substring(0, 2) == "01").ToList()[0];
+                item.source = photo;
+
+            }
 
             return Ok(memberorderitems);
 

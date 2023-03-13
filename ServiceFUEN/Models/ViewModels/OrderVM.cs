@@ -1,39 +1,46 @@
-﻿using ServiceFUEN.Models.EFModels;
+﻿using MailKit.Search;
+using ServiceFUEN.Models.EFModels;
 
 namespace ServiceFUEN.Models.ViewModels
 {
     public class OrderVM
     {
 
-        public OrderDetail? orderDetail { get; set; }
+        public int OrderId { get; set; }
+        public int ProductId { get; set; }
+        public string ProductName { get; set; }
+        public int ProductPrice { get; set; }
+        public int ProductNumber { get; set; }
 
+        public string source { get; set; }
 
-
-
-
-
-        public class OrderItem
-        {
-            public int OrderId { get; set; }
-            public int ProductId { get; set; }
-            public string ProductName { get; set; }
-            public int ProductPrice { get; set; }
-            public int ProductNumber { get; set; }
-
-        }
-
-        public class OrderDetail
-        {
-            public int Id { get; set; }
-            public int MemberId { get; set; }
-            public DateTime OrderDate { get; set; }
-            public string Address { get; set; }
-            public int State { get; set; }
-            public int Total { get; set; }
-            public string PaymentId { get; set; }
-            public int? UsedCoupon { get; set; }
-
-        }
 
     }
+
+
+    public static class toordervm 
+    {
+        public static OrderVM toorvm(this OrderItem souce)
+        {
+            return new OrderVM
+            {
+                OrderId = souce.OrderId,
+                ProductId = souce.ProductId,
+                ProductName = souce.ProductName,
+                ProductPrice = souce.ProductPrice,
+                ProductNumber = souce.ProductNumber,
+                source = null,
+
+            };
+			
+
+
+
+		}
+
+
+
+        
+    }
+     
 }
