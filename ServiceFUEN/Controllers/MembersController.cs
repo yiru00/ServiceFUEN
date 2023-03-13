@@ -344,7 +344,7 @@ namespace ServiceFUEN.Controllers
 		private void SendSignUpEmail(MailDTO source)
 		{
 			var message = new MimeMessage();
-			message.From.Add(new MailboxAddress("Karza!", "shirtyingplan@gmail.com"));
+			message.From.Add(new MailboxAddress("Karza!", "projectfuen@gmail.com"));
 			message.To.Add(new MailboxAddress("New Member", source.EmailAccount));
 			message.Subject = "歡迎使用Karza!";
 
@@ -375,7 +375,8 @@ namespace ServiceFUEN.Controllers
 			using (var client = new SmtpClient())
 			{
 				client.Connect("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-				client.Authenticate("shirtyingplan@gmail.com", "iskdjbmbuzbcylth");
+				client.Authenticate("projectfuen@gmail.com", "qpzilvexdqnfzozc");
+				//client.Authenticate("shirtyingplan@gmail.com", "iskdjbmbuzbcylth");
 				client.Send(message);
 				client.Disconnect(true);
 			}
