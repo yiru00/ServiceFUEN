@@ -17,7 +17,6 @@
 		</PackageReference>
 	</ItemGroup>
 
-<<<<<<< HEAD
 	<ItemGroup>
 		<Folder Include="Models\EFModels\" />
 		<Folder Include="Models\ViewModels\" />
@@ -28,7 +27,6 @@
 		<Folder Include="Controllers\" />
 		<Folder Include="Images\" />
 	</ItemGroup>
-=======
   <ItemGroup>
     <Folder Include="Models\EFModels\" />
     <Folder Include="Models\Infrastructures\ExtensionMethods\" />
@@ -36,7 +34,6 @@
     <Folder Include="Models\Services\Interfaces\" />
     <Folder Include="wwwroot\Images\" />
   </ItemGroup>
->>>>>>> member
 
 	<ItemGroup>
 		<None Remove="Microsoft.EntityFrameworkCore.SqlServer" />
