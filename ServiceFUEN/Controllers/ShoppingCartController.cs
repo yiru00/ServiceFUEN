@@ -150,7 +150,7 @@ namespace ServiceFUEN.Controllers
 
                     if (member == null)
                     {
-                        rtn.Messsage = "無此會員";
+                        rtn.Messsage = "請先登入";
                         throw new Exception(rtn.Messsage);
                     }
 
