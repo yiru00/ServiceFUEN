@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ServiceFUEN.Models.DTOs;
 using ServiceFUEN.Models.EFModels;
+using static System.Net.WebRequestMethods;
 
 namespace ServiceFUEN.Controllers
 {
@@ -38,7 +39,8 @@ namespace ServiceFUEN.Controllers
 
 			foreach(var photo in photos)
 			{
-				TopPhotoSrc photoSrc = new TopPhotoSrc() { src = photo.PhotoSrc, height = 40, width = 45 };
+				TopPhotoSrc photoSrc = new TopPhotoSrc() 
+				{ src = $"https://localhost:7259/Images/{photo.PhotoSrc}", height = 40, width = 45 };
 				result.PhotoId.Add(photo.PhotoId);
 				result.PhotoTitle.Add(photo.PhotoTitle);
 				src.Add(photoSrc);
