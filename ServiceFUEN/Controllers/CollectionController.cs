@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ServiceFUEN.Models.DTOs;
 using ServiceFUEN.Models.EFModels;
+using System.Security.Claims;
 
 namespace ServiceFUEN.Controllers
 {
@@ -18,23 +19,24 @@ namespace ServiceFUEN.Controllers
 			_dbContext = dbContext;
 		}
 
+		[Authorize]
 		[Route("api/Collection/Collect")]
 		[HttpPost]
 		public void Collect(CommunityMPIdDTO dto)
 		{
-			// 得登入的id
-			//var claim = User.Claims.ToArray();
-			//var userId = claim.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-			//var Id = int.Parse(userId.ToString());
+			//得登入的id
+		    var claim = User.Claims.ToArray();
+			var userId = claim.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+			var memberId = int.Parse(userId.ToString());
 
-			var record = _dbContext.OthersCollections.FirstOrDefault(x => x.MemberId == dto.Id && x.PhotoId == dto.PhotoId);
+			var record = _dbContext.OthersCollections.FirstOrDefault(x => x.MemberId == memberId && x.PhotoId == dto.PhotoId);
 
 			// 表示table中某人尚未收藏此照片
 			if (record == null)
 			{
 				var collections = new OthersCollection()
 				{
-					MemberId = dto.Id,
+					MemberId = memberId,
 					PhotoId = dto.PhotoId
 				};
 				_dbContext.OthersCollections.Add(collections);

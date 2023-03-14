@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Cors;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ServiceFUEN.Models.DTOs;
 using ServiceFUEN.Models.EFModels;
 using System.Collections.Generic;
+using System.Security.Claims;
 
 namespace ServiceFUEN.Controllers
 {
@@ -40,11 +42,17 @@ namespace ServiceFUEN.Controllers
 		public IEnumerable<AlbumPhotoDTO> AlbumPhotos(int albumId)
 		{
 			//撈出某相簿的相簿名稱、封面照片及照片們
-			//改memberId=1
-			var album = _dbContext.AlbumItems
+			
+
+			//得登入的id
+			var claim = User.Claims.ToArray();
+			var claimData = claim.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+			var PhotosContext = _dbContext.AlbumItems
 				.Include(a => a.Photo)
 				.ThenInclude(a => a.AuthorNavigation)
-				.Include(a => a.Album)
+				.Include(a => a.Album).ToList();
+
+			IEnumerable<AlbumPhotoDTO> album = PhotosContext
 				.OrderByDescending(a => a.AddTime)
 				.Where(a => a.AlbumId == albumId).Select(a => new AlbumPhotoDTO
 				{
@@ -55,75 +63,83 @@ namespace ServiceFUEN.Controllers
 					Author = a.Photo.AuthorNavigation.NickName,
 					AuthorId = a.Photo.AuthorNavigation.Id,
 					AuthorPhotoSticker = a.Photo.AuthorNavigation.PhotoSticker,
-					IsCollection = _dbContext.Photos
-					.FirstOrDefault(x => x.Id == a.PhotoId)
-					.OthersCollections.Any(o => o.MemberId == 1),
 					AlbumId = a.AlbumId,
 					AlbumName = a.Album.Name,
 				});
 
+			if (claimData == null)
+			{
+				album = album.Select(x =>
+				{
+					x.IsCollection = false;
+					return x;
+				});
+			}
+			else
+			{
+				var loginMemberId = int.Parse(claimData.Value.ToString());
+
+				album = album.Select(x =>
+				{
+					x.IsCollection = _dbContext.Photos.Include(a => a.OthersCollections).FirstOrDefault(y => y.Id == x.Id).OthersCollections.Any(o => o.MemberId == loginMemberId);
+					return x;
+				});
+			}
+
 			return album;
 		}
-
+		[Authorize]
 		[HttpPost]
 		[Route("api/Album/CreateAlbum")]
-		public int CreateAlbum(CreateAlbumDTO albumDTO)
+		public void CreateAlbum(CreateAlbumDTO albumDTO)
 		{
 			//創建相簿，傳入相簿名稱、封面照片、陣列PhotoID
-			// 回傳num 會是 n+1= add相簿1筆，相片n筆
-			int num = 0;
-			try
+			//得登入的id
+			var claim = User.Claims.ToArray();
+			var userId = claim.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+			var memberId = int.Parse(userId.ToString());
+
+			Album album = new Album();
+			album.MemberId = memberId;
+			album.Name = albumDTO.AlbumName;
+			int[] emptyArray = {};
+			if (albumDTO.PhotoId.Length==0) album.CoverImage = "defaultAlbum.png";
+			else{ album.CoverImage = _dbContext.Photos.FirstOrDefault(x => x.Id == albumDTO.PhotoId[0]).Source; }
+			
+			List<AlbumItem> albumItem = new List<AlbumItem>();
+			foreach(int item in albumDTO.PhotoId)
 			{
-				Album album = new Album();
-				album.MemberId = albumDTO.MemberId;
-				album.Name = albumDTO.AlbumName;
-				album.CoverImage = _dbContext.Photos.FirstOrDefault(x => x.Id == albumDTO.PhotoId[0]).Source;
-
-				List<AlbumItem> albumItem = new List<AlbumItem>();
-				foreach(int item in albumDTO.PhotoId)
-				{
-					AlbumItem albumPhotos = new AlbumItem { PhotoId = item };
-					albumItem.Add(albumPhotos);
-				}
-				album.AlbumItems = albumItem;
-
-				_dbContext.Albums.Add(album);
-				num = _dbContext.SaveChanges();
+				AlbumItem albumPhotos = new AlbumItem { PhotoId = item };
+				albumItem.Add(albumPhotos);
 			}
-			catch{ num = 0; }
+			album.AlbumItems = albumItem;
 
-			return num;
+			_dbContext.Albums.Add(album);
+			_dbContext.SaveChanges();
 		}
 
 		[HttpPut]
 		[Route("api/Album/EditAlbum")]
-		public int EditAlbum(EditAlbumDTO albumDTO)
-		{
-			int num = 0;
+		public void EditAlbum(EditAlbumDTO albumDTO)
+		{ 
 
-			try { 
+			var album = _dbContext.Albums.Include(a => a.AlbumItems).FirstOrDefault(a => a.Id == albumDTO.AlbumId);
 
-				var album = _dbContext.Albums.Include(a => a.AlbumItems).FirstOrDefault(a => a.Id == albumDTO.AlbumId);
-				if (album == null) return num;
+			album.Name = albumDTO.AlbumName;
+			album.CoverImage = _dbContext.Photos.FirstOrDefault(x => x.Id == albumDTO.PhotoId[0]).Source;
 
-				album.Name = albumDTO.AlbumName;
-				album.CoverImage = _dbContext.Photos.FirstOrDefault(x => x.Id == albumDTO.PhotoId[0]).Source;
-
-				List<AlbumItem> albumItem = new List<AlbumItem>();
-				foreach (var item in albumDTO.PhotoId)
-				{
-					AlbumItem albumPhotos = new AlbumItem { PhotoId = item };
-					albumItem.Add(albumPhotos);
-				}
-
-				album.AlbumItems = albumItem;
-
-				_dbContext.Albums.Update(album);
-				num = _dbContext.SaveChanges();
+			List<AlbumItem> albumItem = new List<AlbumItem>();
+			foreach (var item in albumDTO.PhotoId)
+			{
+				AlbumItem albumPhotos = new AlbumItem { PhotoId = item };
+				albumItem.Add(albumPhotos);
 			}
-			catch { num = 0; }
-			
-			return num;
+
+			album.AlbumItems = albumItem;
+
+			_dbContext.Albums.Update(album);
+			_dbContext.SaveChanges();
+
 		}
 
 		[HttpDelete]

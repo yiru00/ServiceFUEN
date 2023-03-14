@@ -6,7 +6,7 @@ namespace ServiceFUEN.Models.DTOs
     {
         public int Id { get; set; }
         public IFormFile File { get; set; }
-        public int Author { get; set; }
+        //public int Author { get; set; }
         public string Title { get; set; }
         public string Camera { get; set; }
    }
@@ -21,7 +21,7 @@ namespace ServiceFUEN.Models.DTOs
                 Id = dto.Id,
                 Title = dto.Title,
                 Camera = dto.Camera,
-                Author = dto.Author
+                //Author = dto.Author
             };
         }
     }
