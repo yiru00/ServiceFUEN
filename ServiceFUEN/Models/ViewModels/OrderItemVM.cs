@@ -3,8 +3,8 @@ using ServiceFUEN.Models.EFModels;
 
 namespace ServiceFUEN.Models.ViewModels
 {
-    public class OrderVM
-    {
+    public class OrderItemVM
+	{
 
         public int OrderId { get; set; }
         public int ProductId { get; set; }
@@ -14,16 +14,18 @@ namespace ServiceFUEN.Models.ViewModels
 
         public string source { get; set; }
 
+       
 
-    }
+
+}
 
 
     public static class toordervm 
     {
-        public static OrderVM toorvm(this OrderItem souce)
+        public static OrderItemVM toorvm(this OrderItem souce)
         {
-            return new OrderVM
-            {
+            return new OrderItemVM
+			{
                 OrderId = souce.OrderId,
                 ProductId = souce.ProductId,
                 ProductName = souce.ProductName,

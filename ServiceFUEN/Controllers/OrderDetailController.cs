@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using ServiceFUEN.Models.EFModels;
 using ServiceFUEN.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using MailKit.Search;
 
 namespace ServiceFUEN.Controllers
 {
@@ -27,30 +28,41 @@ namespace ServiceFUEN.Controllers
         {
             //var orderid = _context.OrderDetails.Where(x => x.MemberId == memberid).Select(x => x.Id).FirstOrDefault();
             //var qq = _context.OrderDetails.Where(x => x.MemberId == memberid);
-            var memberorder = _context.OrderDetails.Where(x => x.MemberId == memberid).OrderByDescending(x=>x.OrderDate).ToList();
-
-            return Ok(memberorder); 
-  
-        }
-
-        [HttpGet("GetOrderID")]
-        [AllowAnonymous]
-        public async Task<IActionResult> GetOrderID(int orderid)
-        {
-            //var orderid = _context.OrderDetails.Where(x => x.MemberId == memberid).Select(x => x.Id).FirstOrDefault();
-            //var qq = _context.OrderDetails.Where(x => x.MemberId == memberid);
-
-            var memberorderitems = _context.OrderItems.Include(x=>x.Product).Where(x => x.OrderId == orderid).Select(x => x.toorvm()).ToList();
-            foreach(var item in memberorderitems) 
+            var memberorder = _context.OrderDetails.Where(x => x.MemberId == memberid).OrderByDescending(x=>x.OrderDate).Select(x=>x.Toorderdetail()).ToList();
+            foreach(var order in memberorder)
+            {
+				var memberorderitems = _context.OrderItems.Include(x => x.Product).Where(x => x.OrderId == order.Id).Select(x => x.toorvm()).ToList();
+                foreach(var item in memberorderitems) 
             {
                 var photo = _context.ProductPhotos.Where(x => x.ProductId == item.ProductId).Select(x => x.Source).Where(x => x.Substring(0, 2) == "01").ToList()[0];
                 item.source = photo;
 
             }
+				order.orderItems=memberorderitems;
+            }
 
-            return Ok(memberorderitems);
-
+            return Ok(memberorder); 
+  
         }
+
+        //[HttpGet("GetOrderID")]
+        //[AllowAnonymous]
+        //public async Task<IActionResult> GetOrderID(int orderid)
+        //{
+        //    //var orderid = _context.OrderDetails.Where(x => x.MemberId == memberid).Select(x => x.Id).FirstOrDefault();
+        //    //var qq = _context.OrderDetails.Where(x => x.MemberId == memberid);
+
+        //    var memberorderitems = _context.OrderItems.Include(x=>x.Product).Where(x => x.OrderId == orderid).Select(x => x.toorvm()).ToList();
+        //    foreach(var item in memberorderitems) 
+        //    {
+        //        var photo = _context.ProductPhotos.Where(x => x.ProductId == item.ProductId).Select(x => x.Source).Where(x => x.Substring(0, 2) == "01").ToList()[0];
+        //        item.source = photo;
+
+        //    }
+
+        //    return Ok(memberorderitems);
+
+        //}
 
 
     }
