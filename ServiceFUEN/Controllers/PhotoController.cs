@@ -11,6 +11,7 @@ using ServiceFUEN.Models.EFModels;
 using System.IO.Pipelines;
 using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ServiceFUEN.Controllers
 {
@@ -24,12 +25,18 @@ namespace ServiceFUEN.Controllers
             _dbContext = dbContext;
         }
 
-        [Route("api/Photo/Create")]
+		[Authorize]
+		[Route("api/Photo/Create")]
         [HttpPost]
         public void Create([FromForm] CreatePhotoDTO dto)
         {
-            // 將Photo儲存進Project的Images資料夾中
-            string path = System.Environment.CurrentDirectory + "/wwwroot/Images/";
+			//得登入的id
+			var claim = User.Claims.ToArray();
+			var userId = claim.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+			var memberId = int.Parse(userId.ToString());
+
+			// 將Photo儲存進Project的Images資料夾中
+			string path = System.Environment.CurrentDirectory + "/wwwroot/Images/";
             string extension = Path.GetExtension(dto.File.FileName);
             string fileName = Guid.NewGuid().ToString("N");
             string fullName = fileName + extension;
@@ -41,7 +48,8 @@ namespace ServiceFUEN.Controllers
 
             // Photo加入DB
             var photo = dto.DtoToEntity();
-            photo.Source = fullName;
+            photo.Author = memberId;
+			photo.Source = fullName;
 
             _dbContext.Photos.Add(photo);
             _dbContext.SaveChanges();
@@ -66,33 +74,60 @@ namespace ServiceFUEN.Controllers
 		[Route("api/Photo/AllPhotos")]
 		[HttpGet]
 		public IEnumerable<ShowPhotoDTO> AllPhotos(int memberId)
-
 		{
-            // 取得某人的照片
-            var photos = _dbContext.Photos
-                .Where(x => x.Author == memberId)
-                .Include(x => x.AuthorNavigation)
-                .OrderByDescending(x => x.UploadTime)
-                .Select(x => new ShowPhotoDTO()
-                {
-                    Id = x.Id,
-                    Source = x.Source,
-                    Title = x.Title,
-                    Camera = x.Camera,
-                    IsCollection = x.OthersCollections.Any(o => o.MemberId == memberId),
-                    Author = x.AuthorNavigation.NickName,
-                    AuthorPhotoSticker = x.AuthorNavigation.PhotoSticker,
-                    AuthorId = x.AuthorNavigation.Id
-                });
+            //得登入的id
+            var claim = User.Claims.ToArray();
+            var claimData = claim.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
 
+            var PhotosContext = _dbContext.Photos.Include(x => x.AuthorNavigation).Include(x => x.OthersCollections).ToList();
+
+			IEnumerable<ShowPhotoDTO> photos = PhotosContext
+				.Where(x => x.Author == memberId)
+				.OrderByDescending(x => x.UploadTime)
+				.Select(x => new ShowPhotoDTO()
+				{
+					Id = x.Id,
+					Source = x.Source,
+					Title = x.Title,
+					Camera = x.Camera,
+					Author = x.AuthorNavigation.NickName,
+					AuthorPhotoSticker = x.AuthorNavigation.PhotoSticker,
+					AuthorId = x.AuthorNavigation.Id
+				});
+			if (claimData == null)
+            {
+                photos = photos.Select(x =>
+                {
+                    x.IsCollection = false;
+                    return x;
+                });
+			}
+            else
+            {
+                var loginMemberId = int.Parse(claimData.Value.ToString());
+
+                photos = photos.Select(x =>
+				{
+                    x.IsCollection = PhotosContext.FirstOrDefault(y => y.Id == x.Id).OthersCollections.Any(o => o.MemberId == loginMemberId);
+					return x;
+				});
+			}
 			return photos;
 		}
 
+        [Authorize]
         [Route("api/Photo/CollectionPhoto")]
         [HttpPost]
         public IEnumerable<ShowPhotoDTO> CollectionPhoto(CommunityMPIdDTO member)
         {
-            return _dbContext.OthersCollections
+			//得登入的id
+			var claim = User.Claims.ToArray();
+			var userId = claim.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+			var memberId = int.Parse(userId.ToString());
+
+            if(member.Id != memberId) return null;
+
+			return _dbContext.OthersCollections
                 .Include(x => x.Photo)
                 .ThenInclude(x => x.AuthorNavigation)
                 .Where(x => x.MemberId == member.Id)
