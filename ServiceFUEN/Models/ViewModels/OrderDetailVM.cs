@@ -17,7 +17,7 @@ namespace ServiceFUEN.Models.ViewModels
         public int State { get; set; }
         public int Total { get; set; }
         public string PaymentId { get; set; }
-        public int? UsedCoupon { get; set; }
+        public string? UsedCoupon { get; set; }
         public List<OrderItemVM> orderItems { get; set; }
 
 
@@ -27,18 +27,24 @@ namespace ServiceFUEN.Models.ViewModels
     {
 		public static OrderDetailVM Toorderdetail(this OrderDetail source)
 		{
-            return new OrderDetailVM
-            {
-                Id = source.Id,
-                MemberId = source.MemberId,
-                OrderDate = source.OrderDate,
-                Address = source.Address,
-                State = source.State,
-                Total = source.Total,
-                PaymentId = source.PaymentId,
-                UsedCoupon = source.UsedCoupon,
-                orderItems = null
-			};
+			
+           
+				return new OrderDetailVM
+				{
+					Id = source.Id,
+					MemberId = source.MemberId,
+					OrderDate = source.OrderDate,
+					Address = source.Address,
+					State = source.State,
+					Total = source.Total,
+					PaymentId = source.PaymentId,
+					UsedCoupon =(source.UsedCouponNavigation==null)?null: source.UsedCouponNavigation.Code,
+					orderItems = null
+				};
+
+			
+
+
 		}
 	}
 }

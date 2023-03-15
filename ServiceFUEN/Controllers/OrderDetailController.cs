@@ -28,7 +28,7 @@ namespace ServiceFUEN.Controllers
         {
             //var orderid = _context.OrderDetails.Where(x => x.MemberId == memberid).Select(x => x.Id).FirstOrDefault();
             //var qq = _context.OrderDetails.Where(x => x.MemberId == memberid);
-            var memberorder = _context.OrderDetails.Where(x => x.MemberId == memberid).OrderByDescending(x=>x.OrderDate).Select(x=>x.Toorderdetail()).ToList();
+            var memberorder = _context.OrderDetails.Include(x=>x.UsedCouponNavigation).Where(x => x.MemberId == memberid).OrderByDescending(x=>x.OrderDate).Select(x=>x.Toorderdetail()).ToList();
             foreach(var order in memberorder)
             {
 				var memberorderitems = _context.OrderItems.Include(x => x.Product).Where(x => x.OrderId == order.Id).Select(x => x.toorvm()).ToList();

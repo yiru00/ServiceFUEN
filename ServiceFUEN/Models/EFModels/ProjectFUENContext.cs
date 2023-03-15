@@ -9,14 +9,9 @@ namespace ServiceFUEN.Models.EFModels
 {
     public partial class ProjectFUENContext : DbContext
     {
-       
-
-		
-		public ProjectFUENContext()
+        public ProjectFUENContext()
         {
-			
-
-		}
+        }
 
         public ProjectFUENContext(DbContextOptions<ProjectFUENContext> options)
             : base(options)
@@ -618,7 +613,7 @@ namespace ServiceFUEN.Models.EFModels
 
                 entity.Property(e => e.ProductSpec)
                     .IsRequired()
-                    .HasMaxLength(500);
+                    .HasMaxLength(2000);
 
                 entity.Property(e => e.ReleaseDate)
                     .HasColumnType("datetime")
@@ -719,11 +714,13 @@ namespace ServiceFUEN.Models.EFModels
                 entity.HasOne(d => d.Member)
                     .WithMany(p => p.Views)
                     .HasForeignKey(d => d.MemberId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__Views__MemberId__59C55456");
 
                 entity.HasOne(d => d.Photo)
                     .WithMany(p => p.Views)
                     .HasForeignKey(d => d.PhotoId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__Views__PhotoId__5AB9788F");
             });
 
