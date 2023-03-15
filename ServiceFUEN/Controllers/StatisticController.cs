@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ServiceFUEN.Models.DTOs;
 using ServiceFUEN.Models.EFModels;
+using System.Security.Claims;
 using static System.Net.WebRequestMethods;
 
 namespace ServiceFUEN.Controllers
@@ -40,7 +41,7 @@ namespace ServiceFUEN.Controllers
 			foreach(var photo in photos)
 			{
 				TopPhotoSrc photoSrc = new TopPhotoSrc() 
-				{ src = $"https://localhost:7259/Images/{photo.PhotoSrc}", height = 40, width = 45 };
+				{ src = $"https://localhost:7259/Images/{photo.PhotoSrc}", height = 70, width = 75 };
 				result.PhotoId.Add(photo.PhotoId);
 				result.PhotoTitle.Add(photo.PhotoTitle);
 				src.Add(photoSrc);
@@ -116,22 +117,34 @@ namespace ServiceFUEN.Controllers
 		[HttpPut]
 		public string AddView(CommunityMPIdDTO member)
 		{
-			var view = _dbContext.Views.FirstOrDefault(v => v.MemberId == member.Id && v.PhotoId == member.PhotoId && v.ViewDate.Date == DateTime.Today);
+			// 得登入的ID
+			var claim = User.Claims.ToArray();
+			var claimData = claim.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+
+			if (claimData == null)
+			{
+				return "未登入不能算瀏覽次數";
+			}
+
+			var loginMemberId = int.Parse(claimData.Value.ToString());
+
+			var view = _dbContext.Views.FirstOrDefault(v => v.MemberId == loginMemberId && v.PhotoId == member.PhotoId && v.ViewDate.Date == DateTime.Today);
 
 			if (view == null)
 			{
 				View entity = new View()
 				{
-					MemberId = member.Id,
+					MemberId = loginMemberId,
 					PhotoId = member.PhotoId
 				};
+
 				_dbContext.Views.Add(entity);
 				_dbContext.SaveChanges();
 
-				return "增加成功";
+				return "瀏覽次數增加成功";
 			}
 
-			return "已經存在DB";
+			return "瀏覽次數已經存在DB";
 		}
 	}
 }
