@@ -42,7 +42,6 @@ namespace ServiceFUEN.Controllers
 		public IEnumerable<AlbumPhotoDTO> AlbumPhotos(int albumId)
 		{
 			//撈出某相簿的相簿名稱、封面照片及照片們
-			
 
 			//得登入的id
 			var claim = User.Claims.ToArray();
@@ -50,11 +49,24 @@ namespace ServiceFUEN.Controllers
 			var PhotosContext = _dbContext.AlbumItems
 				.Include(a => a.Photo)
 				.ThenInclude(a => a.AuthorNavigation)
-				.Include(a => a.Album).ToList();
+				.Include(a => a.Album).Where(a => a.AlbumId == albumId).ToList();
+
+			if (PhotosContext.Count() == 0) {
+				var resultAlbum = _dbContext.Albums.FirstOrDefault(x => x.Id == albumId);
+
+				return new List<AlbumPhotoDTO>()
+				{
+					new AlbumPhotoDTO
+					{
+						AlbumId=resultAlbum.Id,
+						AlbumName=resultAlbum.Name,
+					}
+				};
+			};
 
 			IEnumerable<AlbumPhotoDTO> album = PhotosContext
 				.OrderByDescending(a => a.AddTime)
-				.Where(a => a.AlbumId == albumId).Select(a => new AlbumPhotoDTO
+				.Select(a => new AlbumPhotoDTO
 				{
 					Id = a.Photo.Id,
 					Source = a.Photo.Source,
@@ -103,7 +115,7 @@ namespace ServiceFUEN.Controllers
 			album.MemberId = memberId;
 			album.Name = albumDTO.AlbumName;
 			int[] emptyArray = {};
-			if (albumDTO.PhotoId.Length==0) album.CoverImage = "defaultAlbum.png";
+			if (albumDTO.PhotoId.Length==0) album.CoverImage = "defaultAlbum.jpg";
 			else{ album.CoverImage = _dbContext.Photos.FirstOrDefault(x => x.Id == albumDTO.PhotoId[0]).Source; }
 			
 			List<AlbumItem> albumItem = new List<AlbumItem>();
@@ -126,7 +138,8 @@ namespace ServiceFUEN.Controllers
 			var album = _dbContext.Albums.Include(a => a.AlbumItems).FirstOrDefault(a => a.Id == albumDTO.AlbumId);
 
 			album.Name = albumDTO.AlbumName;
-			album.CoverImage = _dbContext.Photos.FirstOrDefault(x => x.Id == albumDTO.PhotoId[0]).Source;
+			if (albumDTO.PhotoId.Length == 0) album.CoverImage = "defaultAlbum.jpg";
+			else { album.CoverImage = _dbContext.Photos.FirstOrDefault(x => x.Id == albumDTO.PhotoId[0]).Source; }
 
 			List<AlbumItem> albumItem = new List<AlbumItem>();
 			foreach (var item in albumDTO.PhotoId)
@@ -147,8 +160,19 @@ namespace ServiceFUEN.Controllers
 		public void DeleteAlbumPhoto(int PhotoId,int AlbumId)
 		{
 			var albumPhoto = _dbContext.AlbumItems
+				.Include(x=>x.Album)
 				.FirstOrDefault(x => x.AlbumId == AlbumId && x.PhotoId == PhotoId);
+
 			_dbContext.Remove(albumPhoto);
+
+
+			var existPhotos = _dbContext.AlbumItems.Where(x => x.AlbumId == AlbumId).Count();
+
+			if ( existPhotos == 1 )
+			{
+				albumPhoto.Album.CoverImage = "defaultAlbum.jpg";
+			};
+
 			_dbContext.SaveChanges();
 		}
 
