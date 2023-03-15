@@ -6,10 +6,16 @@ using ServiceFUEN.Models.DTOs;
 using ServiceFUEN.Models.EFModels;
 using ServiceFUEN.Models.ViewModels;
 using System.Diagnostics;
+using System.Security.Claims;
 using System.Text.RegularExpressions;
 
 namespace ServiceFUEN.Controllers
 {
+    //得登入的id
+    //var claim = User.Claims.ToArray();
+    //var userId = claim.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+    //var memberId = int.Parse(userId.ToString());
+
     [EnableCors("AllowAny")]
     [ApiController]
     public class ForumController : Controller
@@ -30,7 +36,7 @@ namespace ServiceFUEN.Controllers
                 .Where(a => a.Id == messageId)
                 .Select(a => new MessageVM()
                 {
-                    Id= a.Id,
+                    Id = a.Id,
                     Content = a.Content,
                     Time = a.Time,
                     MemberId = a.MemberId,
@@ -44,22 +50,42 @@ namespace ServiceFUEN.Controllers
         //顯示選取的文章內容
         [HttpGet]
         [Route("api/Article/ArticleDetails")]
-        public IEnumerable<ArticleListVM> ArticleDetails(int ArticleId)
+        public ArticleListVM ArticleDetails(int ArticleId)
         {
-            var projectFUENContext = _context.Articles
-                .Where(a => a.Id == ArticleId)
-                .Select(a => new ArticleListVM()
-                {
-                    ArticleId = a.Id,
-                    Title = a.Title,
-                    Time = a.Time,
-                    MemberId = a.MemberId,
-                    NickName = a.Member.NickName,
-                    ForumId = a.ForumId,
-                    ForumName = a.Forum.Name,
-                });
 
-            return projectFUENContext;
+            //得登入的id
+            //var claim = User.Claims.ToArray();
+            //var userId = claim.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            //var memberId = int.Parse(userId.ToString());
+
+            var projectFUENContext = _context.Articles.Include(a => a.Member)
+                .Include(a => a.Forum)
+                .Include(a => a.ArticlePhotos)
+                .Include(a => a.Messages).ThenInclude(a => a.Member)
+
+                .FirstOrDefault(a => a.Id == ArticleId);
+
+            return new ArticleListVM()
+            {
+                ArticleId = projectFUENContext.Id,
+                ArticlePhoto = projectFUENContext.ArticlePhotos.ToArray()[0].Photo,
+                ForumId = projectFUENContext.ForumId,
+                NickName = projectFUENContext.Member.NickName,
+                ForumName = projectFUENContext.Forum.Name,
+                Title = projectFUENContext.Title,
+                Time = projectFUENContext.Time,
+                MemberId = projectFUENContext.Member.Id,
+                Content = projectFUENContext.Content,
+                MessageComment = projectFUENContext.Messages.Select(a => new MessageVM()
+                {
+                    Content = a.Content,
+                    Id = a.Id,
+                    MemberId = a.Member.Id,
+                    NickName = a.Member.NickName,
+                    Time = a.Time,
+
+                })
+            };
         }
 
 
@@ -69,7 +95,7 @@ namespace ServiceFUEN.Controllers
         public IEnumerable<ArticleListVM> LatestArticle()
         {
             var projectFUENContext = _context.Articles
-               .Include(a => a.Member).Include(a => a.Forum).Include(a => a.Messages).OrderByDescending(a=>a.Time).Select(a => new ArticleListVM
+               .Include(a => a.Member).Include(a => a.Forum).Include(a => a.Messages).OrderByDescending(a => a.Time).Select(a => new ArticleListVM
                {
                    ArticleId = a.Id,
                    MemberId = a.MemberId,
@@ -78,6 +104,8 @@ namespace ServiceFUEN.Controllers
                    Time = a.Time,
                    NickName = a.Member.NickName,
                    ForumName = a.Forum.Name,
+                   ArticlePhoto = a.ArticlePhotos.ToArray()[0].Photo,
+
                })
           .ToList();
             return projectFUENContext;
@@ -114,12 +142,14 @@ namespace ServiceFUEN.Controllers
                 .Include(a => a.Member).Include(a => a.Forum).Include(a => a.Messages).OrderByDescending(x => x.Messages.Count).Select(a => new ArticleListVM
                 {
                     ArticleId = a.Id,
-                    MemberId= a.MemberId,
-                    Title= a.Title,
-                    ForumId= a.ForumId,
+                    MemberId = a.MemberId,
+                    Title = a.Title,
+                    ForumId = a.ForumId,
                     Time = a.Time,
                     NickName = a.Member.NickName,
                     ForumName = a.Forum.Name,
+                    ArticlePhoto = a.ArticlePhotos.ToArray()[0].Photo,
+
                 })
            .ToList();
             return projectFUENContext;
@@ -131,7 +161,7 @@ namespace ServiceFUEN.Controllers
         public IEnumerable<ArticleListVM> ForumPopularArticle(int ForumId)
         {
             var projectFUENContext = _context.Articles
-                .Include(a => a.Member).Include(a => a.Forum).Include(a => a.Messages).Where(a => a.ForumId==ForumId).OrderByDescending(x => x.Messages.Count).Select(a => new ArticleListVM
+                .Include(a => a.Member).Include(a => a.Forum).Include(a => a.Messages).Where(a => a.ForumId == ForumId).OrderByDescending(x => x.Messages.Count).Select(a => new ArticleListVM
                 {
                     ArticleId = a.Id,
                     MemberId = a.MemberId,
@@ -151,7 +181,7 @@ namespace ServiceFUEN.Controllers
         public IEnumerable<ArticleListVM> ForumArticle(int ForumId)
         {
             var projectFUENContext = _context.Articles
-                .Include(a => a.Member).Include(a => a.Forum).Include(a => a.Messages).Where(a=>a.ForumId==ForumId).OrderByDescending(a=>a.Time).Select(a => new ArticleListVM
+                .Include(a => a.Member).Include(a => a.Forum).Include(a => a.Messages).Where(a => a.ForumId == ForumId).OrderByDescending(a => a.Time).Select(a => new ArticleListVM
                 {
                     ArticleId = a.Id,
                     MemberId = a.MemberId,
@@ -160,17 +190,19 @@ namespace ServiceFUEN.Controllers
                     Time = a.Time,
                     NickName = a.Member.NickName,
                     ForumName = a.Forum.Name,
+                    ArticlePhoto = a.ArticlePhotos.ToArray()[0].Photo,
+
                 })
            .ToList();
             return projectFUENContext;
         }
-        
+
         //Search文章標題
         [HttpGet]
         [Route("api/Article/Search")]
         public IEnumerable<ArticleListVM> Search(string? title)
         {
-            IEnumerable<Article> projectFUENContext = _context.Articles.Include(a => a.Member).Include(a => a.Forum).Include(a => a.Messages);
+            IEnumerable<Article> projectFUENContext = _context.Articles.Include(a => a.Member).Include(a => a.Forum).Include(a => a.Messages).Include(a => a.ArticlePhotos);
             if (!string.IsNullOrEmpty(title))
             {
                 projectFUENContext =
@@ -178,6 +210,7 @@ namespace ServiceFUEN.Controllers
             }
             var result = projectFUENContext.Select(a => new ArticleListVM()
             {
+
                 ArticleId = a.Id,
                 MemberId = a.MemberId,
                 Title = a.Title,
@@ -185,6 +218,7 @@ namespace ServiceFUEN.Controllers
                 Time = a.Time,
                 NickName = a.Member.NickName,
                 ForumName = a.Forum.Name,
+                ArticlePhoto = a.ArticlePhotos.ToArray()[0].Photo,
             });
             return result;
         }
@@ -211,12 +245,12 @@ namespace ServiceFUEN.Controllers
             var projectFUENContext = _context.Forums
                 .Where(a => a.Id == ForumId)
                 .Select(a => new ForumDetailVM()
-                    {
-                        Id = a.Id,
-                        Name = a.Name,
-                        About = a.About,
-                        CoverPhoto = a.CoverPhoto,
-                    });
+                {
+                    Id = a.Id,
+                    Name = a.Name,
+                    About = a.About,
+                    CoverPhoto = a.CoverPhoto,
+                });
 
             return projectFUENContext;
         }
@@ -226,24 +260,32 @@ namespace ServiceFUEN.Controllers
         //沒有驗證文章存不存在
         [HttpPost]
         [Route("api/Message/CreateComment")]
-        public void CreateComment(MessageDto msg)
+        public int CreateComment(MessageDto msg)
         {
+
             Message message = msg.VMToEntity();
             _context.Messages.Add(message);
             _context.SaveChanges();
+            var resultId = _context.Messages.OrderByDescending(a => a.Id).Take(1).ToArray()[0].Id;
+            return resultId;
         }
 
         //新增文章
         [HttpPost]
         [Route("api/Article/CreateArticle")]
-        public void CreateArticle([FromForm]CreateArticleVM articleVM)
+        public void CreateArticle([FromForm] CreateArticleVM articleVM)
         {
+            //得登入的id
+            var claim = User.Claims.ToArray();
+            var userId = claim.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            var memberId = int.Parse(userId.ToString());
+
             List<ArticlePhoto> photos = new List<ArticlePhoto>();
 
             foreach (var file in articleVM.Files)
             {
                 // 移進資料夾
-                string path = System.Environment.CurrentDirectory + "/Images/";
+                string path = System.Environment.CurrentDirectory + "/wwwroot/Images/";
                 string extension = Path.GetExtension(file.FileName);
                 string fileName = Guid.NewGuid().ToString("N");
                 string fullName = fileName + extension;
@@ -262,14 +304,14 @@ namespace ServiceFUEN.Controllers
             }
 
             Article article = new Article();
-            article.MemberId = articleVM.MemberId;
+            article.MemberId = memberId;
             article.Title = articleVM.Title;
             article.Content = articleVM.Content;
             article.ArticlePhotos = photos;
             article.ForumId = articleVM.ForumId;
             //foreach(string item in articleVM.Photos)
             //{
- 
+
             //    //article.ArticlePhotos.Add(photo); 一樣
             //}
             //article.ArticlePhotos = photos;
@@ -278,14 +320,16 @@ namespace ServiceFUEN.Controllers
             _context.SaveChanges();
         }
 
-       
-
 
         //修改文章
         [HttpPut]
         [Route("api/Article/EditArticle/{id}")]
-        public void EditArticle(int id,[FromForm] CreateArticleVM articleVM)
+        public void EditArticle(int id, [FromForm] CreateArticleVM articleVM)
         {
+            //得登入的id
+            var claim = User.Claims.ToArray();
+            var userId = claim.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            var memberId = int.Parse(userId.ToString());
 
             List<ArticlePhoto> photos = new List<ArticlePhoto>();
 
@@ -311,7 +355,7 @@ namespace ServiceFUEN.Controllers
             }
 
             var article = _context.Articles.FirstOrDefault(a => a.Id == id);
-            article.MemberId = articleVM.MemberId;
+            article.MemberId = memberId;
             article.Title = articleVM.Title;
             article.Content = articleVM.Content;
             article.ForumId = articleVM.ForumId;
@@ -340,6 +384,6 @@ namespace ServiceFUEN.Controllers
             _context.SaveChanges();
         }
 
-        
+
     }
 }

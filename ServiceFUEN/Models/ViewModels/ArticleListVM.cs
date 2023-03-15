@@ -1,7 +1,10 @@
-﻿namespace ServiceFUEN.Models.ViewModels
+﻿using ServiceFUEN.Models.EFModels;
+
+namespace ServiceFUEN.Models.ViewModels
 {
     public class ArticleListVM
     {
+        public string ArticlePhoto { get; set; }
         public int ArticleId { get; set; }
         public string Title { get; set; }
         public DateTime Time { get; set; }
@@ -10,6 +13,8 @@
         public int ForumId { get; set; }
         public string ForumName { get; set; }
 
+        public string Content { get; set; }
+        public IEnumerable<MessageVM> MessageComment { get; set; }
 
     }
 }
