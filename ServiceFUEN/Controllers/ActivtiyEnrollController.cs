@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using ServiceFUEN.Models.DTOs;
 using ServiceFUEN.Models.EFModels;
 using ServiceFUEN.Models.Infrastructures.ExtensionMethods;
+using ServiceFUEN.Models.Services;
 using ServiceFUEN.Models.ViewModels;
 
 namespace ServiceFUEN.Controllers
@@ -28,7 +29,7 @@ namespace ServiceFUEN.Controllers
         [HttpPost]
         [Route("api/ActivtiyEnroll/Enroll")]
         //會員報名功能
-        public EnrollResVM Enroll(EnrollReqDTO enrollReq)
+        public async Task<EnrollResVM> EnrollAsync(EnrollReqDTO enrollReq)
         {
             //取得要求資料
             int memberId = enrollReq.MemberId;
@@ -75,11 +76,22 @@ namespace ServiceFUEN.Controllers
                                     
                                     enrollRes.message = "報名成功";
                                     enrollRes.result = true;
-                                    enrollRes.memberRealName = member.RealName;
-                                    enrollRes.mobile = member.Mobile;
+                                    //enrollRes.memberRealName = member.RealName;
+                                    //enrollRes.mobile = member.Mobile;
 
                                     int activityMemberId = _context.ActivityMembers.Where(a => a.ActivityId == activityId).FirstOrDefault(a => a.MemberId == memberId).Id;
                                     enrollRes.deleteId = activityMemberId;
+
+                                    //寄信
+                                    var emailService = new EmailService();
+                                    await emailService.SendEmailAsync(member.EmailAccount, "活動報名成功！",
+                                        $"<p>{member.RealName}您好：</p>"+
+                                         $"<p>您已成功報名「{activity.ActivityName}」活動</p>" +
+                                        $"<p>集合時間：{activity.GatheringTime.ToString("yyyy-MM-dd HH:mm")}</p>"+
+                                        $"<p>集合地點：{activity.Address}</p>"+
+                                        $"<a href='http://localhost:5173/Activity/{activity.Id}'>更多資訊</a>"
+                                        );
+
                                 }
                                 else //已額滿
                                 {
