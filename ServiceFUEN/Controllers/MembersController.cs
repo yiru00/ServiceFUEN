@@ -23,6 +23,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.VisualBasic;
 using System;
 using MimeKit.Utils;
+using System.Globalization;
 
 namespace ServiceFUEN.Controllers
 {
@@ -266,24 +267,31 @@ namespace ServiceFUEN.Controllers
 			{
 				return "Fail";
 			}
-			string path = System.Environment.CurrentDirectory + "/wwwroot/Images/";
-			string extension = Path.GetExtension(source.File.FileName);
-			string fileName = Guid.NewGuid().ToString("N");
-			string fullName = fileName + extension;
-			string fullpath = Path.Combine(path, fullName);
-			using(var stream = System.IO.File.Create(fullpath))
+
+			if (source.File != null)
 			{
-				source.File.CopyTo(stream);
+				string path = System.Environment.CurrentDirectory + "/wwwroot/Images/";
+				string extension = Path.GetExtension(source.File.FileName);
+				string fileName = Guid.NewGuid().ToString("N");
+				string fullName = fileName + extension;
+				string fullpath = Path.Combine(path, fullName);
+				using (var stream = System.IO.File.Create(fullpath))
+				{
+					source.File.CopyTo(stream);
+				}
+				member.PhotoSticker = fullName;
 			}
-			
+			else
+			{
+				member.PhotoSticker = member.PhotoSticker;
+			}
 			member.RealName = source.RealName;
 			member.NickName = source.NickName;
-			member.BirthOfDate = source.BirthOfDate;
+			member.BirthOfDate = (source.BirthOfDate.HasValue ? source.BirthOfDate : null);
 			member.Mobile = source.Mobile;
-			member.Address = source.Address;
-			member.PhotoSticker = fullName;
-			member.About = source.About;
-						
+			member.Address = (string.IsNullOrEmpty(source.Address) ? null : source.Address);
+			member.About = (string.IsNullOrEmpty(source.About) ? null : source.About);
+
 			_context.SaveChanges();
 
 			return "Update";
