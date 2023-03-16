@@ -80,6 +80,8 @@ namespace ServiceFUEN.Controllers
 
                                     int activityMemberId = _context.ActivityMembers.Where(a => a.ActivityId == activityId).FirstOrDefault(a => a.MemberId == memberId).Id;
                                     enrollRes.deleteId = activityMemberId;
+
+                                    //寄信
                                 }
                                 else //已額滿
                                 {
