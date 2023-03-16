@@ -135,7 +135,7 @@ namespace ServiceFUEN.Controllers
 		public void EditAlbum(EditAlbumDTO albumDTO)
 		{ 
 
-			var album = _dbContext.Albums.Include(a => a.AlbumItems).FirstOrDefault(a => a.Id == albumDTO.AlbumId);
+			var album = _dbContext.Albums.Include(a => a.AlbumItems).ToList().FirstOrDefault(a => a.Id == albumDTO.AlbumId);
 
 			album.Name = albumDTO.AlbumName;
 			if (albumDTO.PhotoId.Length == 0) album.CoverImage = "defaultAlbum.jpg";
