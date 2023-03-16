@@ -71,6 +71,7 @@ namespace ServiceFUEN.Controllers
                 ArticlePhoto = projectFUENContext.ArticlePhotos.ToArray()[0].Photo,
                 ForumId = projectFUENContext.ForumId,
                 NickName = projectFUENContext.Member.NickName,
+                PhotoSticker = projectFUENContext.Member.PhotoSticker,
                 ForumName = projectFUENContext.Forum.Name,
                 Title = projectFUENContext.Title,
                 Time = projectFUENContext.Time.ToString(),
@@ -83,7 +84,7 @@ namespace ServiceFUEN.Controllers
                     MemberId = a.Member.Id,
                     NickName = a.Member.NickName,
                     Time = a.Time.ToString(),
-
+                    PhotoSticker = a.Member.PhotoSticker,
                 })
             };
         }

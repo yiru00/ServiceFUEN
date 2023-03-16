@@ -14,6 +14,7 @@ namespace ServiceFUEN.Models.ViewModels
         public string ForumName { get; set; }
 
         public string Content { get; set; }
+        public string PhotoSticker { get; set; }
         public IEnumerable<MessageVM> MessageComment { get; set; }
 
     }

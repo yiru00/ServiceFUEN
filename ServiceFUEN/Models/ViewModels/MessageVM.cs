@@ -8,6 +8,7 @@
         public int MemberId { get; set; }
         public int ArticleId { get; set; }
         public string NickName { get; set; }
+        public string PhotoSticker { get; set; }
 
     }
 }
