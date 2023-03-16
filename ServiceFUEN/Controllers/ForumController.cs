@@ -38,7 +38,7 @@ namespace ServiceFUEN.Controllers
                 {
                     Id = a.Id,
                     Content = a.Content,
-                    Time = a.Time,
+                    Time = a.Time.ToString(),
                     MemberId = a.MemberId,
                     ArticleId = a.Article.Id,
                     NickName = a.Member.NickName,
@@ -71,9 +71,10 @@ namespace ServiceFUEN.Controllers
                 ArticlePhoto = projectFUENContext.ArticlePhotos.ToArray()[0].Photo,
                 ForumId = projectFUENContext.ForumId,
                 NickName = projectFUENContext.Member.NickName,
+                PhotoSticker = projectFUENContext.Member.PhotoSticker,
                 ForumName = projectFUENContext.Forum.Name,
                 Title = projectFUENContext.Title,
-                Time = projectFUENContext.Time,
+                Time = projectFUENContext.Time.ToString(),
                 MemberId = projectFUENContext.Member.Id,
                 Content = projectFUENContext.Content,
                 MessageComment = projectFUENContext.Messages.Select(a => new MessageVM()
@@ -82,8 +83,8 @@ namespace ServiceFUEN.Controllers
                     Id = a.Id,
                     MemberId = a.Member.Id,
                     NickName = a.Member.NickName,
-                    Time = a.Time,
-
+                    Time = a.Time.ToString(),
+                    PhotoSticker = a.Member.PhotoSticker,
                 })
             };
         }
@@ -101,7 +102,7 @@ namespace ServiceFUEN.Controllers
                    MemberId = a.MemberId,
                    Title = a.Title,
                    ForumId = a.ForumId,
-                   Time = a.Time,
+                   Time = a.Time.ToString(),
                    NickName = a.Member.NickName,
                    ForumName = a.Forum.Name,
                    ArticlePhoto = a.ArticlePhotos.ToArray()[0].Photo,
@@ -124,7 +125,7 @@ namespace ServiceFUEN.Controllers
                    MemberId = a.MemberId,
                    Title = a.Title,
                    ForumId = a.ForumId,
-                   Time = a.Time,
+                   Time = a.Time.ToString(),
                    NickName = a.Member.NickName,
                    ForumName = a.Forum.Name,
                })
@@ -145,7 +146,7 @@ namespace ServiceFUEN.Controllers
                     MemberId = a.MemberId,
                     Title = a.Title,
                     ForumId = a.ForumId,
-                    Time = a.Time,
+                    Time = a.Time.ToString(),
                     NickName = a.Member.NickName,
                     ForumName = a.Forum.Name,
                     ArticlePhoto = a.ArticlePhotos.ToArray()[0].Photo,
@@ -167,7 +168,7 @@ namespace ServiceFUEN.Controllers
                     MemberId = a.MemberId,
                     Title = a.Title,
                     ForumId = a.ForumId,
-                    Time = a.Time,
+                    Time = a.Time.ToString(),
                     NickName = a.Member.NickName,
                     ForumName = a.Forum.Name,
                 })
@@ -187,7 +188,7 @@ namespace ServiceFUEN.Controllers
                     MemberId = a.MemberId,
                     Title = a.Title,
                     ForumId = a.ForumId,
-                    Time = a.Time,
+                    Time = a.Time.ToString(),
                     NickName = a.Member.NickName,
                     ForumName = a.Forum.Name,
                     ArticlePhoto = a.ArticlePhotos.ToArray()[0].Photo,
@@ -215,7 +216,7 @@ namespace ServiceFUEN.Controllers
                 MemberId = a.MemberId,
                 Title = a.Title,
                 ForumId = a.ForumId,
-                Time = a.Time,
+                Time = a.Time.ToString(),
                 NickName = a.Member.NickName,
                 ForumName = a.Forum.Name,
                 ArticlePhoto = a.ArticlePhotos.ToArray()[0].Photo,
