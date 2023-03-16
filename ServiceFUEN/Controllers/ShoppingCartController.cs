@@ -58,15 +58,18 @@ namespace ServiceFUEN.Controllers
             ECPayReturnURL =
                 string.IsNullOrWhiteSpace(_configuration["ECPay:ECPayReturnURL"]) ? "" :
                 $"{ECPayHomeURL}{_configuration["ECPay:ECPayReturnURL"]}";
+
             ECPayClientBackURL =
                 string.IsNullOrWhiteSpace(_configuration["ECPay:ECPayClientBackURL"]) ? "" :
                 $"{ECPayHomeURL}{_configuration["ECPay:ECPayClientBackURL"]}";
+
             ECPayOrderResultURL =
                 string.IsNullOrWhiteSpace(_configuration["ECPay:ECPayOrderResultURL"]) ? "" :
-                $"{ECPayHomeURL}{_configuration["ECPay:ECPayOrderResultURL"]}";
+                $"https://localhost:7259/{_configuration["ECPay:ECPayOrderResultURL"]}";
+
             ECPayServerURL =
                 string.IsNullOrWhiteSpace(_configuration["ECPay:ECPayServerURL"]) ? "" :
-                $"{ECPayHomeURL}{_configuration["ECPay:ECPayServerURL"]}";
+                $"https://localhost:7259/{_configuration["ECPay:ECPayServerURL"]}";
 
         }
 

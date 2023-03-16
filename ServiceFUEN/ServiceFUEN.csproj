@@ -54,4 +54,7 @@
     <None Include="wwwroot\Images\6835b7072f5641f09eff5bc86c130e5f.jpeg" />
     <None Include="wwwroot\Images\8619f945f4284a2b8fee3d1e696221fa.jpeg" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Remove="wwwroot\index.html" />
+  </ItemGroup>
 </Project>
