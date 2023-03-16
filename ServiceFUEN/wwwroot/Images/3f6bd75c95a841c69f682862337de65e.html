@@ -1,0 +1,50 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <h2>Login</h2>
+    <div>Account: <input id="account" type="text" /></div>
+    <div>Password:<input id="password" type="text" /></div>
+    <button id="btn">Submit</button>
+
+    <a href="Index.html">Html</a>
+
+    <script src="https://unpkg.com/vue@3.2.29/dist/vue.global.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.6.3.min.js"
+      integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      $("#btn").on("click", function () {
+        let acccount = $("#account").val();
+        let password = $("#password").val();
+        $.ajax({
+          url: `https://localhost:7259/api/Members/SetCookie`,
+          type: "GET",
+          xhrFields: {
+            withCredentials: true,
+          },
+        })
+          .done(function (data, status, xhr) {
+            //console.log(response);
+            // console.log(status);
+            // console.log(xhr);
+
+            // console.log(xhr.getResponseHeader("Set-Cookie"));
+
+            document.cookie = xhr.getResponseHeader("Set-Cookie");
+          })
+          .fail(function () {
+            alert("XXX");
+          });
+      });
+    </script>
+  </body>
+</html>
