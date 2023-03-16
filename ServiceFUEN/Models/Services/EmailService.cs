@@ -2,6 +2,8 @@
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
+using Org.BouncyCastle.Crypto.Macs;
+using ServiceFUEN.Models.EFModels;
 
 namespace ServiceFUEN.Models.Services
 {
@@ -11,7 +13,7 @@ namespace ServiceFUEN.Models.Services
         {
             var emailMessage = new MimeMessage();
 
-            emailMessage.From.Add(new MailboxAddress("Sender Name", "sender@example.com"));
+            emailMessage.From.Add(new MailboxAddress("Karza!", "projectfuen@gmail.com"));
             emailMessage.To.Add(new MailboxAddress("", email));
             emailMessage.Subject = subject;
 
@@ -20,8 +22,8 @@ namespace ServiceFUEN.Models.Services
             emailMessage.Body = bodyBuilder.ToMessageBody();
 
             using var client = new SmtpClient();
-            await client.ConnectAsync("smtp.example.com", 587, SecureSocketOptions.StartTls);
-            await client.AuthenticateAsync("username", "password");
+            await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
+            await client.AuthenticateAsync("projectfuen@gmail.com", "qpzilvexdqnfzozc");
             await client.SendAsync(emailMessage);
             await client.DisconnectAsync(true);
         }
