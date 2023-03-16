@@ -32,7 +32,7 @@ namespace ServiceFUEN.Controllers
 					PhotoId = v.Key.PhotoId,
 					PhotoTitle = v.Key.Title,
 					PhotoViews = v.Count()
-				}).OrderByDescending(v=>v.PhotoViews);
+				}).OrderByDescending(v=>v.PhotoViews).Take(5);
 
 			TopPhotoResultDTO result = new TopPhotoResultDTO();
 
@@ -41,7 +41,7 @@ namespace ServiceFUEN.Controllers
 			foreach(var photo in photos)
 			{
 				TopPhotoSrc photoSrc = new TopPhotoSrc() 
-				{ src = $"https://localhost:7259/Images/{photo.PhotoSrc}", height = 70, width = 75 };
+				{ src = $"https://localhost:7259/Images/{photo.PhotoSrc}", height = 55, width = 75 };
 				result.PhotoId.Add(photo.PhotoId);
 				result.PhotoTitle.Add(photo.PhotoTitle);
 				src.Add(photoSrc);
@@ -59,11 +59,11 @@ namespace ServiceFUEN.Controllers
 		{
 			//某天的總相片瀏覽次數
 			var photos = _dbContext.Views.Include(v => v.Photo)
-				.Where(v => v.Photo.Author == member.Id && v.ViewDate >= DateTime.Today.AddDays(-7))
+				.Where(v => v.Photo.Author == member.Id && v.ViewDate >= DateTime.Today.AddDays(-6))
 				.OrderByDescending(v => v.ViewDate)
 				.GroupBy(v => v.ViewDate).Select(v => new DateViewDTO
 				{
-					Date = v.Key.Date.ToString("yyyy-MM-dd"),
+					Date = v.Key.ToString("yyyy-MM-dd"),
 					DateViews = v.Count()
 				}).ToArray();
 
@@ -71,7 +71,7 @@ namespace ServiceFUEN.Controllers
 
 			int j = 0;
 			int count = photos.Count();
-			for(int i = -7; i < 1; i++)
+			for(int i = -6; i < 1; i++)
 			{
 				result.Date.Add(DateTime.Today.AddDays(i).ToString("yyyy-MM-dd"));
 
