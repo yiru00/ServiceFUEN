@@ -216,7 +216,7 @@ namespace ServiceFUEN.Controllers
 			member.ConfirmCode = null;
 			_context.SaveChanges();
 
-			return Redirect("http://localhost:5173/HomeView");
+			return Redirect("http://localhost:5173");
 		}
 
         
