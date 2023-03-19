@@ -42,88 +42,78 @@ namespace ServiceFUEN.Controllers
 
             var member = _context.Members.Find(memberId);
             var activity = _context.Activities.Find(activityId);
+
             //會員是否存在
-            if (member != null)
-            {
-
-                //活動是否存在？
-                if (activity != null)//存在
-                {
-
-                    //會員是否通過實名驗證（抓手機、姓名有沒有填）
-                    if (member.Mobile != null&&member.RealName!=null) //有填
-                    {
-                        //該會員是否報名過？
-                        var isEnrolled = _context.ActivityMembers.Where(a => a.ActivityId == activityId).FirstOrDefault(a => a.MemberId == memberId);
-                        if (isEnrolled == null) //沒報名過（在此活動中的參加名單無此會員）
-                        {
-                            //活動是否截止？
-                            if (activity.Deadline > DateTime.Now)//未截止（活動截止日大於現在）
-                            {
-
-                                //報名人數
-                                int numOfEnrolment = _context.Activities.Include(a => a.ActivityMembers).FirstOrDefault(a => a.Id == activityId).ActivityMembers.Count;
-
-                                //人數限制
-                                int memberLimit = _context.Activities.FirstOrDefault(a => a.Id == activityId).MemberLimit;
-
-                                //活動是否額滿?
-                                if (memberLimit > numOfEnrolment)//未額滿（限制人數>報名人數）
-                                {
-                                    //報名(新增一筆活動成員)
-                                    _context.ActivityMembers.Add(enrollReq.ToActivityMemberEntity());
-                                    _context.SaveChanges();
-                                    
-                                    enrollRes.message = "報名成功";
-                                    enrollRes.result = true;
-                                    //enrollRes.memberRealName = member.RealName;
-                                    //enrollRes.mobile = member.Mobile;
-
-                                    int activityMemberId = _context.ActivityMembers.Where(a => a.ActivityId == activityId).FirstOrDefault(a => a.MemberId == memberId).Id;
-                                    enrollRes.deleteId = activityMemberId;
-
-                                    //寄信
-                                    var emailService = new EmailService();
-                                    await emailService.SendEmailAsync(member.EmailAccount, "活動報名成功！",
-                                        $"<p>{member.RealName}您好：</p>"+
-                                         $"<p>您已成功報名「{activity.ActivityName}」活動</p>" +
-                                        $"<p>集合時間：{activity.GatheringTime.ToString("yyyy-MM-dd HH:mm")}</p>"+
-                                        $"<p>集合地點：{activity.Address}</p>"+
-                                        $"<a href='http://localhost:5173/Activity/{activity.Id}'>更多資訊</a>"
-                                        );
-
-                                }
-                                else //已額滿
-                                {
-                                    enrollRes.message = "報名的活動已額滿";
-                                }
-                            }
-                            else //截止
-                            {
-                                enrollRes.message = "報名的活動已截止";
-                            }
-                        }//報名過
-                        else
-                        {
-                            enrollRes.message = "會員已報名過";
-                        }
-                    }
-                    else //沒驗證
-                    {
-                        enrollRes.message = "會員未通過實名驗證";
-                    }
-
-                }
-                else //活動不存在
-                {
-                    enrollRes.message = "報名的活動不存在";
-                }
-
-            }
-            else
+            if (member == null)
             {
                 enrollRes.message = "會員不存在";
+                return enrollRes;
             }
+            //活動是否存在？
+            if (activity == null)
+            {
+                enrollRes.message = "報名的活動不存在";
+                return enrollRes;
+            }
+
+            //會員是否通過實名驗證（抓手機、姓名有沒有填）
+            if (member.Mobile == null || member.RealName == null)
+            {
+                enrollRes.message = "請完整填寫會員資訊";
+                return enrollRes;
+            }
+
+
+            var isEnrolled = _context.ActivityMembers.Where(a => a.ActivityId == activityId).FirstOrDefault(a => a.MemberId == memberId);
+            //報名過（在此活動中的參加名單有此會員）
+            if (isEnrolled != null)
+            {
+                enrollRes.message = "會員已報名過";
+                return enrollRes;
+            }
+
+            //截止（活動截止日小於現在）
+            if (activity.Deadline < DateTime.Now)
+            {
+                enrollRes.message = "報名的活動已截止";
+                return enrollRes;
+            }
+
+            //報名人數
+            int numOfEnrolment = _context.Activities.Include(a => a.ActivityMembers).FirstOrDefault(a => a.Id == activityId).ActivityMembers.Count;
+
+            //人數限制
+            int memberLimit = _context.Activities.FirstOrDefault(a => a.Id == activityId).MemberLimit;
+
+            //額滿（限制人數<報名人數）
+            if (memberLimit < numOfEnrolment)
+            {
+                enrollRes.message = "報名的活動已額滿";
+                return enrollRes;
+            }
+
+
+            //報名 (新增一筆活動成員)
+            _context.ActivityMembers.Add(enrollReq.ToActivityMemberEntity());
+            _context.SaveChanges();
+
+            enrollRes.message = "報名成功！已寄確認信到會員信箱中";
+            enrollRes.result = true;
+
+            int activityMemberId = _context.ActivityMembers.Where(a => a.ActivityId == activityId).FirstOrDefault(a => a.MemberId == memberId).Id;
+            enrollRes.deleteId = activityMemberId;
+
+            //寄信
+            var emailService = new EmailService();
+            await emailService.SendEmailAsync(member.EmailAccount, "活動報名成功！",
+                $"<p>{member.RealName}您好：</p>" +
+                 $"<p>您已成功報名「{activity.ActivityName}」活動</p>" +
+                $"<p>集合時間：{activity.GatheringTime.ToString("yyyy-MM-dd HH:mm")}</p>" +
+                $"<p>集合地點：{activity.Address}</p>" +
+                $"<a href='http://localhost:5173/Activity/{activity.Id}'>更多資訊</a>"
+                );
+
+            
 
             return enrollRes;
         }
