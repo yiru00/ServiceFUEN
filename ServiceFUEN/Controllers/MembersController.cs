@@ -329,7 +329,7 @@ namespace ServiceFUEN.Controllers
 		[Route("api/Members/ForgotPassword")]
 		public string ForgotPassword(ForgotPasswordDTO source)
 		{
-			var member = _context.Members.SingleOrDefault(x => x.RealName == source.RealName && x.EmailAccount == source.EmailAccount && x.Mobile == source.Mobile);
+			var member = _context.Members.SingleOrDefault(x => x.EmailAccount == source.EmailAccount);
 			if (member == null)
 			{
 				return "資料有誤";
